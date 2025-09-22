@@ -37,8 +37,8 @@ export default function HomePage() {
           {/* Badge with fade-in */}
           <div className="opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full mb-6">
-              <Sparkles className="h-4 w-4 text-green-700" />
-              <span className="text-sm font-medium text-green-700">AI-Powered Garden Planning</span>
+              <Leaf className="h-4 w-4 text-green-700" />
+              <span className="text-sm font-medium text-green-700">Open-Source Permaculture Tools</span>
             </div>
           </div>
 
@@ -46,20 +46,20 @@ export default function HomePage() {
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 opacity-0 animate-fade-in"
               style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
             <span className="bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
-              Design Your Perfect
+              Grow Your Own
             </span>
             <br />
             <span className="opacity-0 animate-fade-in inline-block"
                   style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
-              Permaculture Garden
+              Food Paradise
             </span>
           </h1>
 
           {/* Description with fade-in */}
           <p className="text-xl md:text-2xl mb-8 text-gray-700 max-w-3xl mx-auto opacity-0 animate-fade-in"
              style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
-            Transform any space into a thriving food garden. Our smart AI creates custom
-            raised-bed layouts optimized for your space, climate, and growing goals.
+            Interactive tools to design sustainable gardens that work with nature.
+            Plan raised beds, track rotations, and join a community growing food everywhere.
           </p>
 
           {/* CTA Buttons with staggered animation */}
@@ -125,44 +125,44 @@ export default function HomePage() {
             {[
               {
                 icon: Grid3x3,
-                title: "Intelligent Layout Design",
-                description: "AI optimizes bed placement for sun exposure, accessibility, and companion planting relationships.",
-                benefit: "Maximize your growing space",
+                title: "Interactive Garden Designer",
+                description: "Drag-and-drop interface to create your perfect layout. Works for any space - balconies to backyards.",
+                benefit: "Design in minutes, not hours",
                 delay: "0.1s"
               },
               {
                 icon: BarChart3,
-                title: "Precise Materials Planning",
-                description: "Calculate exact quantities for soil, lumber, and irrigation. Get optimized shopping lists.",
-                benefit: "Save time and money",
+                title: "Materials Calculator",
+                description: "Know exactly what you need. Calculate soil, lumber, and supplies with zero waste.",
+                benefit: "Save money, reduce waste",
                 delay: "0.2s"
               },
               {
                 icon: Calendar,
-                title: "Smart Crop Rotation",
-                description: "Automated 3-year rotation schedules that prevent disease and maintain soil health.",
-                benefit: "Year-round harvests",
+                title: "Succession Planting Calendar",
+                description: "Plan continuous harvests with rotation schedules tailored to your growing season.",
+                benefit: "Fresh food year-round",
                 delay: "0.3s"
               },
               {
                 icon: Droplets,
-                title: "Water-Efficient Design",
-                description: "Drip irrigation layouts and wicking bed designs that reduce water use dramatically.",
-                benefit: "Drought-resistant gardens",
+                title: "Water-Smart Systems",
+                description: "Design efficient irrigation. From drip lines to wicking beds, conserve every drop.",
+                benefit: "Resilient, low-maintenance",
                 delay: "0.4s"
               },
               {
                 icon: Leaf,
-                title: "Organic Pest Management",
-                description: "Companion planting guides and natural pest control strategies that really work.",
-                benefit: "Chemical-free growing",
+                title: "Companion Planting Guide",
+                description: "Learn which plants thrive together. Build natural pest resistance and boost yields.",
+                benefit: "Work with nature",
                 delay: "0.5s"
               },
               {
-                icon: Bot,
-                title: "Garden Assistant AI",
-                description: "Get instant answers to your gardening questions based on agricultural research.",
-                benefit: "Expert guidance 24/7",
+                icon: TreePine,
+                title: "Community Knowledge Base",
+                description: "Learn from thousands of gardeners. Share successes, get help, contribute improvements.",
+                benefit: "Grow together",
                 delay: "0.6s"
               }
             ].map((feature, index) => (
@@ -292,19 +292,61 @@ export default function HomePage() {
               { icon: Cloud, label: "Cool & Wet", desc: "Drainage solutions", delay: "0.6s" },
               { icon: Wind, label: "Windy Areas", desc: "Windbreak planning", delay: "0.7s" },
               { icon: Flower2, label: "Short Season", desc: "Fast-growing crops", delay: "0.8s" }
-            ].map((climate, index) => (
-              <div
-                key={index}
-                className="opacity-0 animate-bounce-in"
-                style={{ animationDelay: climate.delay, animationFillMode: 'forwards' }}
-              >
-                <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-300 transition-all">
-                  <climate.icon className="h-12 w-12 text-green-600 mx-auto mb-3" />
-                  <div className="font-semibold text-gray-900">{climate.label}</div>
-                  <div className="text-sm text-gray-600 mt-1">{climate.desc}</div>
+            ].map((climate, index) => {
+              const IconComponent = climate.icon;
+              return (
+                <div
+                  key={index}
+                  className="opacity-0 animate-fade-in"
+                  style={{ animationDelay: climate.delay, animationFillMode: 'forwards' }}
+                >
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-300 transition-all hover-lift">
+                    <IconComponent className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                    <div className="font-semibold text-gray-900">{climate.label}</div>
+                    <div className="text-sm text-gray-600 mt-1">{climate.desc}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Open Source Section */}
+      <section className="py-20 px-4 bg-gradient-to-b from-white to-green-50">
+        <div className="max-w-6xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 opacity-0 animate-fade-in"
+              style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+            Built by Gardeners, for Gardeners
+          </h2>
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8 opacity-0 animate-fade-in"
+             style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+            This is an <strong>open-source project</strong>. We believe everyone should have access to tools
+            that help them grow food sustainably. Contribute code, share templates, or help translate
+            for gardeners worldwide.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 opacity-0 animate-fade-in"
+               style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+            <a href="https://github.com/JohnConnorCode/permaculture-planner" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="lg" className="hover-lift">
+                <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                View on GitHub
+              </Button>
+            </a>
+            <Link href="/docs">
+              <Button variant="outline" size="lg" className="hover-lift">
+                <Sparkles className="h-5 w-5 mr-2" />
+                Contribute
+              </Button>
+            </Link>
+            <Link href="/community">
+              <Button variant="outline" size="lg" className="hover-lift">
+                <Globe className="h-5 w-5 mr-2" />
+                Join Community
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -314,29 +356,30 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto text-center text-white">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 opacity-0 animate-fade-in"
               style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-            Ready to Grow Your Own Food?
+            Start Growing Today
           </h2>
           <p className="text-xl mb-8 text-green-50 opacity-0 animate-fade-in"
              style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            Join gardeners worldwide who are growing healthier, more sustainable food at home.
-            Start with our free garden planning wizard.
+            Whether you have a balcony or a backyard, our tools help you create
+            productive gardens that work with nature, not against it.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <div className="opacity-0 animate-scale-in"
                  style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
               <Link href="/wizard">
                 <Button size="lg" className="bg-white text-green-700 hover:bg-green-50 px-8 py-6 text-lg hover-lift">
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Start Planning Free
+                  <Leaf className="mr-2 h-5 w-5" />
+                  Design Your Garden
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
             <div className="opacity-0 animate-scale-in"
                  style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
-              <Link href="/auth/signup">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-700 px-8 py-6 text-lg">
-                  Create Account
+              <Link href="/demo">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-green-50 hover:text-green-700 hover:border-green-50 px-8 py-6 text-lg hover-lift">
+                  <TreePine className="mr-2 h-5 w-5" />
+                  Try the Demo
                 </Button>
               </Link>
             </div>

@@ -2,8 +2,8 @@
 // All measurements in inches internally
 
 export type Units = 'imperial' | 'metric'
-export type NodeType = 'Bed' | 'Path' | 'Label' | 'Guide' | 'Image'
-export type ToolId = 'select' | 'draw-bed' | 'draw-path' | 'measure' | 'text' | 'pan-zoom'
+export type NodeType = 'Bed' | 'Path' | 'Label' | 'Guide' | 'Image' | 'Plant' | 'Irrigation' | 'Structure' | 'Compost'
+export type ToolId = 'select' | 'draw-bed' | 'draw-path' | 'measure' | 'text' | 'pan-zoom' | 'irrigation' | 'structure' | 'compost'
 
 // Core scene structure
 export interface Scene {
@@ -62,10 +62,12 @@ export interface BedNode extends NodeBase {
   size: { widthIn: number; heightIn: number }
   bed: {
     heightIn: number
-    orientation: 'NS' | 'EW'
+    orientation: 'NS' | 'EW' | 'Custom'
     wicking: boolean
     trellisNorth: boolean
     familyTag?: string
+    pathData?: string // SVG path data for curved beds
+    curvePoints?: Array<{ x: number; y: number; controlX?: number; controlY?: number }> // Control points for editing
   }
 }
 
@@ -97,7 +99,55 @@ export interface ImageNode extends NodeBase {
   aspectLocked?: boolean
 }
 
-export type Node = BedNode | PathNode | LabelNode | GuideNode | ImageNode
+export interface PlantNode extends NodeBase {
+  type: 'Plant'
+  plant: {
+    plantId: string // Reference to plant database
+    commonName: string
+    icon: string
+    matureSize: { widthIn: number; heightIn: number }
+    spacingIn: number
+    plantedDate?: string
+    notes?: string
+  }
+  parentBedId?: string // ID of the bed this plant belongs to
+}
+
+export interface IrrigationNode extends NodeBase {
+  type: 'Irrigation'
+  size?: { widthIn: number; heightIn: number }
+  irrigation: {
+    irrigationType: 'drip-line' | 'sprinkler' | 'soaker-hose' | 'rain-barrel' | 'swale' | 'pond'
+    flowRate?: number // gallons per hour
+    coverage?: number // radius in inches for sprinklers
+    capacity?: number // gallons for storage
+    points?: Array<{ x: number; y: number }> // For lines/paths
+  }
+}
+
+export interface StructureNode extends NodeBase {
+  type: 'Structure'
+  size: { widthIn: number; heightIn: number; heightFt?: number }
+  structure: {
+    structureType: 'bench' | 'pergola' | 'trellis' | 'shade-sail' | 'greenhouse' | 'shed' | 'arbor' | 'gazebo'
+    material?: 'wood' | 'metal' | 'fabric' | 'bamboo'
+    seats?: number // For benches
+    shadePercentage?: number // For shade structures
+  }
+}
+
+export interface CompostNode extends NodeBase {
+  type: 'Compost'
+  size: { widthIn: number; heightIn: number }
+  compost: {
+    compostType: 'bin' | 'pile' | 'tumbler' | 'worm-bin' | 'leaf-mold'
+    capacity?: number // cubic feet
+    material?: 'wood' | 'plastic' | 'wire' | 'concrete-blocks'
+    numberOfBins?: number
+  }
+}
+
+export type Node = BedNode | PathNode | LabelNode | GuideNode | ImageNode | PlantNode | IrrigationNode | StructureNode | CompostNode
 
 // Viewport and grid
 export interface Viewport {
@@ -271,6 +321,22 @@ export function isImageNode(node: Node): node is ImageNode {
   return node.type === 'Image'
 }
 
+export function isPlantNode(node: Node): node is PlantNode {
+  return node.type === 'Plant'
+}
+
+export function isIrrigationNode(node: Node): node is IrrigationNode {
+  return node.type === 'Irrigation'
+}
+
+export function isStructureNode(node: Node): node is StructureNode {
+  return node.type === 'Structure'
+}
+
+export function isCompostNode(node: Node): node is CompostNode {
+  return node.type === 'Compost'
+}
+
 // Helper to get node bounds
 export function getNodeBounds(node: Node): BoundingBox {
   const { xIn, yIn, rotationDeg } = node.transform
@@ -278,7 +344,7 @@ export function getNodeBounds(node: Node): BoundingBox {
   let width = 0
   let height = 0
   
-  if ('size' in node) {
+  if ('size' in node && node.size) {
     width = node.size.widthIn
     height = node.size.heightIn
   } else if (isLabelNode(node)) {

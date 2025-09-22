@@ -57,8 +57,8 @@ export abstract class BaseTool {
   }
   
   protected isPointInNode(x: number, y: number, node: Node): boolean {
-    if (!('size' in node)) return false
-    
+    if (!('size' in node) || !node.size) return false
+
     const halfWidth = node.size.widthIn / 2
     const halfHeight = node.size.heightIn / 2
     const { xIn, yIn } = node.transform

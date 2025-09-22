@@ -359,7 +359,7 @@ export const useSceneStore = create<SceneStore>()(
             let maxX = -Infinity, maxY = -Infinity
             
             for (const node of nodes) {
-              if ('size' in node) {
+              if ('size' in node && node.size) {
                 const halfW = node.size.widthIn / 2
                 const halfH = node.size.heightIn / 2
                 minX = Math.min(minX, node.transform.xIn - halfW)

@@ -8,8 +8,17 @@ import { SvgRenderer } from '@/modules/renderer/SvgRenderer'
 import { InputManager } from '@/modules/input/InputManager'
 import { SelectTool } from '@/modules/tools/SelectTool'
 import { DrawBedTool } from '@/modules/tools/DrawBedTool'
+import { DrawCurvedBedTool } from '@/modules/tools/DrawCurvedBedTool'
 import { DrawPathTool } from '@/modules/tools/DrawPathTool'
+import { MeasureTool } from '@/modules/tools/MeasureTool'
 import { GARDEN_TEMPLATES, templateToScene } from '@/lib/templates/garden-templates'
+import { PlantLibrary } from '@/components/plant-library'
+import { PlantData } from '@/lib/data/plant-database'
+import { GardenFeaturesLibrary, GardenFeature } from '@/components/garden-features-library'
+import { PropertyPanel } from '@/components/property-panel'
+import { HelpButton, KeyboardShortcuts, GuidedTour } from '@/components/help-system'
+import { getNodeBounds } from '@/modules/scene/sceneTypes'
+import { v4 as uuidv4 } from 'uuid'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -38,7 +47,7 @@ import {
   Grid, Eye, EyeOff, Layers, Settings, Download, ArrowLeft,
   Copy, Clipboard, Trash2, RotateCw, FlipHorizontal, FlipVertical,
   Sparkles, Package, History, PlayCircle, PauseCircle, SkipForward,
-  Camera, Share2, FolderOpen, FilePlus, Layout, Sliders, Target
+  Camera, Share2, FolderOpen, FilePlus, Layout, Sliders, Target, Spline, Ruler, Type, Palette
 } from 'lucide-react'
 
 interface VisualEditorProps {
@@ -67,6 +76,8 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
   const [showGrid, setShowGrid] = useState(true)
   const [snapToGrid, setSnapToGrid] = useState(true)
   const [gridSize, setGridSize] = useState(6)
+  const [showDimensions, setShowDimensions] = useState(true)
+  const [showTextures, setShowTextures] = useState(true)
 
   const supabase = createClient()
   const {
@@ -206,7 +217,9 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
     const tools = {
       select: new SelectTool(toolContext),
       'draw-bed': new DrawBedTool(toolContext),
-      'draw-path': new DrawPathTool(toolContext)
+      'draw-curved-bed': new DrawCurvedBedTool(toolContext),
+      'draw-path': new DrawPathTool(toolContext),
+      'measure': new MeasureTool(toolContext)
     }
 
     inputManager.setActiveTool(tools[selectedTool as keyof typeof tools])
@@ -281,6 +294,119 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
       console.error('Save error:', error)
     } finally {
       setSaving(false)
+    }
+  }
+
+  // Handle plant drag and drop
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+
+    // Check for plant data first
+    const plantDataStr = e.dataTransfer.getData('plant')
+    const featureDataStr = e.dataTransfer.getData('gardenFeature')
+
+    if (!plantDataStr && !featureDataStr) return
+
+    try {
+      // Get drop position in world coordinates
+      const rect = svgRef.current?.getBoundingClientRect()
+      if (!rect) return
+
+      const screenX = e.clientX - rect.left
+      const screenY = e.clientY - rect.top
+      const worldPos = {
+        xIn: screenX / viewport.zoom - viewport.pan.x,
+        yIn: screenY / viewport.zoom - viewport.pan.y
+      }
+
+      if (plantDataStr) {
+        // Handle plant drop
+        const plant: PlantData = JSON.parse(plantDataStr)
+
+        // Create a plant node
+        const plantNode: any = {
+          id: uuidv4(),
+          type: 'Plant',
+          transform: {
+            xIn: worldPos.xIn,
+            yIn: worldPos.yIn,
+            rotationDeg: 0
+          },
+          plant: {
+            plantId: plant.id,
+            commonName: plant.commonName,
+            icon: plant.visual.icon,
+            matureSize: plant.visual.matureSize,
+            spacingIn: plant.requirements.spacing.betweenPlants,
+            plantedDate: new Date().toISOString()
+          }
+        }
+
+        // Check if dropped on a bed
+        const beds = getAllNodes().filter(n => n.type === 'Bed')
+        for (const bed of beds) {
+          if ('size' in bed) {
+            const bounds = getNodeBounds(bed)
+            if (worldPos.xIn >= bounds.minX && worldPos.xIn <= bounds.maxX &&
+                worldPos.yIn >= bounds.minY && worldPos.yIn <= bounds.maxY) {
+              plantNode.parentBedId = bed.id
+              break
+            }
+          }
+        }
+
+        // Add the plant to the scene
+        addNode(plantNode)
+        setSelection([plantNode.id])
+
+      } else if (featureDataStr) {
+        // Handle garden feature drop
+        const feature: GardenFeature = JSON.parse(featureDataStr)
+
+        let newNode: any = {
+          id: uuidv4(),
+          transform: {
+            xIn: worldPos.xIn,
+            yIn: worldPos.yIn,
+            rotationDeg: 0
+          }
+        }
+
+        // Create appropriate node based on feature category
+        if (feature.category === 'irrigation') {
+          newNode = {
+            ...newNode,
+            type: 'Irrigation',
+            size: feature.defaultSize,
+            irrigation: feature.properties
+          }
+        } else if (feature.category === 'structure') {
+          newNode = {
+            ...newNode,
+            type: 'Structure',
+            size: { ...feature.defaultSize, heightFt: feature.properties.heightFt },
+            structure: feature.properties
+          }
+        } else if (feature.category === 'compost') {
+          newNode = {
+            ...newNode,
+            type: 'Compost',
+            size: feature.defaultSize,
+            compost: feature.properties
+          }
+        }
+
+        // Add the feature to the scene
+        addNode(newNode)
+        setSelection([newNode.id])
+      }
+    } catch (error) {
+      console.error('Error dropping plant:', error)
     }
   }
 
@@ -459,6 +585,27 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
               >
                 <Target className={`h-4 w-4 ${snapToGrid ? 'text-blue-600' : ''}`} />
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowDimensions(!showDimensions)}
+                title="Toggle Dimensions"
+              >
+                <Type className={`h-4 w-4 ${showDimensions ? 'text-blue-600' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowTextures(!showTextures)}
+                title="Toggle Textures"
+              >
+                <Palette className={`h-4 w-4 ${showTextures ? 'text-blue-600' : ''}`} />
+              </Button>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Help */}
+              <KeyboardShortcuts />
 
               <Separator orientation="vertical" className="h-6" />
 
@@ -596,6 +743,19 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  variant={selectedTool === 'draw-curved-bed' ? 'default' : 'ghost'}
+                  size="icon"
+                  onClick={() => setSelectedTool('draw-curved-bed')}
+                >
+                  <Spline className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Draw Curved Bed (C)</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
                   variant={selectedTool === 'draw-path' ? 'default' : 'ghost'}
                   size="icon"
                   onClick={() => setSelectedTool('draw-path')}
@@ -604,6 +764,19 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">Draw Path (P)</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={selectedTool === 'measure' ? 'default' : 'ghost'}
+                  size="icon"
+                  onClick={() => setSelectedTool('measure')}
+                >
+                  <Ruler className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Measure Tool (M)</TooltipContent>
             </Tooltip>
 
             <Separator className="my-2" />
@@ -684,12 +857,20 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
           </div>
 
           {/* Canvas */}
-          <div className="flex-1 relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100" ref={svgRef}>
+          <div
+            className="flex-1 relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100"
+            ref={svgRef}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
             <SvgRenderer
               scene={scene}
               viewport={viewport}
               selection={selection}
               showHandles={selectedTool === 'select'}
+              showDimensions={showDimensions}
+              showTextures={showTextures}
+              units="imperial"
             />
 
             {/* Canvas overlay info */}
@@ -707,24 +888,52 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
 
           {/* Enhanced Right Sidebar */}
           <div className="w-80 bg-white border-l">
-            <Tabs defaultValue="properties" className="w-full">
-              <TabsList className="w-full">
-                <TabsTrigger value="properties" className="flex-1">Properties</TabsTrigger>
-                <TabsTrigger value="layers" className="flex-1">Layers</TabsTrigger>
-                <TabsTrigger value="versions" className="flex-1">Versions</TabsTrigger>
-                <TabsTrigger value="settings" className="flex-1">Settings</TabsTrigger>
+            <Tabs defaultValue="plants" className="w-full h-full flex flex-col">
+              <TabsList className="w-full grid grid-cols-6">
+                <TabsTrigger value="plants">Plants</TabsTrigger>
+                <TabsTrigger value="features">Features</TabsTrigger>
+                <TabsTrigger value="properties">Props</TabsTrigger>
+                <TabsTrigger value="layers">Layers</TabsTrigger>
+                <TabsTrigger value="versions">Ver</TabsTrigger>
+                <TabsTrigger value="settings">Set</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="properties" className="p-4">
+              <TabsContent value="plants" className="flex-1 overflow-hidden">
+                <PlantLibrary
+                  onPlantSelect={(plant) => console.log('Plant selected:', plant)}
+                  showDetails={true}
+                />
+              </TabsContent>
+
+              <TabsContent value="features" className="flex-1 overflow-hidden">
+                <GardenFeaturesLibrary
+                  onFeatureSelect={(feature) => console.log('Feature selected:', feature)}
+                />
+              </TabsContent>
+
+              <TabsContent value="properties" className="flex-1 overflow-hidden">
                 {selection.ids.length === 0 ? (
-                  <p className="text-sm text-gray-500">Select an object to edit its properties</p>
+                  <div className="p-4">
+                    <p className="text-sm text-gray-500">Select an object to edit its properties</p>
+                    <GuidedTour />
+                  </div>
+                ) : selection.ids.length === 1 ? (
+                  <PropertyPanel
+                    node={getNode(selection.ids[0]) || null}
+                    onUpdate={(updates) => updateNode(selection.ids[0], updates)}
+                    onDelete={() => {
+                      removeNode(selection.ids[0])
+                      setSelection([])
+                    }}
+                  />
                 ) : (
-                  <div className="space-y-4">
+                  <div className="p-4 space-y-4">
                     <div>
-                      <label className="text-sm font-medium">Selected: {selection.ids.length} object(s)</label>
+                      <label className="text-sm font-medium">Selected: {selection.ids.length} objects</label>
+                      <p className="text-xs text-gray-500 mt-1">Select a single object to edit properties</p>
                     </div>
 
-                    {selection.ids.length === 1 && (() => {
+                    {false && (() => {
                       const node: any = getNode(selection.ids[0])
                       if (!node) return null
 
@@ -1002,6 +1211,9 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
           </div>
         </div>
       </div>
+
+      {/* Floating Help Button */}
+      <HelpButton />
     </TooltipProvider>
   )
 }

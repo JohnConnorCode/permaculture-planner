@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/providers'
@@ -9,13 +9,18 @@ export const metadata: Metadata = {
   title: 'Permaculture Planner - Raised Bed Garden Design',
   description: 'AI-powered permaculture planning for raised bed gardens on any surface',
   manifest: '/manifest.json',
-  themeColor: '#16a34a',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Garden Plan'
   }
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#16a34a'
 }
 
 export default function RootLayout({
