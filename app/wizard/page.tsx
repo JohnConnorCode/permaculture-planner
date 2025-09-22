@@ -7,6 +7,7 @@ import { AreaStep } from '@/components/wizard/area-step'
 import { SurfaceStep } from '@/components/wizard/surface-step'
 import { WaterStep } from '@/components/wizard/water-step'
 import { CropsStep } from '@/components/wizard/crops-step'
+import { TemplateStep } from '@/components/wizard/template-step'
 import { ReviewStep } from '@/components/wizard/review-step'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
@@ -50,6 +51,7 @@ export interface WizardData {
     lumber_type?: 'cedar' | 'pine' | 'treated'
     budget_tier?: 'budget' | 'standard' | 'premium'
   }
+  template?: any
 }
 
 const steps = [
@@ -58,7 +60,8 @@ const steps = [
   { id: 3, name: 'Surface', icon: TreePine, description: 'Describe conditions' },
   { id: 4, name: 'Water', icon: Droplets, description: 'Water access' },
   { id: 5, name: 'Crops', icon: Carrot, description: 'Choose what to grow' },
-  { id: 6, name: 'Review', icon: CheckCircle, description: 'Review your plan' }
+  { id: 6, name: 'Template', icon: Sparkles, description: 'Choose a style' },
+  { id: 7, name: 'Review', icon: CheckCircle, description: 'Review your plan' }
 ]
 
 export default function WizardPage() {
@@ -88,7 +91,8 @@ export default function WizardPage() {
       focus: [],
       time_weekly_minutes: 60
     },
-    materials: {}
+    materials: {},
+    template: null
   })
 
   const updateData = (section: keyof WizardData, updates: any) => {
@@ -250,6 +254,14 @@ export default function WizardPage() {
             </div>
           )}
           {currentStep === 6 && (
+            <div className="opacity-0 animate-slide-in-left" style={{ animationFillMode: 'forwards' }}>
+              <TemplateStep
+                data={data}
+                updateData={updateData}
+              />
+            </div>
+          )}
+          {currentStep === 7 && (
             <div className="opacity-0 animate-scale-in" style={{ animationFillMode: 'forwards' }}>
               <ReviewStep data={data} updateData={updateData} />
             </div>

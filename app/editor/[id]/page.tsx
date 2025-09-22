@@ -1,6 +1,6 @@
 import { createServerClientReadOnly } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import VisualEditor from '../visual-editor'
+import EnhancedVisualEditor from '../enhanced-visual-editor'
 
 export default async function EditorPage({ params }: { params: { id: string } }) {
   const supabase = await createServerClientReadOnly()
@@ -31,5 +31,5 @@ export default async function EditorPage({ params }: { params: { id: string } })
     redirect('/dashboard')
   }
 
-  return <VisualEditor plan={plan} />
+  return <EnhancedVisualEditor plan={plan} />
 }
