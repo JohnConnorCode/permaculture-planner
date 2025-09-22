@@ -212,46 +212,46 @@ export default function WizardPage() {
           {currentStep === 1 && (
             <div className="opacity-0 animate-slide-in-left" style={{ animationFillMode: 'forwards' }}>
               <LocationStep
-                data={data.location}
-                updateData={(updates) => updateData('location', updates)}
+                data={data}
+                updateData={updateData}
               />
             </div>
           )}
           {currentStep === 2 && (
             <div className="opacity-0 animate-slide-in-left" style={{ animationFillMode: 'forwards' }}>
               <AreaStep
-                data={data.area}
-                updateData={(updates) => updateData('area', updates)}
+                data={data}
+                updateData={updateData}
               />
             </div>
           )}
           {currentStep === 3 && (
             <div className="opacity-0 animate-slide-in-left" style={{ animationFillMode: 'forwards' }}>
               <SurfaceStep
-                data={data.surface}
-                updateData={(updates) => updateData('surface', updates)}
+                data={data}
+                updateData={updateData}
               />
             </div>
           )}
           {currentStep === 4 && (
             <div className="opacity-0 animate-slide-in-left" style={{ animationFillMode: 'forwards' }}>
               <WaterStep
-                data={data.water}
-                updateData={(updates) => updateData('water', updates)}
+                data={data}
+                updateData={updateData}
               />
             </div>
           )}
           {currentStep === 5 && (
             <div className="opacity-0 animate-slide-in-left" style={{ animationFillMode: 'forwards' }}>
               <CropsStep
-                data={data.crops}
-                updateData={(updates) => updateData('crops', updates)}
+                data={data}
+                updateData={updateData}
               />
             </div>
           )}
           {currentStep === 6 && (
             <div className="opacity-0 animate-scale-in" style={{ animationFillMode: 'forwards' }}>
-              <ReviewStep data={data} />
+              <ReviewStep data={data} updateData={updateData} />
             </div>
           )}
         </div>
