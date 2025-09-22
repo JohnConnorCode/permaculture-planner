@@ -1,368 +1,345 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { createServerClientReadOnly } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Leaf, Grid3x3, Droplets, Calendar, BarChart3, Bot,
   ArrowRight, Sparkles, TreePine, Flower2, Sprout,
-  CheckCircle, TrendingUp, Users, Globe
+  CheckCircle, TrendingUp, Globe, Zap, Shield,
+  Sun, Cloud, Wind, Home, Building, Trees
 } from 'lucide-react'
 
-export default async function HomePage() {
-  const supabase = await createServerClientReadOnly()
-  const { data: { user } } = await supabase.auth.getUser()
+export default function HomePage() {
+  const [mounted, setMounted] = useState(false)
 
-  if (user) {
-    redirect('/dashboard')
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null // Prevent hydration mismatch
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
+    <div className="min-h-screen overflow-x-hidden">
+      {/* Hero Section with Sequential Animations */}
       <section className="gradient-hero relative overflow-hidden py-24 px-4">
         {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-green-200 opacity-20 animate-pulse" />
           <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-green-300 opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-green-100 opacity-30 animate-pulse" style={{ animationDelay: '2s' }} />
         </div>
 
         <div className="relative max-w-6xl mx-auto text-center">
-          <div className="animate-fade-in">
-            {/* Badge */}
+          {/* Badge with fade-in */}
+          <div className="opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full mb-6">
               <Sparkles className="h-4 w-4 text-green-700" />
               <span className="text-sm font-medium text-green-700">AI-Powered Garden Planning</span>
             </div>
+          </div>
 
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
-              Grow Your Perfect
-              <br />
+          {/* Title with sequential fade-in */}
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 opacity-0 animate-fade-in"
+              style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+            <span className="bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
+              Design Your Perfect
+            </span>
+            <br />
+            <span className="opacity-0 animate-fade-in inline-block"
+                  style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
               Permaculture Garden
-            </h1>
+            </span>
+          </h1>
 
-            <p className="text-xl md:text-2xl mb-8 text-gray-700 max-w-3xl mx-auto">
-              Transform any space into a thriving garden ecosystem. Our AI designs custom raised-bed layouts
-              for soil, concrete, rooftops—anywhere you dream of growing.
-            </p>
+          {/* Description with fade-in */}
+          <p className="text-xl md:text-2xl mb-8 text-gray-700 max-w-3xl mx-auto opacity-0 animate-fade-in"
+             style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
+            Transform any space into a thriving food garden. Our smart AI creates custom
+            raised-bed layouts optimized for your space, climate, and growing goals.
+          </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          {/* CTA Buttons with staggered animation */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="opacity-0 animate-slide-in-left"
+                 style={{ animationDelay: '0.9s', animationFillMode: 'forwards' }}>
               <Link href="/wizard">
-                <Button size="lg" className="gradient-green text-white font-semibold px-8 py-6 text-lg hover-lift group">
+                <Button size="lg" className="gradient-green text-white font-semibold px-8 py-6 text-lg hover-lift group w-full sm:w-auto">
                   <Leaf className="mr-2 h-5 w-5" />
-                  Start Planning Free
+                  Start Your Garden Plan
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
+            </div>
+            <div className="opacity-0 animate-slide-in-right"
+                 style={{ animationDelay: '1.1s', animationFillMode: 'forwards' }}>
               <Link href="/demo">
-                <Button size="lg" variant="outline" className="px-8 py-6 text-lg hover-glow border-green-300">
+                <Button size="lg" variant="outline" className="px-8 py-6 text-lg hover-glow border-green-300 w-full sm:w-auto">
                   <TreePine className="mr-2 h-5 w-5" />
-                  View Demo Garden
+                  Explore Features
                 </Button>
               </Link>
             </div>
+          </div>
 
-            {/* Trust indicators */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <span>No credit card required</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-green-600" />
-                <span>Join 5,000+ gardeners</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Globe className="h-5 w-5 text-green-600" />
-                <span>Works in any climate</span>
-              </div>
+          {/* Benefits with sequential fade-in */}
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600">
+            <div className="flex items-center gap-2 opacity-0 animate-fade-in"
+                 style={{ animationDelay: '1.3s', animationFillMode: 'forwards' }}>
+              <Zap className="h-5 w-5 text-green-600" />
+              <span>Generate plans in seconds</span>
+            </div>
+            <div className="flex items-center gap-2 opacity-0 animate-fade-in"
+                 style={{ animationDelay: '1.5s', animationFillMode: 'forwards' }}>
+              <Shield className="h-5 w-5 text-green-600" />
+              <span>Science-based recommendations</span>
+            </div>
+            <div className="flex items-center gap-2 opacity-0 animate-fade-in"
+                 style={{ animationDelay: '1.7s', animationFillMode: 'forwards' }}>
+              <Globe className="h-5 w-5 text-green-600" />
+              <span>Localized for your climate</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid with animations */}
+      {/* Features Grid with Sequential Animations */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-              Everything You Need to
-              <span className="text-green-600"> Grow & Thrive</span>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 opacity-0 animate-fade-in"
+                style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+              Smart Tools for
+              <span className="text-green-600"> Growing Success</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              From planning to harvest, we've got you covered with smart tools and expert guidance
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto opacity-0 animate-fade-in"
+               style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+              Everything you need to plan, plant, and maintain a thriving permaculture garden
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="hover-lift border-green-100 group animate-scale-in" style={{ animationDelay: '0.1s' }}>
-              <CardHeader>
-                <div className="p-3 bg-green-100 rounded-xl w-fit group-hover:bg-green-200 transition-colors">
-                  <Grid3x3 className="h-8 w-8 text-green-700" />
-                </div>
-                <CardTitle className="text-xl mt-4">Smart Layout Generation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  AI optimizes bed placement for maximum yield. Considers sun exposure,
-                  accessibility, and companion planting relationships automatically.
-                </CardDescription>
-                <div className="mt-4 flex items-center text-green-600 font-medium">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  30% more yield vs manual planning
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-lift border-green-100 group animate-scale-in" style={{ animationDelay: '0.2s' }}>
-              <CardHeader>
-                <div className="p-3 bg-green-100 rounded-xl w-fit group-hover:bg-green-200 transition-colors">
-                  <BarChart3 className="h-8 w-8 text-green-700" />
-                </div>
-                <CardTitle className="text-xl mt-4">Materials Calculator</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Get precise quantities for soil, lumber, and irrigation.
-                  Optimized shopping lists save you time and money.
-                </CardDescription>
-                <div className="mt-4 flex items-center text-green-600 font-medium">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Zero waste guarantee
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-lift border-green-100 group animate-scale-in" style={{ animationDelay: '0.3s' }}>
-              <CardHeader>
-                <div className="p-3 bg-green-100 rounded-xl w-fit group-hover:bg-green-200 transition-colors">
-                  <Calendar className="h-8 w-8 text-green-700" />
-                </div>
-                <CardTitle className="text-xl mt-4">Crop Rotation Planner</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  3-year rotation schedules prevent disease and maintain soil health.
-                  Succession planting for continuous harvests.
-                </CardDescription>
-                <div className="mt-4 flex items-center text-green-600 font-medium">
-                  <Flower2 className="h-4 w-4 mr-2" />
-                  4-season growing plans
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-lift border-green-100 group animate-scale-in" style={{ animationDelay: '0.4s' }}>
-              <CardHeader>
-                <div className="p-3 bg-green-100 rounded-xl w-fit group-hover:bg-green-200 transition-colors">
-                  <Droplets className="h-8 w-8 text-green-700" />
-                </div>
-                <CardTitle className="text-xl mt-4">Water-Smart Design</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Drip irrigation layouts and wicking beds cut water use by 70%.
-                  Perfect for drought-prone areas and water restrictions.
-                </CardDescription>
-                <div className="mt-4 flex items-center text-green-600 font-medium">
-                  <Sprout className="h-4 w-4 mr-2" />
-                  70% less water usage
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-lift border-green-100 group animate-scale-in" style={{ animationDelay: '0.5s' }}>
-              <CardHeader>
-                <div className="p-3 bg-green-100 rounded-xl w-fit group-hover:bg-green-200 transition-colors">
-                  <Leaf className="h-8 w-8 text-green-700" />
-                </div>
-                <CardTitle className="text-xl mt-4">Natural Pest Control</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Companion planting and beneficial insect habitats.
-                  Reduce pesticide needs by 90% with integrated management.
-                </CardDescription>
-                <div className="mt-4 flex items-center text-green-600 font-medium">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  100% organic methods
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="hover-lift border-green-100 group animate-scale-in" style={{ animationDelay: '0.6s' }}>
-              <CardHeader>
-                <div className="p-3 bg-green-100 rounded-xl w-fit group-hover:bg-green-200 transition-colors">
-                  <Bot className="h-8 w-8 text-green-700" />
-                </div>
-                <CardTitle className="text-xl mt-4">AI Garden Assistant</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-base">
-                  Get instant answers based on extension service research.
-                  Troubleshoot problems and optimize your garden year-round.
-                </CardDescription>
-                <div className="mt-4 flex items-center text-green-600 font-medium">
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  24/7 expert guidance
-                </div>
-              </CardContent>
-            </Card>
+            {[
+              {
+                icon: Grid3x3,
+                title: "Intelligent Layout Design",
+                description: "AI optimizes bed placement for sun exposure, accessibility, and companion planting relationships.",
+                benefit: "Maximize your growing space",
+                delay: "0.1s"
+              },
+              {
+                icon: BarChart3,
+                title: "Precise Materials Planning",
+                description: "Calculate exact quantities for soil, lumber, and irrigation. Get optimized shopping lists.",
+                benefit: "Save time and money",
+                delay: "0.2s"
+              },
+              {
+                icon: Calendar,
+                title: "Smart Crop Rotation",
+                description: "Automated 3-year rotation schedules that prevent disease and maintain soil health.",
+                benefit: "Year-round harvests",
+                delay: "0.3s"
+              },
+              {
+                icon: Droplets,
+                title: "Water-Efficient Design",
+                description: "Drip irrigation layouts and wicking bed designs that reduce water use dramatically.",
+                benefit: "Drought-resistant gardens",
+                delay: "0.4s"
+              },
+              {
+                icon: Leaf,
+                title: "Organic Pest Management",
+                description: "Companion planting guides and natural pest control strategies that really work.",
+                benefit: "Chemical-free growing",
+                delay: "0.5s"
+              },
+              {
+                icon: Bot,
+                title: "Garden Assistant AI",
+                description: "Get instant answers to your gardening questions based on agricultural research.",
+                benefit: "Expert guidance 24/7",
+                delay: "0.6s"
+              }
+            ].map((feature, index) => (
+              <Card
+                key={index}
+                className="hover-lift border-green-100 group opacity-0 animate-scale-in"
+                style={{ animationDelay: feature.delay, animationFillMode: 'forwards' }}
+              >
+                <CardHeader>
+                  <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl w-fit group-hover:from-green-100 group-hover:to-green-200 transition-all duration-300">
+                    <feature.icon className="h-8 w-8 text-green-700" />
+                  </div>
+                  <CardTitle className="text-xl mt-4">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base mb-3">
+                    {feature.description}
+                  </CardDescription>
+                  <div className="flex items-center text-green-600 font-medium text-sm">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    {feature.benefit}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Use Cases with better visuals */}
-      <section className="py-20 px-4 bg-gradient-to-b from-white to-green-50">
+      {/* Perfect For Section with Icons */}
+      <section className="py-20 px-4 bg-gradient-to-b from-white via-green-50/30 to-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-              Perfect For <span className="text-green-600">Any Space</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 opacity-0 animate-fade-in"
+                style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+              Works Anywhere You Want to
+              <span className="text-green-600"> Grow</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Whether you have a tiny balcony or acres of land, we'll design the perfect garden for you
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto opacity-0 animate-fade-in"
+               style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+              From tiny balconies to backyard homesteads, we adapt to your space
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="glass rounded-2xl p-8 hover-lift animate-slide-in-left">
-              <div className="text-center">
-                <div className="inline-flex p-4 bg-green-100 rounded-full mb-4">
-                  <svg className="h-12 w-12 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
+            {[
+              {
+                icon: Building,
+                title: "Urban Spaces",
+                subtitle: "Balconies & Rooftops",
+                items: [
+                  "Container garden layouts",
+                  "Vertical growing systems",
+                  "Wicking bed designs",
+                  "Microgreen setups"
+                ],
+                delay: "0.5s"
+              },
+              {
+                icon: Home,
+                title: "Suburban Gardens",
+                subtitle: "Yards & Patios",
+                items: [
+                  "Raised bed configurations",
+                  "Companion planting maps",
+                  "Seasonal rotation plans",
+                  "Irrigation system designs"
+                ],
+                delay: "0.7s"
+              },
+              {
+                icon: Trees,
+                title: "Large Plots",
+                subtitle: "Homesteads & Farms",
+                items: [
+                  "Zone-based permaculture",
+                  "Food forest planning",
+                  "Water harvesting systems",
+                  "Perennial integration"
+                ],
+                delay: "0.9s"
+              }
+            ].map((space, index) => (
+              <div
+                key={index}
+                className="glass rounded-2xl p-8 hover-lift opacity-0 animate-slide-in-left"
+                style={{ animationDelay: space.delay, animationFillMode: 'forwards' }}
+              >
+                <div className="text-center">
+                  <div className="inline-flex p-4 bg-gradient-to-br from-green-100 to-green-200 rounded-full mb-4">
+                    <space.icon className="h-12 w-12 text-green-700" />
+                  </div>
+                  <h3 className="font-bold text-2xl mb-2 text-gray-900">{space.title}</h3>
+                  <p className="text-green-600 font-medium mb-6">{space.subtitle}</p>
+                  <ul className="space-y-3 text-gray-700 text-left">
+                    {space.items.map((item, idx) => (
+                      <li key={idx} className="flex items-start">
+                        <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3 className="font-bold text-2xl mb-4 text-gray-900">Urban Balcony</h3>
-                <ul className="space-y-2 text-gray-700 text-left">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    100-200 sq ft on concrete
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    2-3 wicking beds included
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    Herbs & salad greens focus
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    Drip irrigation ready
-                  </li>
-                </ul>
               </div>
-            </div>
-
-            <div className="glass rounded-2xl p-8 hover-lift animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <div className="text-center">
-                <div className="inline-flex p-4 bg-green-100 rounded-full mb-4">
-                  <svg className="h-12 w-12 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                </div>
-                <h3 className="font-bold text-2xl mb-4 text-gray-900">Suburban Yard</h3>
-                <ul className="space-y-2 text-gray-700 text-left">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    400-800 sq ft on soil
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    4-6 raised beds layout
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    Full vegetable variety
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    3-year rotation plan
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="glass rounded-2xl p-8 hover-lift animate-slide-in-right" style={{ animationDelay: '0.3s' }}>
-              <div className="text-center">
-                <div className="inline-flex p-4 bg-green-100 rounded-full mb-4">
-                  <svg className="h-12 w-12 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="font-bold text-2xl mb-4 text-gray-900">Quarter Acre+</h3>
-                <ul className="space-y-2 text-gray-700 text-left">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    Zone-based design system
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    Beds + orchard planning
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    Rainwater capture sizing
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
-                    Complete food system
-                  </li>
-                </ul>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials or Stats */}
+      {/* Climate Adaptability Section */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div className="animate-bounce-in" style={{ animationDelay: '0.1s' }}>
-              <div className="text-5xl font-bold text-green-600 mb-2">5,000+</div>
-              <div className="text-gray-600">Happy Gardeners</div>
-            </div>
-            <div className="animate-bounce-in" style={{ animationDelay: '0.2s' }}>
-              <div className="text-5xl font-bold text-green-600 mb-2">30%</div>
-              <div className="text-gray-600">More Yield</div>
-            </div>
-            <div className="animate-bounce-in" style={{ animationDelay: '0.3s' }}>
-              <div className="text-5xl font-bold text-green-600 mb-2">70%</div>
-              <div className="text-gray-600">Less Water</div>
-            </div>
-            <div className="animate-bounce-in" style={{ animationDelay: '0.4s' }}>
-              <div className="text-5xl font-bold text-green-600 mb-2">100%</div>
-              <div className="text-gray-600">Organic</div>
-            </div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 opacity-0 animate-fade-in"
+                style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+              Optimized for Your Climate
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto opacity-0 animate-fade-in"
+               style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+              Our AI adapts recommendations based on your specific growing conditions
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-6 text-center">
+            {[
+              { icon: Sun, label: "Hot & Dry", desc: "Heat-tolerant varieties", delay: "0.5s" },
+              { icon: Cloud, label: "Cool & Wet", desc: "Drainage solutions", delay: "0.6s" },
+              { icon: Wind, label: "Windy Areas", desc: "Windbreak planning", delay: "0.7s" },
+              { icon: Flower2, label: "Short Season", desc: "Fast-growing crops", delay: "0.8s" }
+            ].map((climate, index) => (
+              <div
+                key={index}
+                className="opacity-0 animate-bounce-in"
+                style={{ animationDelay: climate.delay, animationFillMode: 'forwards' }}
+              >
+                <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-300 transition-all">
+                  <climate.icon className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                  <div className="font-semibold text-gray-900">{climate.label}</div>
+                  <div className="text-sm text-gray-600 mt-1">{climate.desc}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section with gradient */}
+      {/* CTA Section */}
       <section className="gradient-green py-24 px-4">
         <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Start Your Garden Journey Today
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 opacity-0 animate-fade-in"
+              style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+            Ready to Grow Your Own Food?
           </h2>
-          <p className="text-xl mb-8 text-green-50">
-            Join thousands of gardeners growing their own food sustainably.
-            Get your personalized plan in under 5 minutes.
+          <p className="text-xl mb-8 text-green-50 opacity-0 animate-fade-in"
+             style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+            Join gardeners worldwide who are growing healthier, more sustainable food at home.
+            Start with our free garden planning wizard.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/wizard">
-              <Button size="lg" className="bg-white text-green-700 hover:bg-green-50 px-8 py-6 text-lg hover-lift">
-                <Sparkles className="mr-2 h-5 w-5" />
-                Create Free Garden Plan
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/auth/signup">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-700 px-8 py-6 text-lg">
-                Sign Up Free
-              </Button>
-            </Link>
+            <div className="opacity-0 animate-scale-in"
+                 style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+              <Link href="/wizard">
+                <Button size="lg" className="bg-white text-green-700 hover:bg-green-50 px-8 py-6 text-lg hover-lift">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Start Planning Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+            <div className="opacity-0 animate-scale-in"
+                 style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+              <Link href="/auth/signup">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-700 px-8 py-6 text-lg">
+                  Create Account
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
