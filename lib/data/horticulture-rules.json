@@ -1,0 +1,197 @@
+{
+  "sunlight": {
+    "requirements": {
+      "full_sun": {
+        "hours_min": 6,
+        "hours_ideal": 8,
+        "description": "Most vegetables need at least 6 hours direct sun, 8-10 ideal",
+        "source": "Virginia Tech Publications - Planning the Vegetable Garden"
+      },
+      "partial_shade": {
+        "hours_min": 3,
+        "hours_max": 6,
+        "description": "Leafy greens can handle 3-4 hours partial shade",
+        "source": "Virginia Tech Publications"
+      },
+      "shade": {
+        "hours_max": 3,
+        "description": "Very few vegetables tolerate full shade",
+        "source": "Extension publications"
+      }
+    }
+  },
+  "bed_orientation": {
+    "preferred": "north_south",
+    "rationale": "Prefer north-south for low crops to light both sides evenly",
+    "tall_crop_placement": "Place tall crops to the north to avoid shading shorter ones",
+    "alternative": "East-west can be preferred where frost mitigation is needed",
+    "source": "gardeningsolutions.ifas.ufl.edu"
+  },
+  "raised_bed_dimensions": {
+    "height": {
+      "min_inches": 8,
+      "typical_inches": 12,
+      "max_inches": 24,
+      "rationale": "8-12 inches typical for most vegetables"
+    },
+    "width": {
+      "max_feet": 4,
+      "accessibility_max_feet": 3,
+      "rationale": "Maximum 4 feet for reach from both sides"
+    },
+    "path_width": {
+      "min_inches": 18,
+      "typical_inches": 24,
+      "wheelbarrow_inches": 36,
+      "rationale": "Minimum 18 inches, 36 for wheelbarrow access"
+    },
+    "source": "Penn State Extension"
+  },
+  "hard_surface_growing": {
+    "requirements": {
+      "deeper_beds": true,
+      "min_depth_inches": 12,
+      "preferred_method": "sub_irrigated_planters",
+      "drainage_consideration": "Avoid drainage staining on surfaces",
+      "load_check": "Check structural load for rooftops"
+    },
+    "benefits": {
+      "water_efficiency": "Sub-irrigation reduces watering frequency",
+      "yield_improvement": "Consistent moisture improves yields"
+    },
+    "source": "University of Kentucky Extension"
+  },
+  "soil_building": {
+    "sheet_mulching": {
+      "layers": [
+        {"material": "cardboard", "thickness_inches": 0.25},
+        {"material": "compost", "thickness_inches": 3},
+        {"material": "mulch", "thickness_inches": 4}
+      ],
+      "use_case": "Baseline for on-ground installations",
+      "source": "CSU Engagement & Extension"
+    },
+    "raised_bed_mix": {
+      "recipe": "1/3 compost, 1/3 peat/coir, 1/3 vermiculite/perlite",
+      "alternative": "50% topsoil, 50% compost for budget option",
+      "source": "Square Foot Gardening method"
+    }
+  },
+  "irrigation": {
+    "drip": {
+      "efficiency": "Most water efficient method",
+      "emitter_spacing_inches": 12,
+      "emitter_rate_gph": 0.5,
+      "runtime_calculation": "Based on evapotranspiration and soil type"
+    },
+    "sub_irrigation": {
+      "benefits": "Reduces water use, improves yields",
+      "fill_frequency": "Weekly in summer, adjust for rain",
+      "source": "Iowa State Extension"
+    },
+    "mulching": {
+      "water_reduction": "30-50% reduction in water needs",
+      "thickness_inches": 3
+    },
+    "source": "Multiple Extension publications"
+  },
+  "rain_barrels": {
+    "safety": {
+      "warning": "Many extensions do not recommend barrel water on edibles",
+      "contamination_risks": "Roof runoff may contain pathogens, chemicals",
+      "allowed_use": "Some programs allow with precautions and soil-only application",
+      "regional_variation": "Check local extension guidelines"
+    },
+    "source": "Nebraska Extension Publications"
+  },
+  "crop_rotation": {
+    "principle": "Do not repeat families in same bed for 2-3 years",
+    "rationale": "Prevents disease buildup and nutrient depletion",
+    "families": [
+      "Solanaceae (tomatoes, peppers, eggplant)",
+      "Brassicaceae (cabbage, broccoli, kale)",
+      "Cucurbitaceae (squash, cucumber, melon)",
+      "Fabaceae (beans, peas)",
+      "Apiaceae (carrots, parsley)",
+      "Asteraceae (lettuce, sunflowers)",
+      "Amaranthaceae (beets, chard, spinach)",
+      "Allium (onions, garlic)"
+    ],
+    "minimum_rotation_years": 2,
+    "ideal_rotation_years": 3,
+    "source": "Cornell Cooperative Extension"
+  },
+  "succession_planting": {
+    "principle": "Stagger sowings for continuous harvest",
+    "intervals": {
+      "lettuce_days": 14,
+      "beans_days": 14,
+      "radish_days": 7,
+      "general_days": 14
+    },
+    "seasonal_planning": "Plan spring-summer-fall swaps based on frost windows",
+    "source": "Illinois Extension"
+  },
+  "integrated_pest_management": {
+    "row_covers": {
+      "use_cases": [
+        "Brassicas for flea beetle protection",
+        "Cucurbits for cucumber beetle protection"
+      ],
+      "removal": "Remove at flowering for crops needing pollination",
+      "weight_oz_per_sqyd": 0.5,
+      "source": "Wisconsin Horticulture"
+    },
+    "insectary_strips": {
+      "purpose": "Attract beneficial insects",
+      "plants": ["alyssum", "yarrow", "dill", "fennel", "cosmos"],
+      "placement": "Border or interspersed",
+      "source": "Xerces Society"
+    },
+    "pesticide_reduction": "IPM reduces pesticide needs by 50-90%",
+    "source": "Cornell Harvest NY"
+  },
+  "materials_safety": {
+    "lumber": {
+      "safest": ["cedar", "redwood", "cypress", "white oak"],
+      "modern_treated": {
+        "ACQ_CA": "Generally considered low-risk by extensions",
+        "note": "Organic standards may disallow",
+        "mitigation": "Line edges with plastic or geotextile"
+      },
+      "avoid": ["CCA treated (pre-2004)", "railroad ties", "creosote"]
+    },
+    "source": "University of Minnesota Extension"
+  },
+  "planning_zones": {
+    "zone_1": {
+      "distance": "Near house",
+      "contents": "Herbs, salad greens, frequently harvested"
+    },
+    "zone_2": {
+      "distance": "Middle distance",
+      "contents": "Main vegetable beds"
+    },
+    "zone_3": {
+      "distance": "Further out",
+      "contents": "Orchard, perennials (future expansion)"
+    },
+    "source": "Permaculture design principles"
+  },
+  "soil_testing": {
+    "jar_test": {
+      "purpose": "Determine soil texture (sand, silt, clay proportions)",
+      "method": "Mix soil with water, shake, measure layers after settling",
+      "source": "UA Cooperative Extension"
+    },
+    "infiltration_test": {
+      "purpose": "Check drainage rate",
+      "good_rate_inches_per_hour": 1,
+      "poor_rate_inches_per_hour": 0.25
+    },
+    "pH_range": {
+      "ideal_vegetables": "6.0-7.0",
+      "test_frequency_years": 3
+    }
+  }
+}

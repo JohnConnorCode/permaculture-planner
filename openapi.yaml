@@ -1,0 +1,921 @@
+openapi: 3.1.0
+info:
+  title: Permaculture Planner API
+  version: 1.1.0
+  description: API for raised-bed permaculture garden planning
+  contact:
+    email: api@permaculture-planner.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.permaculture-planner.com/v1
+    description: Production
+  - url: https://staging-api.permaculture-planner.com/v1
+    description: Staging
+  - url: http://localhost:3000/api
+    description: Development
+
+security:
+  - BearerAuth: []
+
+paths:
+  /plans:
+    post:
+      summary: Create a new garden plan
+      operationId: createPlan
+      tags: [Plans]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanInput'
+            example:
+              location:
+                city: "Portland, OR"
+                usda_zone: "8b"
+                last_frost: "2024-04-15"
+                first_frost: "2024-11-15"
+              area:
+                total_sqft: 400
+                usable_fraction: 0.8
+                shape: "rectangular"
+              surface:
+                type: "soil"
+                sun_hours: 8
+                slope: 2
+                accessibility_needs: false
+              water:
+                source: "spigot"
+                drip_allowed: true
+                sip_interest: false
+              crops:
+                focus: ["tomatoes", "lettuce", "herbs"]
+                time_weekly_minutes: 120
+      responses:
+        '201':
+          description: Plan created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanResponse'
+          headers:
+            X-Idempotency-Key:
+              schema:
+                type: string
+              description: Idempotency key for retry safety
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+    get:
+      summary: List user's plans
+      operationId: listPlans
+      tags: [Plans]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, active, archived]
+      responses:
+        '200':
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PlanSummary'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /plans/{planId}:
+    get:
+      summary: Get plan details
+      operationId: getPlan
+      tags: [Plans]
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Plan details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetails'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      summary: Update plan
+      operationId: updatePlan
+      tags: [Plans]
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanUpdate'
+      responses:
+        '200':
+          description: Plan updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanDetails'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /plans/{planId}/generate-layout:
+    post:
+      summary: Generate optimized bed layout
+      operationId: generateLayout
+      tags: [Plans]
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                regenerate:
+                  type: boolean
+                  default: false
+                seed:
+                  type: integer
+                  description: Seed for deterministic generation
+      responses:
+        '200':
+          description: Layout generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayoutResponse'
+
+  /plans/{planId}/recalculate-materials:
+    post:
+      summary: Recalculate materials list
+      operationId: recalculateMaterials
+      tags: [Plans]
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Materials recalculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaterialsResponse'
+
+  /plans/{planId}/ai:
+    post:
+      summary: AI copilot query
+      operationId: aiCopilot
+      tags: [AI]
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt]
+              properties:
+                prompt:
+                  type: string
+                  maxLength: 500
+                context:
+                  type: object
+                  properties:
+                    bedId:
+                      type: string
+                    season:
+                      type: string
+            example:
+              prompt: "What crops work best in partial shade?"
+              context:
+                bedId: "bed-1"
+                season: "spring"
+      responses:
+        '200':
+          description: AI response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIResponse'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+
+  /plans/{planId}/tasks:
+    get:
+      summary: Get plan tasks
+      operationId: getTasks
+      tags: [Tasks]
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [build, plant, water, cover, harvest, maint]
+        - name: completed
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Task list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+
+    post:
+      summary: Create task
+      operationId: createTask
+      tags: [Tasks]
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /plans/{planId}/tasks/seed:
+    post:
+      summary: Generate seasonal tasks
+      operationId: seedTasks
+      tags: [Tasks]
+      parameters:
+        - name: planId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                season:
+                  type: string
+                  enum: [spring, summer, fall, winter]
+                year:
+                  type: integer
+      responses:
+        '201':
+          description: Tasks generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created:
+                    type: integer
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+
+  /crops:
+    get:
+      summary: List available crops
+      operationId: listCrops
+      tags: [Crops]
+      parameters:
+        - name: family
+          in: query
+          schema:
+            type: string
+        - name: season
+          in: query
+          schema:
+            type: string
+            enum: [spring, summer, fall, winter]
+        - name: sun
+          in: query
+          schema:
+            type: string
+            enum: [full, partial, shade]
+      responses:
+        '200':
+          description: Crop list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Crop'
+
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags: [System]
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    PlanInput:
+      type: object
+      required: [location, area, surface, water, crops]
+      properties:
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+            city:
+              type: string
+            usda_zone:
+              type: string
+            last_frost:
+              type: string
+              format: date
+            first_frost:
+              type: string
+              format: date
+        area:
+          type: object
+          required: [total_sqft, usable_fraction, shape]
+          properties:
+            total_sqft:
+              type: number
+              minimum: 10
+              maximum: 50000
+            usable_fraction:
+              type: number
+              minimum: 0.1
+              maximum: 1.0
+            shape:
+              type: string
+              enum: [rectangular, L-shaped, scattered]
+        surface:
+          type: object
+          required: [type, sun_hours, slope]
+          properties:
+            type:
+              type: string
+              enum: [soil, hard]
+            sun_hours:
+              type: number
+              minimum: 0
+              maximum: 14
+            slope:
+              type: number
+              minimum: 0
+              maximum: 45
+            accessibility_needs:
+              type: boolean
+        water:
+          type: object
+          required: [source]
+          properties:
+            source:
+              type: string
+              enum: [spigot, rain, none]
+            drip_allowed:
+              type: boolean
+            sip_interest:
+              type: boolean
+        crops:
+          type: object
+          required: [focus, time_weekly_minutes]
+          properties:
+            focus:
+              type: array
+              items:
+                type: string
+            avoid_families:
+              type: array
+              items:
+                type: string
+            time_weekly_minutes:
+              type: integer
+              minimum: 15
+              maximum: 600
+        materials:
+          type: object
+          properties:
+            lumber_type:
+              type: string
+              enum: [cedar, pine, treated]
+            budget_tier:
+              type: string
+              enum: [budget, standard, premium]
+
+    PlanResponse:
+      type: object
+      properties:
+        planId:
+          type: string
+          format: uuid
+        success:
+          type: boolean
+        summary:
+          type: object
+          properties:
+            beds:
+              type: integer
+            totalArea:
+              type: number
+            estimatedCost:
+              type: object
+              properties:
+                low:
+                  type: number
+                high:
+                  type: number
+            warnings:
+              type: array
+              items:
+                type: string
+            suggestions:
+              type: array
+              items:
+                type: string
+
+    PlanSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          type: string
+          enum: [draft, active, archived]
+        created_at:
+          type: string
+          format: date-time
+        bed_count:
+          type: integer
+        total_area_sqft:
+          type: number
+
+    PlanDetails:
+      allOf:
+        - $ref: '#/components/schemas/PlanSummary'
+        - type: object
+          properties:
+            site:
+              $ref: '#/components/schemas/Site'
+            beds:
+              type: array
+              items:
+                $ref: '#/components/schemas/Bed'
+            materials:
+              $ref: '#/components/schemas/MaterialsEstimate'
+            quality_score:
+              $ref: '#/components/schemas/QualityScore'
+
+    PlanUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [draft, active, archived]
+
+    Site:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        usda_zone:
+          type: string
+        surface_type:
+          type: string
+          enum: [soil, hard]
+        water_source:
+          type: string
+          enum: [spigot, rain, none]
+
+    Bed:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        shape:
+          type: string
+          enum: [rect]
+        length_ft:
+          type: number
+        width_ft:
+          type: number
+        height_in:
+          type: number
+        orientation:
+          type: string
+          enum: [NS, EW]
+        wicking:
+          type: boolean
+        trellis:
+          type: boolean
+        current_planting:
+          $ref: '#/components/schemas/Planting'
+
+    Planting:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        season:
+          type: string
+          enum: [spring, summer, fall, winter]
+        year:
+          type: integer
+        crops:
+          type: array
+          items:
+            type: string
+        family:
+          type: string
+        spacing_in:
+          type: integer
+
+    MaterialsEstimate:
+      type: object
+      properties:
+        soil_cuft:
+          type: number
+        compost_cuft:
+          type: number
+        mulch_cuft:
+          type: number
+        lumber:
+          type: object
+          properties:
+            boards_2x10x8:
+              type: integer
+            boards_2x10x10:
+              type: integer
+            boards_2x10x12:
+              type: integer
+        irrigation:
+          type: object
+          properties:
+            drip_line_ft:
+              type: number
+            emitters:
+              type: integer
+        cost_estimate:
+          type: object
+          properties:
+            low:
+              type: number
+            high:
+              type: number
+
+    QualityScore:
+      type: object
+      properties:
+        total:
+          type: integer
+          minimum: 0
+          maximum: 100
+        breakdown:
+          type: object
+          properties:
+            sun_fit:
+              type: integer
+            orientation:
+              type: integer
+            rotation_health:
+              type: integer
+            water_resilience:
+              type: integer
+            season_coverage:
+              type: integer
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              severity:
+                type: string
+                enum: [info, warning, error]
+              message:
+                type: string
+              fix:
+                type: string
+
+    LayoutResponse:
+      type: object
+      properties:
+        beds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bed'
+        total_bed_area:
+          type: number
+        total_path_area:
+          type: number
+        efficiency:
+          type: number
+        seed:
+          type: integer
+          description: Seed used for generation
+
+    MaterialsResponse:
+      type: object
+      properties:
+        estimate:
+          $ref: '#/components/schemas/MaterialsEstimate'
+        shopping_list:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+
+    AIResponse:
+      type: object
+      properties:
+        response:
+          type: string
+        sources:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+              citation:
+                type: string
+              url:
+                type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+        cache_hit:
+          type: boolean
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        due_on:
+          type: string
+          format: date
+        category:
+          type: string
+          enum: [build, plant, water, cover, harvest, maint]
+        completed:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    TaskInput:
+      type: object
+      required: [title, due_on, category]
+      properties:
+        title:
+          type: string
+        due_on:
+          type: string
+          format: date
+        category:
+          type: string
+          enum: [build, plant, water, cover, harvest, maint]
+
+    Crop:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        family:
+          type: string
+        sun:
+          type: string
+          enum: [full, partial, shade]
+        spacing_in:
+          type: integer
+        days_to_maturity:
+          type: integer
+        seasons:
+          type: array
+          items:
+            type: string
+            enum: [spring, summer, fall, winter]
+        row_cover_suitable:
+          type: boolean
+        needs_pollination:
+          type: boolean
+        water_needs:
+          type: string
+          enum: [low, medium, high]
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
+
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "validation_error"
+            message: "Invalid input parameters"
+            details:
+              field: "area.total_sqft"
+              issue: "Must be between 10 and 50000"
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "unauthorized"
+            message: "Invalid or missing authentication token"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "not_found"
+            message: "Plan not found"
+
+    Conflict:
+      description: Conflict with current state
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "conflict"
+            message: "Plan has been modified by another user"
+
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "rate_limited"
+            message: "API rate limit exceeded"
+            details:
+              retry_after: 60
