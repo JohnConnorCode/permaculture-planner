@@ -8,6 +8,14 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Permaculture Planner - Raised Bed Garden Design',
   description: 'AI-powered permaculture planning for raised bed gardens on any surface',
+  manifest: '/manifest.json',
+  themeColor: '#16a34a',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Garden Plan'
+  }
 }
 
 export default function RootLayout({
