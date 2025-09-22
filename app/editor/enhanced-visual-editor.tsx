@@ -17,6 +17,10 @@ import { PlantData } from '@/lib/data/plant-database'
 import { GardenFeaturesLibrary, GardenFeature } from '@/components/garden-features-library'
 import { PropertyPanel } from '@/components/property-panel'
 import { HelpButton, KeyboardShortcuts, GuidedTour } from '@/components/help-system'
+import { SeasonalTimeline } from '@/components/seasonal-timeline'
+import { GardenAnalytics } from '@/components/garden-analytics'
+import { CompanionPlantingOverlay, CompanionConnectionLines } from '@/components/companion-planting-overlay'
+import { GardenOptimizer } from '@/lib/garden-optimizer'
 import { getNodeBounds } from '@/modules/scene/sceneTypes'
 import { v4 as uuidv4 } from 'uuid'
 import { Button } from '@/components/ui/button'
@@ -47,7 +51,8 @@ import {
   Grid, Eye, EyeOff, Layers, Settings, Download, ArrowLeft,
   Copy, Clipboard, Trash2, RotateCw, FlipHorizontal, FlipVertical,
   Sparkles, Package, History, PlayCircle, PauseCircle, SkipForward,
-  Camera, Share2, FolderOpen, FilePlus, Layout, Sliders, Target, Spline, Ruler, Type, Palette
+  Camera, Share2, FolderOpen, FilePlus, Layout, Sliders, Target, Spline, Ruler, Type, Palette,
+  Calendar, BarChart3, Lightbulb, Heart, GitBranch
 } from 'lucide-react'
 
 interface VisualEditorProps {
@@ -78,6 +83,9 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
   const [gridSize, setGridSize] = useState(6)
   const [showDimensions, setShowDimensions] = useState(true)
   const [showTextures, setShowTextures] = useState(true)
+  const [showCompanionWarnings, setShowCompanionWarnings] = useState(true)
+  const [showCompanionLines, setShowCompanionLines] = useState(false)
+  const [gardenOptimizer] = useState(() => new GardenOptimizer([], '7a'))
 
   const supabase = createClient()
   const {
@@ -601,6 +609,22 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
               >
                 <Palette className={`h-4 w-4 ${showTextures ? 'text-blue-600' : ''}`} />
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCompanionWarnings(!showCompanionWarnings)}
+                title="Toggle Companion Warnings"
+              >
+                <Heart className={`h-4 w-4 ${showCompanionWarnings ? 'text-pink-600' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCompanionLines(!showCompanionLines)}
+                title="Toggle Companion Lines"
+              >
+                <GitBranch className={`h-4 w-4 ${showCompanionLines ? 'text-purple-600' : ''}`} />
+              </Button>
 
               <Separator orientation="vertical" className="h-6" />
 
@@ -873,6 +897,15 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
               units="imperial"
             />
 
+            {/* Companion planting warnings overlay */}
+            {showCompanionWarnings && (
+              <CompanionPlantingOverlay
+                nodes={getAllNodes()}
+                selectedNodeId={selection.ids.length === 1 ? selection.ids[0] : null}
+                showAllWarnings={selection.ids.length === 0}
+              />
+            )}
+
             {/* Canvas overlay info */}
             <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-lg p-2 text-xs">
               <div className="flex items-center space-x-4">
@@ -889,13 +922,19 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
           {/* Enhanced Right Sidebar */}
           <div className="w-80 bg-white border-l">
             <Tabs defaultValue="plants" className="w-full h-full flex flex-col">
-              <TabsList className="w-full grid grid-cols-6">
-                <TabsTrigger value="plants">Plants</TabsTrigger>
-                <TabsTrigger value="features">Features</TabsTrigger>
-                <TabsTrigger value="properties">Props</TabsTrigger>
-                <TabsTrigger value="layers">Layers</TabsTrigger>
-                <TabsTrigger value="versions">Ver</TabsTrigger>
-                <TabsTrigger value="settings">Set</TabsTrigger>
+              <TabsList className="w-full flex overflow-x-auto">
+                <TabsTrigger value="plants" className="flex-1 min-w-[60px]">Plants</TabsTrigger>
+                <TabsTrigger value="features" className="flex-1 min-w-[60px]">Features</TabsTrigger>
+                <TabsTrigger value="properties" className="flex-1 min-w-[60px]">Props</TabsTrigger>
+                <TabsTrigger value="timeline" className="flex-1 min-w-[60px]" title="Seasonal Timeline">
+                  <Calendar className="h-3 w-3" />
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="flex-1 min-w-[60px]" title="Garden Analytics">
+                  <BarChart3 className="h-3 w-3" />
+                </TabsTrigger>
+                <TabsTrigger value="layers" className="flex-1 min-w-[60px]">Layers</TabsTrigger>
+                <TabsTrigger value="versions" className="flex-1 min-w-[60px]">Ver</TabsTrigger>
+                <TabsTrigger value="settings" className="flex-1 min-w-[60px]">Set</TabsTrigger>
               </TabsList>
 
               <TabsContent value="plants" className="flex-1 overflow-hidden">
@@ -1076,6 +1115,31 @@ export default function EnhancedVisualEditor({ plan }: VisualEditorProps) {
                     )}
                   </div>
                 )}
+              </TabsContent>
+
+              <TabsContent value="timeline" className="flex-1 overflow-hidden">
+                <SeasonalTimeline
+                  hardinessZone="7a"
+                  onPlantingSchedule={(schedule: any) => {
+                    console.log('Planting schedule:', schedule)
+                    // Could integrate with garden planning system
+                  }}
+                />
+              </TabsContent>
+
+              <TabsContent value="analytics" className="flex-1 overflow-hidden">
+                <GardenAnalytics
+                  nodes={getAllNodes()}
+                  onSuggestionApply={(suggestion: any) => {
+                    console.log('Applying suggestion:', suggestion)
+                    // Apply optimization suggestions
+                    if (suggestion.action === 'add-companion') {
+                      // Add companion plants
+                    } else if (suggestion.action === 'adjust-spacing') {
+                      // Adjust plant spacing
+                    }
+                  }}
+                />
               </TabsContent>
 
               <TabsContent value="layers" className="p-4">
