@@ -69,7 +69,7 @@ export default function HomePage() {
               <Link href="/wizard">
                 <Button size="lg" className="gradient-green text-white font-semibold px-8 py-6 text-lg hover-lift group w-full sm:w-auto">
                   <Leaf className="mr-2 h-5 w-5" />
-                  Start Your Garden Plan
+                  Begin Your Design
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
@@ -79,7 +79,7 @@ export default function HomePage() {
               <Link href="/demo">
                 <Button size="lg" variant="outline" className="px-8 py-6 text-lg hover-glow border-green-300 w-full sm:w-auto">
                   <TreePine className="mr-2 h-5 w-5" />
-                  Explore Features
+                  Explore Platform
                 </Button>
               </Link>
             </div>
@@ -379,7 +379,7 @@ export default function HomePage() {
               <Link href="/demo">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-green-50 hover:text-green-700 hover:border-green-50 px-8 py-6 text-lg hover-lift">
                   <TreePine className="mr-2 h-5 w-5" />
-                  Try the Demo
+                  See Full Platform
                 </Button>
               </Link>
             </div>
