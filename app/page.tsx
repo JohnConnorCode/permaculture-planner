@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { AnimateOnScroll } from '@/components/animate-on-scroll'
 import {
   Leaf, Grid3x3, Droplets, Calendar, BarChart3, Bot,
   ArrowRight, Sparkles, TreePine, Flower2, Sprout,
@@ -112,15 +113,17 @@ export default function HomePage() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 opacity-0 animate-fade-in"
-                style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-              Holistic Design for
-              <span className="text-green-600"> Living Systems</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto opacity-0 animate-fade-in"
-               style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-              Complete permaculture design tools: zones, sectors, water systems, soil building, and energy flows
-            </p>
+            <AnimateOnScroll animation="animate-fade-in" delay="0.1s">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+                Holistic Design for
+                <span className="text-green-600"> Living Systems</span>
+              </h2>
+            </AnimateOnScroll>
+            <AnimateOnScroll animation="animate-fade-in" delay="0.3s">
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Complete permaculture design tools: zones, sectors, water systems, soil building, and energy flows
+              </p>
+            </AnimateOnScroll>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -168,11 +171,12 @@ export default function HomePage() {
                 delay: "0.6s"
               }
             ].map((feature, index) => (
-              <Card
+              <AnimateOnScroll
                 key={index}
-                className="card-nature hover-lift border-green-100 group opacity-0 animate-scale-in rounded-lg"
-                style={{ animationDelay: feature.delay, animationFillMode: 'forwards' }}
+                animation="animate-scale-in"
+                delay={feature.delay}
               >
+                <Card className="card-nature hover-lift border-green-100 group rounded-lg h-full">
                 <CardHeader>
                   <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg w-fit group-hover:from-green-100 group-hover:to-green-200 transition-all duration-300">
                     <feature.icon className="h-8 w-8 text-green-700" />
@@ -188,7 +192,8 @@ export default function HomePage() {
                     {feature.benefit}
                   </div>
                 </CardContent>
-              </Card>
+                </Card>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -198,15 +203,17 @@ export default function HomePage() {
       <section className="py-20 px-4 bg-gradient-to-b from-white via-green-50/30 to-white">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 opacity-0 animate-fade-in"
-                style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-              Works Anywhere You Want to
-              <span className="text-green-600"> Grow</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto opacity-0 animate-fade-in"
-               style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-              From tiny balconies to backyard homesteads, we adapt to your space
-            </p>
+            <AnimateOnScroll animation="animate-fade-in" delay="0.1s">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+                Works Anywhere You Want to
+                <span className="text-green-600"> Grow</span>
+              </h2>
+            </AnimateOnScroll>
+            <AnimateOnScroll animation="animate-fade-in" delay="0.3s">
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                From tiny balconies to backyard homesteads, we adapt to your space
+              </p>
+            </AnimateOnScroll>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -248,11 +255,12 @@ export default function HomePage() {
                 delay: "0.9s"
               }
             ].map((space, index) => (
-              <div
+              <AnimateOnScroll
                 key={index}
-                className="glass rounded-lg p-8 hover-lift opacity-0 animate-slide-in-left"
-                style={{ animationDelay: space.delay, animationFillMode: 'forwards' }}
+                animation="animate-slide-in-left"
+                delay={space.delay}
               >
+                <div className="glass rounded-lg p-8 hover-lift h-full">
                 <div className="text-center">
                   <div className="inline-flex p-4 bg-gradient-to-br from-green-100 to-green-200 rounded-lg mb-4">
                     <space.icon className="h-12 w-12 text-green-700" />
@@ -268,7 +276,8 @@ export default function HomePage() {
                     ))}
                   </ul>
                 </div>
-              </div>
+                </div>
+              </AnimateOnScroll>
             ))}
           </div>
         </div>
@@ -278,14 +287,16 @@ export default function HomePage() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 opacity-0 animate-fade-in"
-                style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-              Optimized for Your Climate
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto opacity-0 animate-fade-in"
-               style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-              Our AI adapts recommendations based on your specific growing conditions
-            </p>
+            <AnimateOnScroll animation="animate-fade-in" delay="0.1s">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+                Optimized for Your Climate
+              </h2>
+            </AnimateOnScroll>
+            <AnimateOnScroll animation="animate-fade-in" delay="0.3s">
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Our AI adapts recommendations based on your specific growing conditions
+              </p>
+            </AnimateOnScroll>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6 text-center">
@@ -297,17 +308,17 @@ export default function HomePage() {
             ].map((climate, index) => {
               const IconComponent = climate.icon;
               return (
-                <div
+                <AnimateOnScroll
                   key={index}
-                  className="opacity-0 animate-fade-in"
-                  style={{ animationDelay: climate.delay, animationFillMode: 'forwards' }}
+                  animation="animate-fade-in"
+                  delay={climate.delay}
                 >
                   <div className="p-6 rounded-lg bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-300 transition-all hover-lift card-nature">
                     <IconComponent className="h-12 w-12 text-green-600 mx-auto mb-3" />
                     <div className="font-semibold text-gray-900">{climate.label}</div>
                     <div className="text-sm text-gray-600 mt-1">{climate.desc}</div>
                   </div>
-                </div>
+                </AnimateOnScroll>
               );
             })}
           </div>
@@ -317,18 +328,20 @@ export default function HomePage() {
       {/* Open Source Section */}
       <section className="py-20 px-4 bg-gradient-to-b from-white to-green-50">
         <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 opacity-0 animate-fade-in"
-              style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-            Built by Gardeners, for Gardeners
-          </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8 opacity-0 animate-fade-in"
-             style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            This is an <strong>open-source project</strong>. We believe everyone should have access to tools
-            that help them grow food sustainably. Contribute code, share templates, or help translate
-            for gardeners worldwide.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 opacity-0 animate-fade-in"
-               style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+          <AnimateOnScroll animation="animate-fade-in" delay="0.1s">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
+              Built by Gardeners, for Gardeners
+            </h2>
+          </AnimateOnScroll>
+          <AnimateOnScroll animation="animate-fade-in" delay="0.3s">
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+              This is an <strong>open-source project</strong>. We believe everyone should have access to tools
+              that help them grow food sustainably. Contribute code, share templates, or help translate
+              for gardeners worldwide.
+            </p>
+          </AnimateOnScroll>
+          <AnimateOnScroll animation="animate-fade-in" delay="0.5s">
+            <div className="flex flex-wrap justify-center gap-4">
             <a href="https://github.com/JohnConnorCode/permaculture-planner" target="_blank" rel="noopener noreferrer">
               <Button variant="outline" size="lg" className="hover-lift rounded-lg hover-nature">
                 <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
@@ -349,7 +362,8 @@ export default function HomePage() {
                 Join Community
               </Button>
             </Link>
-          </div>
+            </div>
+          </AnimateOnScroll>
         </div>
       </section>
 
