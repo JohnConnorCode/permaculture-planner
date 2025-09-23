@@ -276,12 +276,10 @@ export default function HomePage() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 opacity-0 animate-fade-in"
-                style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
               Optimized for Your Climate
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto opacity-0 animate-fade-in"
-               style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Our AI adapts recommendations based on your specific growing conditions
             </p>
           </div>
@@ -295,11 +293,7 @@ export default function HomePage() {
             ].map((climate, index) => {
               const IconComponent = climate.icon;
               return (
-                <div
-                  key={index}
-                  className="opacity-0 animate-fade-in"
-                  style={{ animationDelay: climate.delay, animationFillMode: 'forwards' }}
-                >
+                <div key={index}>
                   <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-300 transition-all hover-lift">
                     <IconComponent className="h-12 w-12 text-green-600 mx-auto mb-3" />
                     <div className="font-semibold text-gray-900">{climate.label}</div>
