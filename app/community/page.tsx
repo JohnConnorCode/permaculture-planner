@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,6 +14,15 @@ import {
 
 export default function CommunityPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null
+  }
 
   const communityStats = [
     { label: "Active Gardeners", value: "12,847", icon: Users },
@@ -112,12 +121,12 @@ export default function CommunityPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
             <span className="bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
               Growing Together
             </span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
             Connect with gardeners worldwide. Share your journey, learn from others,
             and help build a global movement of sustainable food production.
           </p>
@@ -125,7 +134,7 @@ export default function CommunityPage() {
           {/* Community Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             {communityStats.map((stat, index) => (
-              <div key={index} className="bg-green-50 rounded-lg p-4">
+              <div key={index} className="bg-green-50 rounded-lg p-4 opacity-0 animate-scale-in" style={{ animationDelay: `${0.3 + index * 0.1}s`, animationFillMode: 'forwards' }}>
                 <stat.icon className="h-8 w-8 text-green-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
                 <div className="text-sm text-gray-600">{stat.label}</div>
@@ -135,7 +144,7 @@ export default function CommunityPage() {
         </div>
 
         {/* Featured Gardens Section */}
-        <section className="mb-12">
+        <section className="mb-12 opacity-0 animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Featured Gardens</h2>
             <Link href="/gallery">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,6 +12,15 @@ import {
 
 export default function DocsPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return null
+  }
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text)
@@ -24,19 +33,19 @@ export default function DocsPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
             <span className="bg-gradient-to-r from-green-700 to-green-500 bg-clip-text text-transparent">
               Developer Documentation
             </span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
             Join us in building open-source tools that empower people to grow food sustainably.
             Every contribution helps make permaculture accessible to more gardeners worldwide.
           </p>
         </div>
 
         {/* Quick Start */}
-        <Card className="mb-8">
+        <Card className="mb-8 opacity-0 animate-scale-in" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Zap className="h-6 w-6 text-green-600" />

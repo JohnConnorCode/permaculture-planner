@@ -68,8 +68,8 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+      <Card className="w-full max-w-md opacity-0 animate-scale-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+        <CardHeader className="text-center opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
           <div className="flex justify-center mb-4">
             <div className="bg-green-600 p-3 rounded-full">
               <Leaf className="h-8 w-8 text-white" />
@@ -78,7 +78,7 @@ export default function SignupPage() {
           <CardTitle className="text-2xl">Create Account</CardTitle>
           <CardDescription>Start planning your permaculture garden</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="opacity-0 animate-slide-in-left" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
           <form onSubmit={handleSignup} className="space-y-4">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
@@ -92,7 +92,7 @@ export default function SignupPage() {
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
               <Label htmlFor="fullName">Full Name</Label>
               <Input
                 id="fullName"
@@ -105,7 +105,7 @@ export default function SignupPage() {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -118,7 +118,7 @@ export default function SignupPage() {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -135,7 +135,8 @@ export default function SignupPage() {
 
             <Button
               type="submit"
-              className="w-full bg-green-600 hover:bg-green-700"
+              className="w-full bg-green-600 hover:bg-green-700 opacity-0 animate-scale-in"
+              style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}
               disabled={loading || !!message}
             >
               {loading ? (
@@ -149,7 +150,7 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          <div className="mt-6">
+          <div className="mt-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
@@ -162,7 +163,8 @@ export default function SignupPage() {
             <Button
               type="button"
               variant="outline"
-              className="w-full mt-4"
+              className="w-full mt-4 opacity-0 animate-slide-in-right"
+              style={{ animationDelay: '0.9s', animationFillMode: 'forwards' }}
               onClick={handleGoogleSignup}
               disabled={loading || !!message}
             >
@@ -188,14 +190,14 @@ export default function SignupPage() {
             </Button>
           </div>
 
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-6 text-center text-sm opacity-0 animate-fade-in" style={{ animationDelay: '1.0s', animationFillMode: 'forwards' }}>
             Already have an account?{' '}
             <Link href="/auth/login" className="text-green-600 hover:underline font-semibold">
               Sign in
             </Link>
           </div>
 
-          <div className="mt-4 text-center text-xs text-gray-500">
+          <div className="mt-4 text-center text-xs text-gray-500 opacity-0 animate-fade-in" style={{ animationDelay: '1.1s', animationFillMode: 'forwards' }}>
             By signing up, you agree to our{' '}
             <Link href="/terms" className="underline">Terms of Service</Link>
             {' '}and{' '}

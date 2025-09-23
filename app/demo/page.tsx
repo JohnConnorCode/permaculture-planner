@@ -1,524 +1,865 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { X } from 'lucide-react'
+import { GardenDesignerCanvas, GardenBed } from '@/components/garden-designer-canvas'
+import { PLANT_LIBRARY, PlantInfo, getPlantsByCategory } from '@/lib/data/plant-library'
+import { GardenTutorial } from '@/components/garden-tutorial'
+import { PlantInfoModal } from '@/components/plant-info-modal'
+import { GARDEN_TEMPLATES } from '@/lib/data/garden-templates'
+import { useHistory } from '@/hooks/use-history'
+import { AIAssistant } from '@/components/ai-assistant'
 import {
-  ArrowLeft, Play, Pause, RotateCw, ZoomIn, ZoomOut, Maximize2,
-  Move, Square, Circle, Trash2, Save, Download, Upload,
-  Layers, Grid, Ruler, TreePine, Flower, Carrot, Apple,
-  Sun, Droplets, Info, Wind, Thermometer, MapPin,
-  BarChart3, TrendingUp, Calendar, Clock, CheckCircle,
-  AlertTriangle, Lightbulb, Heart, GitBranch, Sparkles,
-  Mountain, Trees, Home, Tent, Fish, Bird, Bug,
-  Zap, Battery, Recycle, Leaf, Globe, Users
+  Layers, Save, Share2, Download, Settings, Info,
+  ZoomIn, ZoomOut, Grid, Eye, EyeOff, Ruler,
+  MousePointer, Square, Pencil, Leaf, Trash2,
+  Sun, Droplets, TreePine, Flower, Sprout, Cherry,
+  HelpCircle, CheckCircle, AlertCircle, Play,
+  Undo, Redo, FileJson, Upload, BookOpen, Bot
 } from 'lucide-react'
+import { cn } from '@/lib/utils'
+
+// Example starter garden layout
+const STARTER_GARDEN: GardenBed[] = [
+  {
+    id: 'raised-bed-1',
+    name: 'Herb Garden',
+    points: [
+      { x: 100, y: 100 },
+      { x: 250, y: 100 },
+      { x: 250, y: 150 },
+      { x: 100, y: 150 }
+    ],
+    fill: '#e0f2e0',
+    stroke: '#22c55e',
+    plants: [
+      { id: 'p1', plantId: 'basil', x: 130, y: 125 },
+      { id: 'p2', plantId: 'thyme', x: 180, y: 125 },
+      { id: 'p3', plantId: 'rosemary', x: 220, y: 125 }
+    ]
+  },
+  {
+    id: 'raised-bed-2',
+    name: 'Salad Bed',
+    points: [
+      { x: 300, y: 100 },
+      { x: 450, y: 100 },
+      { x: 450, y: 150 },
+      { x: 300, y: 150 }
+    ],
+    fill: '#e0f2e0',
+    stroke: '#22c55e',
+    plants: [
+      { id: 'p4', plantId: 'lettuce', x: 320, y: 115 },
+      { id: 'p5', plantId: 'lettuce', x: 350, y: 115 },
+      { id: 'p6', plantId: 'lettuce', x: 380, y: 115 },
+      { id: 'p7', plantId: 'lettuce', x: 320, y: 135 },
+      { id: 'p8', plantId: 'lettuce', x: 350, y: 135 },
+      { id: 'p9', plantId: 'lettuce', x: 380, y: 135 }
+    ]
+  },
+  {
+    id: 'three-sisters',
+    name: 'Three Sisters',
+    points: [
+      { x: 200, y: 250 },
+      { x: 250, y: 220 },
+      { x: 300, y: 220 },
+      { x: 350, y: 250 },
+      { x: 350, y: 320 },
+      { x: 300, y: 350 },
+      { x: 250, y: 350 },
+      { x: 200, y: 320 }
+    ],
+    fill: '#fff4e0',
+    stroke: '#f59e0b',
+    plants: [
+      { id: 'p10', plantId: 'corn', x: 275, y: 285 },
+      { id: 'p11', plantId: 'beans', x: 250, y: 270 },
+      { id: 'p12', plantId: 'beans', x: 300, y: 270 },
+      { id: 'p13', plantId: 'squash', x: 275, y: 320 }
+    ]
+  }
+]
 
 export default function DemoPage() {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentStep, setCurrentStep] = useState(0)
+  const [selectedTool, setSelectedTool] = useState('select')
+  const [isFirstVisit, setIsFirstVisit] = useState(true)
+  const [selectedPlant, setSelectedPlant] = useState<PlantInfo | null>(null)
+  const { state: gardenBeds, setState: setGardenBeds, undo, redo, canUndo, canRedo } = useHistory<GardenBed[]>(STARTER_GARDEN)
   const [zoom, setZoom] = useState(100)
-  const [selectedZone, setSelectedZone] = useState(1)
-  const [activeTab, setActiveTab] = useState('design')
+  const [showGrid, setShowGrid] = useState(true)
+  const [showLabels, setShowLabels] = useState(true)
+  const [showSpacing, setShowSpacing] = useState(false)
+  const [showSunRequirements, setShowSunRequirements] = useState(false)
+  const [showWaterRequirements, setShowWaterRequirements] = useState(false)
+  const [activeTab, setActiveTab] = useState('plants')
+  const [plantCategory, setPlantCategory] = useState<PlantInfo['category']>('vegetable')
+  const [showTutorial, setShowTutorial] = useState(false)
+  const [hasSeenTutorial, setHasSeenTutorial] = useState(false)
+  const [plantSearch, setPlantSearch] = useState('')
+  const [showOnlyCompanions, setShowOnlyCompanions] = useState(false)
+  const [showPlantModal, setShowPlantModal] = useState<string | null>(null)
+  const [showTemplates, setShowTemplates] = useState(false)
+  const [showAIAssistant, setShowAIAssistant] = useState(false)
 
-  const demoSteps = [
-    {
-      title: "Zone Mapping",
-      description: "Define zones based on frequency of use and energy requirements",
-      icon: MapPin
-    },
-    {
-      title: "Sector Analysis",
-      description: "Analyze sun, wind, water flow, and external energies",
-      icon: Sun
-    },
-    {
-      title: "Water Systems",
-      description: "Design swales, ponds, and rainwater harvesting",
-      icon: Droplets
-    },
-    {
-      title: "Food Forest Layers",
-      description: "Plan canopy, understory, shrub, and ground layers",
-      icon: Trees
-    },
-    {
-      title: "Guild Creation",
-      description: "Build plant communities that support each other",
-      icon: Heart
-    },
-    {
-      title: "Yield Analysis",
-      description: "Track production, inputs, and system efficiency",
-      icon: BarChart3
-    }
-  ]
-
-  const zones = [
-    { id: 0, name: "Zone 0", description: "Home & daily living", color: "bg-red-500" },
-    { id: 1, name: "Zone 1", description: "Kitchen garden & herbs", color: "bg-orange-500" },
-    { id: 2, name: "Zone 2", description: "Small livestock & orchards", color: "bg-yellow-500" },
-    { id: 3, name: "Zone 3", description: "Main crops & grazing", color: "bg-green-500" },
-    { id: 4, name: "Zone 4", description: "Timber & foraging", color: "bg-blue-500" },
-    { id: 5, name: "Zone 5", description: "Wildlife & wilderness", color: "bg-purple-500" }
-  ]
-
+  // Check if user has seen tutorial before
   useEffect(() => {
-    if (isPlaying) {
-      const timer = setInterval(() => {
-        setCurrentStep((prev) => (prev + 1) % demoSteps.length)
-      }, 4000)
-      return () => clearInterval(timer)
+    const seen = localStorage.getItem('gardenTutorialSeen')
+    if (!seen && gardenBeds.length === 0) {
+      setShowTutorial(true)
     }
-  }, [isPlaying, demoSteps.length])
+    setHasSeenTutorial(!!seen)
+  }, [])
+
+  // Calculate garden statistics
+  const calculateStats = () => {
+    const totalPlants = gardenBeds.reduce((sum, bed) => sum + bed.plants.length, 0)
+    const uniquePlants = new Set(gardenBeds.flatMap(bed => bed.plants.map(p => p.plantId))).size
+    const totalArea = gardenBeds.reduce((sum, bed) => {
+      const area = calculatePolygonArea(bed.points)
+      return sum + area
+    }, 0)
+
+    return {
+      beds: gardenBeds.length,
+      plants: totalPlants,
+      varieties: uniquePlants,
+      area: Math.round(totalArea / 144) // Convert to sq ft
+    }
+  }
+
+  const calculatePolygonArea = (points: { x: number; y: number }[]) => {
+    if (points.length < 3) return 0
+    let area = 0
+    for (let i = 0; i < points.length; i++) {
+      const j = (i + 1) % points.length
+      area += points[i].x * points[j].y
+      area -= points[j].x * points[i].y
+    }
+    return Math.abs(area / 2)
+  }
+
+  const stats = calculateStats()
+
+  // Tool configuration
+  const tools = [
+    { id: 'select', icon: MousePointer, name: 'Select', description: 'Select and move' },
+    { id: 'rect', icon: Square, name: 'Rectangle', description: 'Draw rectangular bed' },
+    { id: 'draw', icon: Pencil, name: 'Custom Shape', description: 'Draw any shape' },
+    { id: 'plant', icon: Leaf, name: 'Plant', description: 'Place plants', requiresPlant: true },
+    { id: 'delete', icon: Trash2, name: 'Delete', description: 'Remove elements' }
+  ]
+
+  const handleToolSelect = (toolId: string) => {
+    setSelectedTool(toolId)
+    if (toolId !== 'plant') {
+      setSelectedPlant(null)
+    }
+  }
+
+  const handlePlantSelect = (plant: PlantInfo) => {
+    setSelectedPlant(plant)
+    setSelectedTool('plant')
+  }
+
+  const clearGarden = () => {
+    if (confirm('Clear all garden beds? This cannot be undone.')) {
+      setGardenBeds([])
+    }
+  }
+
+  const loadExample = () => {
+    setGardenBeds(STARTER_GARDEN)
+    setIsFirstVisit(false)
+  }
+
+  const handleTutorialComplete = () => {
+    setShowTutorial(false)
+    localStorage.setItem('gardenTutorialSeen', 'true')
+    setHasSeenTutorial(true)
+  }
+
+  // Save design to localStorage
+  const saveDesign = () => {
+    const design = {
+      name: `Garden Design ${new Date().toLocaleDateString()}`,
+      beds: gardenBeds,
+      timestamp: Date.now()
+    }
+    const saved = JSON.parse(localStorage.getItem('gardenDesigns') || '[]')
+    saved.push(design)
+    localStorage.setItem('gardenDesigns', JSON.stringify(saved))
+    alert('Design saved successfully!')
+  }
+
+  // Load design from localStorage
+  const loadDesign = () => {
+    const saved = JSON.parse(localStorage.getItem('gardenDesigns') || '[]')
+    if (saved.length > 0) {
+      const latest = saved[saved.length - 1]
+      setGardenBeds(latest.beds || [])
+      alert(`Loaded: ${latest.name}`)
+    } else {
+      alert('No saved designs found')
+    }
+  }
+
+  // Export design as JSON
+  const exportDesign = () => {
+    const design = {
+      name: `Garden Design ${new Date().toLocaleDateString()}`,
+      beds: gardenBeds,
+      timestamp: Date.now(),
+      version: '1.0'
+    }
+    const dataStr = JSON.stringify(design, null, 2)
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr)
+
+    const exportFileDefaultName = `garden-design-${Date.now()}.json`
+
+    const linkElement = document.createElement('a')
+    linkElement.setAttribute('href', dataUri)
+    linkElement.setAttribute('download', exportFileDefaultName)
+    linkElement.click()
+  }
+
+  // Import design from JSON file
+  const importDesign = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const design = JSON.parse(e.target?.result as string)
+        if (design.beds && Array.isArray(design.beds)) {
+          setGardenBeds(design.beds)
+          alert(`Imported: ${design.name || 'Garden Design'}`)
+        } else {
+          alert('Invalid garden design file')
+        }
+      } catch (error) {
+        alert('Error importing design file')
+      }
+    }
+    reader.readAsText(file)
+    // Reset input
+    event.target.value = ''
+  }
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Undo/Redo
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault()
+        if (canUndo) undo()
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault()
+        if (canRedo) redo()
+      }
+      // Save
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        saveDesign()
+      }
+      // Tool shortcuts
+      if (!e.ctrlKey && !e.metaKey) {
+        switch(e.key) {
+          case 'v':
+          case 'V':
+            setSelectedTool('select')
+            break
+          case 'r':
+          case 'R':
+            setSelectedTool('rect')
+            break
+          case 'd':
+          case 'D':
+            setSelectedTool('draw')
+            break
+          case 'p':
+          case 'P':
+            setSelectedTool('plant')
+            break
+          case 'Delete':
+          case 'Backspace':
+            if (selectedTool !== 'delete') {
+              setSelectedTool('delete')
+            }
+            break
+          case 'Escape':
+            setSelectedTool('select')
+            setSelectedPlant(null)
+            break
+          case '?':
+            setShowTutorial(true)
+            break
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [canUndo, canRedo, undo, redo, selectedTool])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white nature-pattern leaf-pattern forest-canopy">
       {/* Header */}
-      <header className="border-b bg-white/90 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+      <section className="py-8 px-4 border-b glass nature-pattern">
+        <div className="container mx-auto max-w-7xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Real Garden Designer
+              </h1>
+              <p className="text-gray-600">
+                Draw custom beds • Plant real vegetables • Check companion compatibility
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {/* Undo/Redo */}
+              <div className="flex gap-1 border-r pr-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={undo}
+                  disabled={!canUndo}
+                  title="Undo (Ctrl+Z)"
+                >
+                  <Undo className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={redo}
+                  disabled={!canRedo}
+                  title="Redo (Ctrl+Y)"
+                >
+                  <Redo className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <Button
+                variant="outline"
+                onClick={() => setShowTemplates(!showTemplates)}
+              >
+                <BookOpen className="h-4 w-4 mr-2" />
+                Templates
               </Button>
-            </Link>
-            <h1 className="text-xl font-semibold">Permaculture Design Platform</h1>
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              Full Featured Demo
-            </Badge>
+              <Button variant="outline" onClick={loadDesign}>
+                <Download className="h-4 w-4 mr-2" />
+                Load
+              </Button>
+              <Button variant="outline" onClick={clearGarden}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowAIAssistant(!showAIAssistant)}
+                className={cn(
+                  "border-purple-500 text-purple-600 hover:bg-purple-50",
+                  showAIAssistant && "bg-purple-50"
+                )}
+              >
+                <Bot className="h-4 w-4 mr-2" />
+                AI Assistant
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowTutorial(true)}
+                className="border-green-500 text-green-600 hover:bg-green-50"
+              >
+                <HelpCircle className="h-4 w-4 mr-2" />
+                Help
+              </Button>
+              <Button
+                id="save-button"
+                className="gradient-understory border-organic hover-lift"
+                onClick={saveDesign}
+                title="Save to browser (Ctrl+S)"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save
+              </Button>
+              <Button
+                variant="outline"
+                onClick={exportDesign}
+                title="Export as JSON file"
+              >
+                <FileJson className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+              <label>
+                <input
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={importDesign}
+                />
+                <Button
+                  variant="outline"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.currentTarget.parentElement?.click()
+                  }}
+                  title="Import JSON file"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import
+                </Button>
+              </label>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsPlaying(!isPlaying)}
-            >
-              {isPlaying ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
-              {isPlaying ? 'Pause Tour' : 'Start Tour'}
-            </Button>
-            <Link href="/wizard">
-              <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                Start Your Design
-              </Button>
-            </Link>
+
+          {/* Quick Stats */}
+          <div className="flex gap-6 mt-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{stats.beds} Beds</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{stats.plants} Plants</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{stats.varieties} Varieties</Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{stats.area} sq ft</Badge>
+            </div>
           </div>
         </div>
-      </header>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Main Demo Area */}
-        <div className="grid lg:grid-cols-4 gap-6">
-          {/* Left Panel - Tools & Zones */}
-          <div className="lg:col-span-1 space-y-4">
-            {/* Design Tools */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Design Tools</CardTitle>
+      {/* Main Interface */}
+      <section className="container mx-auto max-w-7xl p-4">
+        <div className="grid lg:grid-cols-[320px,1fr] gap-4">
+          {/* Left Sidebar */}
+          <div className="space-y-4">
+            {/* Tools */}
+            <Card id="drawing-tools" className="card-nature border-organic nature-pattern">
+              <CardHeader className="py-3">
+                <CardTitle className="text-base">Drawing Tools</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { icon: Move, label: "Select" },
-                    { icon: MapPin, label: "Zone" },
-                    { icon: Trees, label: "Forest" },
-                    { icon: Droplets, label: "Water" },
-                    { icon: Home, label: "Structure" },
-                    { icon: Ruler, label: "Measure" }
-                  ].map((tool, i) => (
+              <CardContent className="p-2">
+                <div className="grid grid-cols-2 gap-1">
+                  {tools.map(tool => (
                     <Button
-                      key={i}
-                      variant={i === 0 ? "default" : "outline"}
+                      key={tool.id}
+                      variant={selectedTool === tool.id ? 'default' : 'outline'}
                       size="sm"
-                      className="flex flex-col h-16 p-2"
+                      onClick={() => handleToolSelect(tool.id)}
+                      className={cn(
+                        "justify-start border-organic hover-nature",
+                        selectedTool === tool.id && "gradient-understory hover:bg-green-700"
+                      )}
+                      disabled={tool.requiresPlant && !selectedPlant}
                     >
-                      <tool.icon className="h-5 w-5 mb-1" />
-                      <span className="text-xs">{tool.label}</span>
+                      <tool.icon className="h-4 w-4 mr-2" />
+                      {tool.name}
                     </Button>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Zone Selector */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Permaculture Zones</CardTitle>
+            {/* Plant Library */}
+            <Card id="plant-library" className="card-nature border-organic leaf-pattern meadow-pattern">
+              <CardHeader className="py-3">
+                <CardTitle className="text-base">Plant Library</CardTitle>
+                <CardDescription>Click a plant to select it for planting</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-2">
-                {zones.map(zone => (
-                  <button
-                    key={zone.id}
-                    onClick={() => setSelectedZone(zone.id)}
-                    className={`w-full text-left p-2 rounded-lg border transition-all ${
-                      selectedZone === zone.id
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${zone.color}`} />
-                      <div>
-                        <div className="text-sm font-medium">{zone.name}</div>
-                        <div className="text-xs text-gray-500">{zone.description}</div>
-                      </div>
+              <CardContent className="p-2">
+                <Tabs value={plantCategory} onValueChange={(v) => setPlantCategory(v as PlantInfo['category'])}>
+                  <TabsList className="grid grid-cols-3 h-auto">
+                    <TabsTrigger value="vegetable" className="text-xs">
+                      <Sprout className="h-3 w-3 mr-1" />
+                      Veggies
+                    </TabsTrigger>
+                    <TabsTrigger value="herb" className="text-xs">
+                      <Leaf className="h-3 w-3 mr-1" />
+                      Herbs
+                    </TabsTrigger>
+                    <TabsTrigger value="fruit" className="text-xs">
+                      <Cherry className="h-3 w-3 mr-1" />
+                      Fruits
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Search bar */}
+                  <div className="mt-2 mb-2">
+                    <input
+                      type="text"
+                      placeholder="🔍 Search plants..."
+                      value={plantSearch}
+                      onChange={(e) => setPlantSearch(e.target.value)}
+                      className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+
+                  {/* Companion filter */}
+                  {selectedPlant && (
+                    <label className="flex items-center gap-2 mb-2 text-xs">
+                      <input
+                        type="checkbox"
+                        checked={showOnlyCompanions}
+                        onChange={(e) => setShowOnlyCompanions(e.target.checked)}
+                        className="rounded"
+                      />
+                      <span>Show only companions for {selectedPlant.name}</span>
+                    </label>
+                  )}
+
+                  <ScrollArea className="h-[250px]">
+                    <div className="space-y-1">
+                      {getPlantsByCategory(plantCategory)
+                        .filter(plant => {
+                          // Search filter
+                          if (plantSearch && !plant.name.toLowerCase().includes(plantSearch.toLowerCase())) {
+                            return false
+                          }
+                          // Companion filter
+                          if (showOnlyCompanions && selectedPlant) {
+                            return selectedPlant.companions.includes(plant.id) ||
+                                   plant.companions.includes(selectedPlant.id)
+                          }
+                          return true
+                        })
+                        .map(plant => {
+                        return <Button
+                          key={plant.id}
+                          variant={selectedPlant?.id === plant.id ? 'default' : 'ghost'}
+                          size="sm"
+                          onClick={() => handlePlantSelect(plant)}
+                          className={cn(
+                            "w-full justify-start text-left border-organic hover-nature",
+                            selectedPlant?.id === plant.id && "gradient-understory hover:bg-green-700",
+                            showOnlyCompanions && selectedPlant?.companions.includes(plant.id) && "ring-2 ring-green-400"
+                          )}
+                        >
+                          <span className="text-lg mr-2">{plant.icon}</span>
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">
+                              {plant.name}
+                              {selectedPlant && selectedPlant.companions.includes(plant.id) && (
+                                <span className="ml-1 text-green-300">✓</span>
+                              )}
+                              {selectedPlant && selectedPlant.antagonists.includes(plant.id) && (
+                                <span className="ml-1 text-red-300">✗</span>
+                              )}
+                            </div>
+                            <div className="text-xs opacity-70">
+                              {plant.requirements.sun} sun • {plant.size.spacing}" spacing
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-0 h-6 w-6"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setShowPlantModal(plant.id)
+                            }}
+                          >
+                            <Info className="h-3 w-3" />
+                          </Button>
+                        </Button>
+                      })}
                     </div>
-                  </button>
-                ))}
+                  </ScrollArea>
+                </Tabs>
               </CardContent>
             </Card>
-          </div>
 
-          {/* Center - Canvas */}
-          <div className="lg:col-span-2">
-            <Card className="h-[600px] relative overflow-hidden">
-              <div className="absolute top-4 left-4 z-10 flex gap-2">
-                <Button size="sm" variant="secondary">
-                  <ZoomIn className="h-4 w-4 mr-1" />
-                  {zoom}%
-                </Button>
-                <Button size="sm" variant="secondary">
-                  <Grid className="h-4 w-4 mr-1" />
-                  Grid
-                </Button>
-                <Button size="sm" variant="secondary">
-                  <Layers className="h-4 w-4 mr-1" />
-                  Layers
-                </Button>
-              </div>
-
-              {/* Interactive Canvas */}
-              <div className="w-full h-full bg-gradient-to-br from-green-50 to-emerald-50 relative">
-                {/* Zone Visualization */}
-                <svg className="w-full h-full">
-                  <defs>
-                    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" strokeWidth="0.5"/>
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#grid)" />
-
-                  {/* Concentric Zones */}
-                  {zones.slice(0, 4).map((zone, i) => (
-                    <circle
-                      key={zone.id}
-                      cx="50%"
-                      cy="50%"
-                      r={`${15 + i * 10}%`}
-                      fill={zone.id === selectedZone ? 'rgba(34, 197, 94, 0.1)' : 'transparent'}
-                      stroke={zone.id === selectedZone ? '#22c55e' : '#d1d5db'}
-                      strokeWidth={zone.id === selectedZone ? '2' : '1'}
-                      strokeDasharray={zone.id === 0 ? '0' : '5,5'}
-                      className="transition-all cursor-pointer"
-                      onClick={() => setSelectedZone(zone.id)}
-                    />
-                  ))}
-
-                  {/* Example Elements */}
-                  <g transform="translate(200, 150)">
-                    <rect x="0" y="0" width="80" height="60" fill="#8b4513" rx="4" />
-                    <text x="40" y="35" textAnchor="middle" className="text-xs fill-white">Compost</text>
-                  </g>
-
-                  <g transform="translate(320, 200)">
-                    <circle cx="30" cy="30" r="25" fill="#4ade80" />
-                    <text x="30" y="35" textAnchor="middle" className="text-xs">Apple Tree</text>
-                  </g>
-
-                  <g transform="translate(150, 280)">
-                    <path d="M 0 0 Q 50 20 100 0" stroke="#3b82f6" strokeWidth="3" fill="none" />
-                    <text x="50" y="30" textAnchor="middle" className="text-xs fill-blue-600">Swale</text>
-                  </g>
-                </svg>
-
-                {/* Overlay Info */}
-                {isPlaying && (
-                  <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur rounded-lg p-4 shadow-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        {React.createElement(demoSteps[currentStep].icon, { className: "h-5 w-5 text-green-600" })}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-sm">{demoSteps[currentStep].title}</h4>
-                        <p className="text-xs text-gray-600">{demoSteps[currentStep].description}</p>
+            {/* Selected Plant Info */}
+            {selectedPlant && (
+              <Card className="card-nature border-organic soil-texture">
+                <CardHeader className="py-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <span className="text-2xl">{selectedPlant.icon}</span>
+                    {selectedPlant.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div>
+                    <strong>Size:</strong> {selectedPlant.size.mature_width}" × {selectedPlant.size.mature_height}"
+                  </div>
+                  <div>
+                    <strong>Spacing:</strong> {selectedPlant.size.spacing}" between plants
+                  </div>
+                  <div>
+                    <strong>Sun:</strong> {selectedPlant.requirements.sun}
+                  </div>
+                  <div>
+                    <strong>Water:</strong> {selectedPlant.requirements.water}
+                  </div>
+                  <Separator className="my-2" />
+                  <div>
+                    <strong className="text-green-600">Good with:</strong>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {selectedPlant.companions.map(id => (
+                        <Badge key={id} variant="secondary" className="text-xs">
+                          {PLANT_LIBRARY.find(p => p.id === id)?.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  {selectedPlant.antagonists.length > 0 && (
+                    <div>
+                      <strong className="text-red-600">Keep away from:</strong>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {selectedPlant.antagonists.map(id => (
+                          <Badge key={id} variant="destructive" className="text-xs">
+                            {PLANT_LIBRARY.find(p => p.id === id)?.name}
+                          </Badge>
+                        ))}
                       </div>
                     </div>
-                    <Progress value={(currentStep + 1) / demoSteps.length * 100} className="h-1 mt-3" />
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Canvas Area */}
+          <Card className="overflow-hidden card-nature border-organic" id="canvas">
+            <CardHeader className="py-3 gradient-canopy text-white nature-pattern">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Garden Canvas</CardTitle>
+                <div className="flex gap-2" id="view-controls">
+                  {/* View Controls */}
+                  <Button
+                    size="sm"
+                    variant={showGrid ? 'secondary' : 'ghost'}
+                    onClick={() => setShowGrid(!showGrid)}
+                    className="text-white hover:text-white"
+                    title="Toggle Grid"
+                  >
+                    <Grid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={showLabels ? 'secondary' : 'ghost'}
+                    onClick={() => setShowLabels(!showLabels)}
+                    className="text-white hover:text-white"
+                    title="Toggle Labels"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={showSpacing ? 'secondary' : 'ghost'}
+                    onClick={() => setShowSpacing(!showSpacing)}
+                    className="text-white hover:text-white"
+                    title="Show Spacing"
+                  >
+                    <Ruler className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={showSunRequirements ? 'secondary' : 'ghost'}
+                    onClick={() => setShowSunRequirements(!showSunRequirements)}
+                    className="text-white hover:text-white"
+                    title="Show Sun Requirements"
+                  >
+                    <Sun className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={showWaterRequirements ? 'secondary' : 'ghost'}
+                    onClick={() => setShowWaterRequirements(!showWaterRequirements)}
+                    className="text-white hover:text-white"
+                    title="Show Water Requirements"
+                  >
+                    <Droplets className="h-4 w-4" />
+                  </Button>
+                  <Separator orientation="vertical" className="h-6 bg-white/20" />
+                  {/* Zoom Controls */}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setZoom(Math.min(200, zoom + 10))}
+                    className="text-white hover:text-white"
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm px-2">{zoom}%</span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setZoom(Math.max(50, zoom - 10))}
+                    className="text-white hover:text-white"
+                  >
+                    <ZoomOut className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 bg-white">
+              <div className="relative h-[600px]">
+                {/* Welcome message for first-time users */}
+                {gardenBeds.length === 0 && isFirstVisit && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-50/50 to-emerald-50/50 nature-pattern">
+                    <div className="text-center space-y-6 max-w-lg p-8 glass border-organic shadow-xl leaf-pattern">
+                      <div className="text-6xl">🌱</div>
+                      <h3 className="text-2xl font-bold text-gray-800">Welcome to Your Garden Designer!</h3>
+                      <p className="text-gray-600 text-lg">
+                        Create your perfect garden layout with real plants, companion planting advice, and seasonal planning.
+                      </p>
+                      <div className="grid gap-3">
+                        <Button
+                          size="lg"
+                          onClick={() => { setShowTutorial(true); setIsFirstVisit(false) }}
+                          className="gradient-understory border-organic hover-lift text-lg py-6"
+                        >
+                          <Play className="h-5 w-5 mr-2" />
+                          Start Interactive Tutorial
+                        </Button>
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={loadExample}
+                          className="text-lg py-6 border-organic hover-nature"
+                        >
+                          <Layers className="h-5 w-5 mr-2" />
+                          Load Example Garden
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => { setSelectedTool('rect'); setIsFirstVisit(false) }}
+                          className="hover-nature"
+                        >
+                          Start from Scratch →
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
-              </div>
-            </Card>
-          </div>
 
-          {/* Right Panel - Analysis & Data */}
-          <div className="lg:col-span-1 space-y-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="design">Design</TabsTrigger>
-                <TabsTrigger value="analysis">Analysis</TabsTrigger>
-                <TabsTrigger value="yield">Yield</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="design" className="space-y-3">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Current Selection</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="p-3 bg-green-50 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <Apple className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-sm">Apple Tree Guild</span>
-                        </div>
-                        <div className="text-xs text-gray-600 mt-1">
-                          Zone 2 • Canopy Layer
-                        </div>
-                      </div>
-                      <div className="text-xs space-y-1">
-                        <div className="flex justify-between">
-                          <span>Height:</span>
-                          <span className="font-medium">15-20 ft</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Spread:</span>
-                          <span className="font-medium">12-15 ft</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Years to yield:</span>
-                          <span className="font-medium">3-5 years</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Guild Companions</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {[
-                      { name: "Comfrey", role: "Nutrient accumulator", icon: Leaf },
-                      { name: "Nasturtium", role: "Pest deterrent", icon: Bug },
-                      { name: "Chives", role: "Disease prevention", icon: Flower }
-                    ].map((companion, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs">
-                        <companion.icon className="h-3 w-3 text-green-600" />
-                        <span className="font-medium">{companion.name}</span>
-                        <span className="text-gray-500">• {companion.role}</span>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="analysis" className="space-y-3">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Site Analysis</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1">
-                          <Sun className="h-3 w-3" /> Sun Exposure
-                        </span>
-                        <Badge variant="secondary" className="bg-yellow-100">Full Sun</Badge>
-                      </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1">
-                          <Droplets className="h-3 w-3" /> Water Access
-                        </span>
-                        <Badge variant="secondary" className="bg-blue-100">Good</Badge>
-                      </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1">
-                          <Wind className="h-3 w-3" /> Wind Exposure
-                        </span>
-                        <Badge variant="secondary" className="bg-gray-100">Moderate</Badge>
-                      </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1">
-                          <Mountain className="h-3 w-3" /> Slope
-                        </span>
-                        <Badge variant="secondary" className="bg-green-100">5° South</Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4 text-yellow-500" />
-                      Suggestions
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="p-2 bg-blue-50 rounded text-xs">
-                      <p className="font-medium text-blue-900">Add nitrogen fixer</p>
-                      <p className="text-blue-700 mt-1">Consider adding clover or beans as groundcover</p>
-                    </div>
-                    <div className="p-2 bg-green-50 rounded text-xs">
-                      <p className="font-medium text-green-900">Water harvesting opportunity</p>
-                      <p className="text-green-700 mt-1">Slope is ideal for swale placement</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="yield" className="space-y-3">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Projected Yields</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Year 1-2</span>
-                          <span className="font-medium">Establishment</span>
-                        </div>
-                        <Progress value={20} className="h-2" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Year 3-5</span>
-                          <span className="font-medium">150 lbs/year</span>
-                        </div>
-                        <Progress value={60} className="h-2" />
-                      </div>
-                      <div>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>Year 6+</span>
-                          <span className="font-medium">300+ lbs/year</span>
-                        </div>
-                        <Progress value={100} className="h-2" />
-                      </div>
-                    </div>
-
-                    <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                      <div className="text-xs space-y-1">
-                        <div className="flex justify-between">
-                          <span>Total System Yield:</span>
-                          <span className="font-bold text-green-700">1,200 lbs/year</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Water Efficiency:</span>
-                          <span className="font-medium text-blue-600">85%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Biodiversity Score:</span>
-                          <span className="font-medium text-purple-600">92/100</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm">Timeline</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {[
-                      { month: "March", task: "Prepare beds & swales", icon: CheckCircle, done: true },
-                      { month: "April", task: "Plant fruit trees", icon: Trees, done: true },
-                      { month: "May", task: "Establish groundcover", icon: Leaf, done: false },
-                      { month: "June", task: "Install irrigation", icon: Droplets, done: false }
-                    ].map((item, i) => (
-                      <div key={i} className={`flex items-center gap-2 text-xs ${item.done ? 'opacity-60' : ''}`}>
-                        <item.icon className={`h-3 w-3 ${item.done ? 'text-green-600' : 'text-gray-400'}`} />
-                        <span className="font-medium w-12">{item.month}</span>
-                        <span className={item.done ? 'line-through' : ''}>{item.task}</span>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-
-        {/* Feature Highlights */}
-        <div className="mt-8 grid md:grid-cols-3 gap-4">
-          <Card className="border-green-200 bg-green-50/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-green-600" />
-                AI-Powered Design
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Get intelligent suggestions based on your climate, soil, and goals.
-                The system learns from thousands of successful permaculture designs.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-blue-200 bg-blue-50/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Globe className="h-5 w-5 text-blue-600" />
-                Climate Adapted
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Automatically adjusts recommendations for your hardiness zone,
-                rainfall patterns, and local conditions.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-purple-200 bg-purple-50/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Users className="h-5 w-5 text-purple-600" />
-                Community Wisdom
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600">
-                Connect with local permaculture practitioners. Share designs,
-                get feedback, and learn from nearby success stories.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* CTA Section */}
-        <div className="mt-12 text-center">
-          <Card className="bg-gradient-to-r from-green-600 to-emerald-600 text-white border-0">
-            <CardContent className="py-8">
-              <h2 className="text-2xl font-bold mb-4">Ready to Design Your Permaculture System?</h2>
-              <p className="mb-6 text-green-50">
-                Join thousands creating abundant, regenerative landscapes
-              </p>
-              <div className="flex gap-4 justify-center">
-                <Link href="/wizard">
-                  <Button size="lg" variant="secondary" className="bg-white text-green-600 hover:bg-green-50">
-                    <Leaf className="mr-2 h-5 w-5" />
-                    Start Free Design
-                  </Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20">
-                    Create Account
-                  </Button>
-                </Link>
+                {/* Garden Designer Canvas */}
+                <GardenDesignerCanvas
+                  beds={gardenBeds}
+                  onBedsChange={setGardenBeds}
+                  selectedPlant={selectedPlant}
+                  selectedTool={selectedTool}
+                  zoom={zoom}
+                  showGrid={showGrid}
+                  showLabels={showLabels}
+                  showSpacing={showSpacing}
+                  showSunRequirements={showSunRequirements}
+                  showWaterRequirements={showWaterRequirements}
+                  className="h-full"
+                />
               </div>
             </CardContent>
           </Card>
         </div>
-      </div>
+      </section>
+
+      {/* Help Section */}
+      <section className="container mx-auto max-w-7xl p-4">
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Quick Tips:</strong> 🎨 Draw beds with Rectangle or Custom tools •
+            🌿 Select plants from the library • 📍 Click in beds to place •
+            🔍 Hover for plant details • 💧☀️ Toggle layers to see requirements
+          </AlertDescription>
+        </Alert>
+      </section>
+
+      {/* Tutorial Overlay */}
+      <GardenTutorial
+        isVisible={showTutorial}
+        onComplete={handleTutorialComplete}
+      />
+
+      {/* Plant Info Modal */}
+      <PlantInfoModal
+        plantId={showPlantModal}
+        isOpen={!!showPlantModal}
+        onClose={() => setShowPlantModal(null)}
+      />
+
+      {/* Templates Drawer */}
+      {showTemplates && (
+        <div className="fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowTemplates(false)} />
+          <div className="absolute right-0 top-0 bottom-0 w-96 glass nature-pattern shadow-xl overflow-y-auto">
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold">Garden Templates</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowTemplates(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {GARDEN_TEMPLATES.map(template => (
+                  <Card
+                    key={template.id}
+                    className="cursor-pointer hover:shadow-lg transition-shadow card-nature border-organic hover-lift"
+                    onClick={() => {
+                      setGardenBeds(template.beds)
+                      setShowTemplates(false)
+                      setIsFirstVisit(false)
+                    }}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-3xl">{template.icon}</span>
+                        <div className="flex-1">
+                          <h3 className="font-semibold">{template.name}</h3>
+                          <p className="text-xs text-gray-600 mt-1">{template.description}</p>
+                          <div className="flex gap-2 mt-2">
+                            <Badge variant="outline" className="text-xs">
+                              {template.difficulty}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {template.size}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Assistant Panel */}
+      {showAIAssistant && (
+        <div className="fixed bottom-4 right-4 z-40 w-96">
+          <AIAssistant
+            context={{
+              beds: gardenBeds,
+              plants: gardenBeds.flatMap(bed => bed.plants),
+              stats: stats,
+              selectedPlant: selectedPlant
+            }}
+            onSuggestion={(suggestion) => {
+              // Handle AI suggestions
+              console.log('AI Suggestion:', suggestion)
+            }}
+          />
+        </div>
+      )}
     </div>
   )
 }

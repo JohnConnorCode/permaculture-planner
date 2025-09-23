@@ -132,13 +132,13 @@ export default function WizardPage() {
   const progressValue = ((currentStep - 1) / (steps.length - 1)) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white nature-pattern">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="glass border-b border-green-200 sticky top-0 z-10 leaf-pattern">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
-              <h1 className="text-2xl font-bold text-gray-900">Create Your Garden Plan</h1>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent">Create Your Permaculture Garden</h1>
               <p className="text-sm text-gray-600 mt-1">
                 Answer a few questions to get your personalized permaculture design
               </p>
@@ -152,9 +152,9 @@ export default function WizardPage() {
           {/* Progress Bar */}
           <div className="mb-4 opacity-0 animate-slide-in-left"
                style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-            <Progress value={progressValue} className="h-2 bg-green-100">
+            <Progress value={progressValue} className="h-2 bg-green-100 border-organic">
               <div
-                className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-500"
+                className="h-full gradient-understory rounded-full transition-all duration-500 shadow-md"
                 style={{ width: `${progressValue}%` }}
               />
             </Progress>
@@ -176,9 +176,9 @@ export default function WizardPage() {
                   <div className="relative">
                     <div
                       className={`
-                        w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
-                        ${isActive ? 'bg-green-600 text-white scale-110 shadow-lg' : ''}
-                        ${isCompleted ? 'bg-green-500 text-white' : ''}
+                        w-10 h-10 border-organic flex items-center justify-center transition-all duration-300
+                        ${isActive ? 'gradient-understory text-white scale-110 shadow-lg animate-grow' : ''}
+                        ${isCompleted ? 'bg-green-500 text-white shadow-md' : ''}
                         ${!isActive && !isCompleted ? 'bg-gray-200 text-gray-400' : ''}
                       `}
                     >
@@ -275,7 +275,7 @@ export default function WizardPage() {
             variant="outline"
             onClick={handleBack}
             disabled={currentStep === 1}
-            className="hover-lift"
+            className="hover-lift border-organic hover-nature border-green-300"
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
             Previous
@@ -284,7 +284,7 @@ export default function WizardPage() {
           {currentStep === steps.length ? (
             <Button
               onClick={handleComplete}
-              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white hover-lift group"
+              className="gradient-understory text-white hover-lift group border-organic shadow-lg hover:shadow-xl"
             >
               <Sparkles className="mr-2 h-4 w-4" />
               Generate My Garden Plan
@@ -293,7 +293,7 @@ export default function WizardPage() {
           ) : (
             <Button
               onClick={handleNext}
-              className="bg-green-600 hover:bg-green-700 hover-lift group"
+              className="gradient-understory hover:opacity-90 hover-lift group border-organic shadow-md"
             >
               Next Step
               <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

@@ -29,6 +29,16 @@
     --chart-3: 38 92% 50%;
     --chart-4: 199 89% 48%;
     --chart-5: 280 65% 60%;
+
+    /* Permaculture Theme Colors */
+    --color-forest: 142 72% 29%;
+    --color-earth: 30 70% 30%;
+    --color-water: 199 89% 48%;
+    --color-sun: 38 92% 50%;
+    --color-sky: 199 95% 74%;
+    --color-soil: 25 45% 25%;
+    --color-leaf: 142 70% 45%;
+    --color-growth: 84 85% 44%;
   }
 
   .dark {
@@ -156,19 +166,77 @@ body {
 }
 
 .animate-slide-in-left {
-  animation: slideInLeft 0.3s ease-out;
+  animation: slideInLeft 0.3s ease-out forwards;
 }
 
 .animate-slide-in-right {
-  animation: slideInRight 0.3s ease-out;
+  animation: slideInRight 0.3s ease-out forwards;
 }
 
 .animate-scale-in {
-  animation: scaleIn 0.3s ease-out;
+  animation: scaleIn 0.3s ease-out forwards;
 }
 
 .animate-bounce-in {
-  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-sway {
+  animation: sway 4s ease-in-out infinite;
+}
+
+.animate-grow {
+  animation: grow 2s ease-in-out infinite;
+}
+
+.animate-leaf-rustle {
+  animation: leafRustle 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes grow {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes leafRustle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(1deg) scale(1.02);
+  }
+  75% {
+    transform: rotate(-1deg) scale(0.98);
+  }
 }
 
 /* Gradient backgrounds */
@@ -272,4 +340,148 @@ body {
 ::selection {
   background: hsl(142 72% 29% / 0.2);
   color: hsl(142 40% 16%);
+}
+
+/* Permaculture Theme Classes */
+.nature-pattern {
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(134, 239, 172, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(22, 163, 74, 0.03) 0%, transparent 50%);
+}
+
+.leaf-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10zm10 0c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z' fill='%2322c55e' fill-opacity='0.02'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.soil-texture {
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(139, 69, 19, 0.02) 100%),
+    url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='2' cy='2' r='2' fill='%238b4513' fill-opacity='0.03'/%3E%3C/svg%3E");
+}
+
+.water-flow {
+  background:
+    linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(14, 165, 233, 0.05) 100%),
+    url("data:image/svg+xml,%3Csvg width='100' height='20' viewBox='0 0 100 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10c5-5 10-5 15 0s10 5 15 0 10-5 15 0 10 5 15 0 10-5 15 0 10 5 15 0 10-5 15 0 10 5 15 0' stroke='%232563eb' stroke-opacity='0.08' fill='none'/%3E%3C/svg%3E");
+}
+
+.forest-canopy {
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(34, 139, 34, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 75% 75%, rgba(46, 125, 50, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(27, 94, 32, 0.06) 0%, transparent 50%);
+}
+
+.meadow-pattern {
+  background-image:
+    linear-gradient(45deg, transparent 30%, rgba(139, 195, 74, 0.03) 30%, rgba(139, 195, 74, 0.03) 70%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, rgba(104, 159, 56, 0.03) 30%, rgba(104, 159, 56, 0.03) 70%, transparent 70%);
+  background-size: 20px 20px;
+}
+
+/* Nature-inspired borders */
+.border-organic {
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+.border-leaf {
+  border-radius: 0 100% 0 100%;
+}
+
+/* Permaculture gradients */
+.gradient-earth {
+  background: linear-gradient(180deg, #8b4513 0%, #654321 50%, #3e2723 100%);
+}
+
+.gradient-canopy {
+  background: linear-gradient(180deg, #228b22 0%, #2e7d32 50%, #1b5e20 100%);
+}
+
+.gradient-understory {
+  background: linear-gradient(135deg, #66bb6a 0%, #4caf50 50%, #388e3c 100%);
+}
+
+.gradient-water {
+  background: linear-gradient(135deg, #64b5f6 0%, #42a5f5 50%, #2196f3 100%);
+}
+
+.gradient-sun {
+  background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 50%, #ff9800 100%);
+}
+
+/* Zone indicators */
+.zone-0 { border-left: 4px solid #d32f2f; }
+.zone-1 { border-left: 4px solid #ff9800; }
+.zone-2 { border-left: 4px solid #ffc107; }
+.zone-3 { border-left: 4px solid #8bc34a; }
+.zone-4 { border-left: 4px solid #4caf50; }
+.zone-5 { border-left: 4px solid #2e7d32; }
+
+/* Companion planting indicators */
+.companion-good {
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.4);
+}
+
+.companion-bad {
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.4);
+}
+
+.companion-neutral {
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.4);
+}
+
+/* Seasonal themes */
+.season-spring {
+  background: linear-gradient(135deg, #c8e6c9 0%, #81c784 100%);
+}
+
+.season-summer {
+  background: linear-gradient(135deg, #fff59d 0%, #fdd835 100%);
+}
+
+.season-autumn {
+  background: linear-gradient(135deg, #ffccbc 0%, #ff8a65 100%);
+}
+
+.season-winter {
+  background: linear-gradient(135deg, #e1f5fe 0%, #81d4fa 100%);
+}
+
+/* Enhanced hover effects */
+.hover-nature {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.hover-nature::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.hover-nature:hover::after {
+  opacity: 1;
+}
+
+/* Card elevations with nature shadows */
+.card-nature {
+  background: white;
+  border: 1px solid rgba(34, 197, 94, 0.1);
+  box-shadow:
+    0 1px 3px rgba(34, 197, 94, 0.08),
+    0 4px 12px rgba(34, 197, 94, 0.05);
+  transition: all 0.3s ease;
+}
+
+.card-nature:hover {
+  box-shadow:
+    0 2px 6px rgba(34, 197, 94, 0.12),
+    0 8px 24px rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.2);
 }
