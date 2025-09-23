@@ -44,7 +44,8 @@ export function AnimateOnScroll({
     <div
       ref={ref}
       className={cn(
-        isVisible ? animation : 'opacity-0',
+        'opacity-0', // Always start invisible
+        isVisible && animation, // Only add animation when visible
         className
       )}
       style={isVisible ? { animationDelay: delay, animationFillMode: 'forwards' } : {}}
