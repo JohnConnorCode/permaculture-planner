@@ -43,10 +43,13 @@ export function Navigation() {
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 hover:opacity-90 transition-all duration-300 group"
             >
-              <Leaf className="h-8 w-8 text-green-600" />
-              <span className="font-bold text-xl text-gray-900">
+              <div className="relative">
+                <Leaf className="h-8 w-8 text-green-600 relative z-10 transition-transform duration-300 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-green-400 rounded-full blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-300" />
+              </div>
+              <span className="font-bold text-xl text-gray-900 group-hover:text-green-700 transition-colors duration-300">
                 Permaculture Planner
               </span>
             </Link>
@@ -61,13 +64,14 @@ export function Navigation() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200",
-                      "hover:bg-green-50 hover:text-green-700",
-                      active && "bg-green-100 text-green-700 font-medium"
+                      "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 relative overflow-hidden group",
+                      "hover:bg-green-50 hover:text-green-700 hover:shadow-md",
+                      active && "bg-green-100 text-green-700 font-medium shadow-sm"
                     )}
                   >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
+                    <Icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+                    <span className="relative z-10">{item.label}</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </Link>
                 )
               })}
@@ -82,9 +86,10 @@ export function Navigation() {
                 </Button>
               </Link>
               <Link href="/auth/signup">
-                <Button size="sm" className="gap-2 bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all">
-                  <UserPlus className="h-4 w-4" />
-                  Get Started
+                <Button size="sm" className="gap-2 bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 relative overflow-hidden group">
+                  <UserPlus className="h-4 w-4 relative z-10" />
+                  <span className="relative z-10">Get Started</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Button>
               </Link>
             </div>

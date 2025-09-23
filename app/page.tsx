@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AnimateOnScroll } from '@/components/animate-on-scroll'
+import { ParallaxScroll } from '@/components/parallax-scroll'
 import {
   Leaf, Grid3x3, Droplets, Calendar, BarChart3, Bot,
   ArrowRight, Sparkles, TreePine, Flower2, Sprout,
@@ -29,12 +30,14 @@ export default function HomePage() {
     <div className="min-h-screen overflow-x-hidden">
       {/* Hero Section with Sequential Animations */}
       <section className="gradient-hero relative overflow-hidden py-24 px-4">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Animated background elements with parallax */}
+        <ParallaxScroll speed={0.3} className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-green-200 opacity-20 animate-pulse" />
           <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-green-300 opacity-20 animate-pulse" style={{ animationDelay: '1s' }} />
+        </ParallaxScroll>
+        <ParallaxScroll speed={0.5} className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-green-100 opacity-30 animate-pulse" style={{ animationDelay: '2s' }} />
-        </div>
+        </ParallaxScroll>
 
         <div className="relative max-w-6xl mx-auto text-center">
           {/* Badge with fade-in */}
@@ -70,19 +73,20 @@ export default function HomePage() {
             <div className="opacity-0 animate-slide-in-left"
                  style={{ animationDelay: '0.9s', animationFillMode: 'forwards' }}>
               <Link href="/wizard">
-                <Button size="lg" className="gradient-understory text-white font-semibold px-8 py-6 text-lg hover-lift group w-full sm:w-auto rounded-lg shadow-lg">
-                  <Leaf className="mr-2 h-5 w-5" />
-                  Begin Your Design
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                <Button size="lg" className="gradient-understory text-white font-semibold px-8 py-6 text-lg hover-lift group w-full sm:w-auto rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
+                  <Leaf className="mr-2 h-5 w-5 relative z-10" />
+                  <span className="relative z-10">Begin Your Design</span>
+                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 relative z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Button>
               </Link>
             </div>
             <div className="opacity-0 animate-slide-in-right"
                  style={{ animationDelay: '1.1s', animationFillMode: 'forwards' }}>
               <Link href="/demo">
-                <Button size="lg" variant="outline" className="px-8 py-6 text-lg hover-glow border-green-300 w-full sm:w-auto rounded-lg hover-nature">
-                  <TreePine className="mr-2 h-5 w-5" />
-                  Explore Platform
+                <Button size="lg" variant="outline" className="px-8 py-6 text-lg hover-glow border-green-300 w-full sm:w-auto rounded-xl hover-nature hover:bg-green-50 transition-all duration-300 group hover:border-green-400">
+                  <TreePine className="mr-2 h-5 w-5 group-hover:text-green-600 transition-colors duration-300" />
+                  <span className="group-hover:text-green-700 transition-colors duration-300">Explore Platform</span>
                 </Button>
               </Link>
             </div>
@@ -176,10 +180,10 @@ export default function HomePage() {
                 animation="animate-scale-in"
                 delay={feature.delay}
               >
-                <Card className="card-nature hover-lift border-green-100 group rounded-lg h-full">
+                <Card className="card-nature hover-lift border-green-100 group rounded-xl h-full shadow-sm hover:shadow-xl transition-all duration-300">
                 <CardHeader>
-                  <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg w-fit group-hover:from-green-100 group-hover:to-green-200 transition-all duration-300">
-                    <feature.icon className="h-8 w-8 text-green-700" />
+                  <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl w-fit group-hover:from-green-100 group-hover:to-green-200 transition-all duration-300 group-hover:scale-110">
+                    <feature.icon className="h-8 w-8 text-green-700 group-hover:rotate-12 transition-transform duration-300" />
                   </div>
                   <CardTitle className="text-xl mt-4">{feature.title}</CardTitle>
                 </CardHeader>
@@ -260,10 +264,10 @@ export default function HomePage() {
                 animation="animate-slide-in-left"
                 delay={space.delay}
               >
-                <div className="glass rounded-lg p-8 hover-lift h-full">
+                <div className="glass rounded-xl p-8 hover-lift h-full shadow-md hover:shadow-xl transition-all duration-300 group border border-green-100/50 hover:border-green-200">
                 <div className="text-center">
-                  <div className="inline-flex p-4 bg-gradient-to-br from-green-100 to-green-200 rounded-lg mb-4">
-                    <space.icon className="h-12 w-12 text-green-700" />
+                  <div className="inline-flex p-4 bg-gradient-to-br from-green-100 to-green-200 rounded-xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <space.icon className="h-12 w-12 text-green-700 group-hover:rotate-6 transition-transform duration-300" />
                   </div>
                   <h3 className="font-bold text-2xl mb-2 text-gray-900">{space.title}</h3>
                   <p className="text-green-600 font-medium mb-6">{space.subtitle}</p>
@@ -313,9 +317,9 @@ export default function HomePage() {
                   animation="animate-fade-in"
                   delay={climate.delay}
                 >
-                  <div className="p-6 rounded-lg bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-300 transition-all hover-lift card-nature">
-                    <IconComponent className="h-12 w-12 text-green-600 mx-auto mb-3" />
-                    <div className="font-semibold text-gray-900">{climate.label}</div>
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-green-50 to-white border border-green-100 hover:border-green-300 transition-all hover-lift card-nature shadow-sm hover:shadow-lg group cursor-pointer">
+                    <IconComponent className="h-12 w-12 text-green-600 mx-auto mb-3 group-hover:scale-110 group-hover:text-green-700 transition-all duration-300" />
+                    <div className="font-semibold text-gray-900 group-hover:text-green-700 transition-colors duration-300">{climate.label}</div>
                     <div className="text-sm text-gray-600 mt-1">{climate.desc}</div>
                   </div>
                 </AnimateOnScroll>
