@@ -314,20 +314,20 @@ export default function DemoPage() {
   }, [canUndo, canRedo, undo, redo, selectedTool])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white nature-pattern leaf-pattern forest-canopy">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white">
       {/* Header */}
-      <section className="py-8 px-4 border-b glass nature-pattern">
+      <section className="py-8 px-4 border-b glass">
         <div className="container mx-auto max-w-7xl">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
                 Real Garden Designer
               </h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
                 Draw custom beds • Plant real vegetables • Check companion compatibility
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 opacity-0 animate-slide-in-right" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
               {/* Undo/Redo */}
               <div className="flex gap-1 border-r pr-2">
                 <Button
@@ -386,7 +386,7 @@ export default function DemoPage() {
               </Button>
               <Button
                 id="save-button"
-                className="gradient-understory border-organic hover-lift"
+                className="gradient-understory rounded-lg hover-lift"
                 onClick={saveDesign}
                 title="Save to browser (Ctrl+S)"
               >
@@ -424,7 +424,7 @@ export default function DemoPage() {
           </div>
 
           {/* Quick Stats */}
-          <div className="flex gap-6 mt-4">
+          <div className="flex gap-6 mt-4 opacity-0 animate-slide-in-left" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
             <div className="flex items-center gap-2">
               <Badge variant="secondary">{stats.beds} Beds</Badge>
             </div>
@@ -447,7 +447,7 @@ export default function DemoPage() {
           {/* Left Sidebar */}
           <div className="space-y-4">
             {/* Tools */}
-            <Card id="drawing-tools" className="card-nature border-organic nature-pattern">
+            <Card id="drawing-tools" className="card-nature rounded-lg opacity-0 animate-slide-in-left" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
               <CardHeader className="py-3">
                 <CardTitle className="text-base">Drawing Tools</CardTitle>
               </CardHeader>
@@ -460,7 +460,7 @@ export default function DemoPage() {
                       size="sm"
                       onClick={() => handleToolSelect(tool.id)}
                       className={cn(
-                        "justify-start border-organic hover-nature",
+                        "justify-start rounded-lg hover-nature",
                         selectedTool === tool.id && "gradient-understory hover:bg-green-700"
                       )}
                       disabled={tool.requiresPlant && !selectedPlant}
@@ -474,7 +474,7 @@ export default function DemoPage() {
             </Card>
 
             {/* Plant Library */}
-            <Card id="plant-library" className="card-nature border-organic leaf-pattern meadow-pattern">
+            <Card id="plant-library" className="card-nature rounded-lg opacity-0 animate-slide-in-left" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
               <CardHeader className="py-3">
                 <CardTitle className="text-base">Plant Library</CardTitle>
                 <CardDescription>Click a plant to select it for planting</CardDescription>
@@ -542,7 +542,7 @@ export default function DemoPage() {
                           size="sm"
                           onClick={() => handlePlantSelect(plant)}
                           className={cn(
-                            "w-full justify-start text-left border-organic hover-nature",
+                            "w-full justify-start text-left rounded-lg hover-nature",
                             selectedPlant?.id === plant.id && "gradient-understory hover:bg-green-700",
                             showOnlyCompanions && selectedPlant?.companions.includes(plant.id) && "ring-2 ring-green-400"
                           )}
@@ -583,7 +583,7 @@ export default function DemoPage() {
 
             {/* Selected Plant Info */}
             {selectedPlant && (
-              <Card className="card-nature border-organic soil-texture">
+              <Card className="card-nature rounded-lg opacity-0 animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
                 <CardHeader className="py-3">
                   <CardTitle className="text-base flex items-center gap-2">
                     <span className="text-2xl">{selectedPlant.icon}</span>
@@ -632,8 +632,8 @@ export default function DemoPage() {
           </div>
 
           {/* Canvas Area */}
-          <Card className="overflow-hidden card-nature border-organic" id="canvas">
-            <CardHeader className="py-3 gradient-canopy text-white nature-pattern">
+          <Card className="overflow-hidden card-nature rounded-lg opacity-0 animate-scale-in" id="canvas" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+            <CardHeader className="py-3 gradient-canopy text-white">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Garden Canvas</CardTitle>
                 <div className="flex gap-2" id="view-controls">
@@ -709,8 +709,8 @@ export default function DemoPage() {
               <div className="relative h-[600px]">
                 {/* Welcome message for first-time users */}
                 {gardenBeds.length === 0 && isFirstVisit && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-50/50 to-emerald-50/50 nature-pattern">
-                    <div className="text-center space-y-6 max-w-lg p-8 glass border-organic shadow-xl leaf-pattern">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-50/50 to-emerald-50/50">
+                    <div className="text-center space-y-6 max-w-lg p-8 glass rounded-lg shadow-xl">
                       <div className="text-6xl">🌱</div>
                       <h3 className="text-2xl font-bold text-gray-800">Welcome to Your Garden Designer!</h3>
                       <p className="text-gray-600 text-lg">
@@ -720,7 +720,7 @@ export default function DemoPage() {
                         <Button
                           size="lg"
                           onClick={() => { setShowTutorial(true); setIsFirstVisit(false) }}
-                          className="gradient-understory border-organic hover-lift text-lg py-6"
+                          className="gradient-understory rounded-lg hover-lift text-lg py-6"
                         >
                           <Play className="h-5 w-5 mr-2" />
                           Start Interactive Tutorial
@@ -729,7 +729,7 @@ export default function DemoPage() {
                           size="lg"
                           variant="outline"
                           onClick={loadExample}
-                          className="text-lg py-6 border-organic hover-nature"
+                          className="text-lg py-6 rounded-lg hover-nature"
                         >
                           <Layers className="h-5 w-5 mr-2" />
                           Load Example Garden
@@ -795,7 +795,7 @@ export default function DemoPage() {
       {showTemplates && (
         <div className="fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowTemplates(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-96 glass nature-pattern shadow-xl overflow-y-auto">
+          <div className="absolute right-0 top-0 bottom-0 w-96 glass shadow-xl overflow-y-auto">
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold">Garden Templates</h2>
@@ -811,7 +811,7 @@ export default function DemoPage() {
                 {GARDEN_TEMPLATES.map(template => (
                   <Card
                     key={template.id}
-                    className="cursor-pointer hover:shadow-lg transition-shadow card-nature border-organic hover-lift"
+                    className="cursor-pointer hover:shadow-lg transition-shadow card-nature rounded-lg hover-lift"
                     onClick={() => {
                       setGardenBeds(template.beds)
                       setShowTemplates(false)

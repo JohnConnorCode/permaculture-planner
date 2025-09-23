@@ -718,13 +718,13 @@ export default function FeaturesPage() {
       <section className="py-12 px-4 border-b bg-white/80 backdrop-blur">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center">
-            <Badge className="mb-4" variant="secondary">
+            <Badge className="mb-4 opacity-0 animate-fade-in" variant="secondary" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
               {featureStats.total} Features & Counting
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
               Everything You Need to Grow
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto opacity-0 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
               From beginner-friendly tools to advanced analytics, our platform provides
               comprehensive features for every aspect of permaculture gardening.
             </p>
@@ -732,25 +732,25 @@ export default function FeaturesPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-            <Card>
+            <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
                 <div className="text-3xl font-bold text-green-600">{featureStats.available}</div>
                 <div className="text-sm text-gray-600">Available Now</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
                 <div className="text-3xl font-bold text-yellow-600">{featureStats.beta}</div>
                 <div className="text-sm text-gray-600">In Beta</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
                 <div className="text-3xl font-bold text-gray-600">{featureStats.coming}</div>
                 <div className="text-sm text-gray-600">Coming Soon</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
                 <div className="text-3xl font-bold text-purple-600">8</div>
                 <div className="text-sm text-gray-600">Categories</div>
@@ -819,7 +819,7 @@ export default function FeaturesPage() {
           <div className="grid lg:grid-cols-[280px,1fr] gap-6">
             {/* Category Sidebar */}
             <div className="space-y-2">
-              {FEATURE_CATEGORIES.map(category => {
+              {FEATURE_CATEGORIES.map((category, index) => {
                 const Icon = category.icon
                 const isActive = selectedCategory === category.id
                 const featureCount = category.features.filter(
@@ -830,11 +830,12 @@ export default function FeaturesPage() {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left p-3 rounded-lg transition-all ${
+                    className={`w-full text-left p-3 rounded-lg transition-all opacity-0 animate-fade-in ${
                       isActive
                         ? 'bg-green-100 border-2 border-green-500'
                         : 'bg-white hover:bg-gray-50 border-2 border-transparent'
                     }`}
+                    style={{ animationDelay: `${0.1 + index * 0.05}s`, animationFillMode: 'forwards' }}
                   >
                     <div className="flex items-start gap-3">
                       <Icon className={`h-5 w-5 mt-0.5 ${
@@ -856,7 +857,7 @@ export default function FeaturesPage() {
             <div>
               {currentCategory && (
                 <>
-                  <div className="mb-6">
+                  <div className="mb-6 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
                     <h2 className="text-2xl font-bold mb-2">{currentCategory.name}</h2>
                     <p className="text-gray-600">{currentCategory.description}</p>
                   </div>
@@ -869,7 +870,8 @@ export default function FeaturesPage() {
                       return (
                         <Card
                           key={index}
-                          className="hover:shadow-lg transition-shadow cursor-pointer"
+                          className="hover:shadow-lg transition-shadow cursor-pointer opacity-0 animate-scale-in"
+                          style={{ animationDelay: `${0.3 + index * 0.1}s`, animationFillMode: 'forwards' }}
                           onClick={() => setExpandedFeature(
                             isExpanded ? null : `${currentCategory.id}-${index}`
                           )}

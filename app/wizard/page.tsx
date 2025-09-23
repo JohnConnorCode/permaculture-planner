@@ -132,9 +132,9 @@ export default function WizardPage() {
   const progressValue = ((currentStep - 1) / (steps.length - 1)) * 100
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white nature-pattern">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Header */}
-      <div className="glass border-b border-green-200 sticky top-0 z-10 leaf-pattern">
+      <div className="glass border-b border-green-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
@@ -152,7 +152,7 @@ export default function WizardPage() {
           {/* Progress Bar */}
           <div className="mb-4 opacity-0 animate-slide-in-left"
                style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-            <Progress value={progressValue} className="h-2 bg-green-100 border-organic">
+            <Progress value={progressValue} className="h-2 bg-green-100 rounded-lg">
               <div
                 className="h-full gradient-understory rounded-full transition-all duration-500 shadow-md"
                 style={{ width: `${progressValue}%` }}
@@ -176,7 +176,7 @@ export default function WizardPage() {
                   <div className="relative">
                     <div
                       className={`
-                        w-10 h-10 border-organic flex items-center justify-center transition-all duration-300
+                        w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300
                         ${isActive ? 'gradient-understory text-white scale-110 shadow-lg animate-grow' : ''}
                         ${isCompleted ? 'bg-green-500 text-white shadow-md' : ''}
                         ${!isActive && !isCompleted ? 'bg-gray-200 text-gray-400' : ''}
@@ -275,7 +275,7 @@ export default function WizardPage() {
             variant="outline"
             onClick={handleBack}
             disabled={currentStep === 1}
-            className="hover-lift border-organic hover-nature border-green-300"
+            className="hover-lift rounded-lg hover-nature border-green-300"
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
             Previous
@@ -284,7 +284,7 @@ export default function WizardPage() {
           {currentStep === steps.length ? (
             <Button
               onClick={handleComplete}
-              className="gradient-understory text-white hover-lift group border-organic shadow-lg hover:shadow-xl"
+              className="gradient-understory text-white hover-lift group rounded-lg shadow-lg hover:shadow-xl"
             >
               <Sparkles className="mr-2 h-4 w-4" />
               Generate My Garden Plan
@@ -293,7 +293,7 @@ export default function WizardPage() {
           ) : (
             <Button
               onClick={handleNext}
-              className="gradient-understory hover:opacity-90 hover-lift group border-organic shadow-md"
+              className="gradient-understory hover:opacity-90 hover-lift group rounded-lg shadow-md"
             >
               Next Step
               <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
