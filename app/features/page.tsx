@@ -936,14 +936,14 @@ export default function FeaturesPage() {
             Join thousands of gardeners using our platform to grow more food with less effort.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/auth/signup">
+            <Link href="/wizard">
               <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100">
-                Start Free Trial
+                Start Designing - It's Free!
               </Button>
             </Link>
-            <Link href="/pricing">
+            <Link href="/demo">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                View Pricing
+                Try the Demo
               </Button>
             </Link>
           </div>
