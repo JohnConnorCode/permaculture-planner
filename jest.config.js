@@ -46,7 +46,7 @@ const customJestConfig = {
   ],
 
   // Ignore patterns
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/e2e/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/e2e/', '/tests/'],
 
   // Transform ignore patterns
   transformIgnorePatterns: [

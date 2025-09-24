@@ -151,12 +151,18 @@ export function validateData<T>(
 
 export function sanitizeInput(input: string): string {
   // Remove any potential XSS vectors
-  return input
+  let sanitized = input
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/javascript:/gi, '')
-    .replace(/on\w+\s*=/gi, '')
     .trim()
+
+  // Remove javascript: protocol from href attributes
+  sanitized = sanitized.replace(/href\s*=\s*["']\s*javascript:[^"']*["']/gi, 'href=""')
+
+  // Remove event handlers (onclick, onmouseover, etc.) - improved regex
+  sanitized = sanitized.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, '')
+
+  return sanitized
 }
 
 export function sanitizeNumber(
@@ -165,6 +171,7 @@ export function sanitizeNumber(
   max: number,
   defaultValue: number
 ): number {
+  if (value === null || value === undefined) return defaultValue
   const num = Number(value)
   if (isNaN(num)) return defaultValue
   return Math.min(Math.max(num, min), max)
@@ -280,10 +287,10 @@ export function validateOverlap(
     const minY = (node.size.heightIn + newNode.size.heightIn) / 2 + tolerance
 
     if (dx < minX && dy < minY) {
-      return false // Overlap detected
+      return false // Too close - validation fails
     }
   }
-  return true // No overlap
+  return true // Far enough apart - validation passes
 }
 
 import { useState } from 'react'

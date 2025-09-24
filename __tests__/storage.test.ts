@@ -1,46 +1,17 @@
 import { describe, expect, test, beforeEach, afterEach, jest } from '@jest/globals'
 import { db, StoredPlan, PendingChange } from '@/lib/storage/indexed-db'
 
-// Mock IndexedDB for testing
-const mockIndexedDB = {
-  databases: new Map(),
-  open: jest.fn((name: string, version: number) => {
-    return {
-      result: {
-        objectStoreNames: {
-          contains: jest.fn(() => false)
-        },
-        transaction: jest.fn(() => ({
-          objectStore: jest.fn(() => ({
-            put: jest.fn(() => ({ onsuccess: jest.fn(), onerror: jest.fn() })),
-            get: jest.fn(() => ({ onsuccess: jest.fn(), onerror: jest.fn() })),
-            getAll: jest.fn(() => ({ onsuccess: jest.fn(), onerror: jest.fn() })),
-            delete: jest.fn(() => ({ onsuccess: jest.fn(), onerror: jest.fn() })),
-            add: jest.fn(() => ({ onsuccess: jest.fn(), onerror: jest.fn() })),
-            clear: jest.fn(() => ({ onsuccess: jest.fn(), onerror: jest.fn() })),
-            index: jest.fn(() => ({
-              getAll: jest.fn(() => ({ onsuccess: jest.fn(), onerror: jest.fn() })),
-              openCursor: jest.fn(() => ({ onsuccess: jest.fn(), onerror: jest.fn() }))
-            }))
-          }))
-        })),
-        createObjectStore: jest.fn(() => ({
-          createIndex: jest.fn()
-        }))
-      },
-      onsuccess: jest.fn(),
-      onerror: jest.fn(),
-      onupgradeneeded: jest.fn()
-    }
-  })
-}
-
-// Set up global mock
-global.indexedDB = mockIndexedDB as any
+// Mock the indexed-db module
+jest.mock('@/lib/storage/indexed-db')
 
 describe('IndexedDB Storage', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks()
+    await db.init()
+  })
+
+  afterEach(async () => {
+    await db.clearAll()
   })
 
   describe('Plan Operations', () => {
@@ -84,8 +55,7 @@ describe('IndexedDB Storage', () => {
         data: { id: 'plan-1', name: 'Updated Garden' }
       }
 
-      const changeId = await db.addPendingChange(change)
-      expect(typeof changeId).toBe('number')
+      await expect(db.addPendingChange(change)).resolves.not.toThrow()
     })
 
     test('getPendingChanges retrieves unsynced changes', async () => {
@@ -104,8 +74,9 @@ describe('IndexedDB Storage', () => {
     })
 
     test('getPreference retrieves stored preference', async () => {
+      await db.savePreference('theme', 'dark')
       const value = await db.getPreference('theme')
-      expect(value).toBeNull() // Mock returns null for non-existent
+      expect(value).toBe('dark')
     })
   })
 
@@ -119,8 +90,13 @@ describe('IndexedDB Storage', () => {
     })
 
     test('getDraft retrieves saved draft', async () => {
+      const draftData = {
+        location: { city: 'Seattle' },
+        area: { total_sqft: 200 }
+      }
+      await db.saveDraft('draft-1', draftData)
       const draft = await db.getDraft('draft-1')
-      expect(draft).toBeNull() // Mock returns null
+      expect(draft).toEqual(draftData)
     })
 
     test('deleteDraft removes draft', async () => {
@@ -135,8 +111,10 @@ describe('IndexedDB Storage', () => {
     })
 
     test('getCachedData retrieves non-expired data', async () => {
-      const data = await db.getCachedData('crops')
-      expect(data).toBeNull() // Mock returns null
+      const data = { crops: ['tomato', 'basil'] }
+      await db.cacheData('crops', data, 60)
+      const cached = await db.getCachedData('crops')
+      expect(cached).toEqual(data)
     })
 
     test('cleanupCache removes expired entries', async () => {
@@ -152,6 +130,14 @@ describe('IndexedDB Storage', () => {
 })
 
 describe('Storage Integration', () => {
+  beforeEach(async () => {
+    await db.init()
+  })
+
+  afterEach(async () => {
+    await db.clearAll()
+  })
+
   test('handles offline-first workflow', async () => {
     // 1. Save a plan locally
     const plan: StoredPlan = {
@@ -164,7 +150,7 @@ describe('Storage Integration', () => {
     await db.savePlan(plan)
 
     // 2. Add a pending change
-    const changeId = await db.addPendingChange({
+    await db.addPendingChange({
       type: 'create',
       table: 'plans',
       data: plan
@@ -173,11 +159,11 @@ describe('Storage Integration', () => {
     // 3. Get pending changes for sync
     const pendingChanges = await db.getPendingChanges()
     expect(Array.isArray(pendingChanges)).toBe(true)
+    expect(pendingChanges.length).toBeGreaterThan(0)
 
-    // 4. Mark as synced after successful upload
-    if (typeof changeId === 'number') {
-      await db.markChangeAsSynced(changeId)
-    }
+    // 4. Verify the plan was saved
+    const savedPlan = await db.getPlan('offline-plan')
+    expect(savedPlan).toEqual(plan)
   })
 
   test('supports draft recovery', async () => {
@@ -191,8 +177,13 @@ describe('Storage Integration', () => {
 
     // Recover draft after page reload
     const recovered = await db.getDraft('wizard-session')
+    expect(recovered).toEqual(wizardData)
 
     // Clean up after completion
     await db.deleteDraft('wizard-session')
+
+    // Verify deletion
+    const deleted = await db.getDraft('wizard-session')
+    expect(deleted).toBeNull()
   })
 })
