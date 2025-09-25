@@ -86,25 +86,26 @@ export function WaterWasteModule({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Water & Waste Management</h2>
-        <p className="text-gray-600">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Water & Waste Management</h2>
+        <p className="text-sm sm:text-base text-gray-600">
           Design sustainable water harvesting and waste recycling systems for your permaculture garden
         </p>
       </div>
 
-      <Tabs defaultValue="water" className="space-y-6">
-        <TabsList className="grid grid-cols-3 w-full">
-          <TabsTrigger value="water" className="flex items-center gap-2">
+      <Tabs defaultValue="water" className="space-y-4 sm:space-y-6">
+        <TabsList className="grid grid-cols-3 w-full h-12 sm:h-10">
+          <TabsTrigger value="water" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 text-xs sm:text-sm">
             <Droplets className="h-4 w-4" />
             Water
           </TabsTrigger>
-          <TabsTrigger value="composting" className="flex items-center gap-2">
+          <TabsTrigger value="composting" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 text-xs sm:text-sm">
             <Recycle className="h-4 w-4" />
-            Composting
+            <span className="hidden sm:inline">Composting</span>
+            <span className="sm:hidden">Compost</span>
           </TabsTrigger>
-          <TabsTrigger value="analysis" className="flex items-center gap-2">
+          <TabsTrigger value="analysis" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 text-xs sm:text-sm">
             <BarChart3 className="h-4 w-4" />
             Analysis
           </TabsTrigger>

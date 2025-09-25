@@ -157,38 +157,40 @@ export function ExportPanel({ plan, onClose }: ExportPanelProps) {
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto p-6">
-      <div className="space-y-6">
+    <Card className="w-full max-w-4xl mx-auto p-4 sm:p-6">
+      <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-900">Export Garden Plan</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Export Garden Plan</h2>
           {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button variant="ghost" size="sm" onClick={onClose} className="min-w-[44px] min-h-[44px] flex items-center justify-center">
               ×
             </Button>
           )}
         </div>
 
         <Tabs value={exportType} onValueChange={(v) => setExportType(v as 'report' | 'sitePlan')}>
-          <TabsList className="grid grid-cols-2 w-full">
-            <TabsTrigger value="report" className="flex items-center gap-2">
+          <TabsList className="grid grid-cols-2 w-full h-12 sm:h-10">
+            <TabsTrigger value="report" className="flex items-center gap-2 text-sm">
               <FileText className="h-4 w-4" />
-              Report
+              <span className="hidden sm:inline">Report</span>
+              <span className="sm:hidden">Report</span>
             </TabsTrigger>
-            <TabsTrigger value="sitePlan" className="flex items-center gap-2">
+            <TabsTrigger value="sitePlan" className="flex items-center gap-2 text-sm">
               <Image className="h-4 w-4" />
-              Site Plan
+              <span className="hidden sm:inline">Site Plan</span>
+              <span className="sm:hidden">Plan</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="report" className="space-y-6 mt-6">
-            <div className="grid grid-cols-2 gap-6">
+          <TabsContent value="report" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Report Options</h3>
+                <h3 className="font-semibold text-gray-900 text-base sm:text-lg">Report Options</h3>
                 
                 <div>
-                  <Label htmlFor="report-format">Format</Label>
+                  <Label htmlFor="report-format" className="text-sm">Format</Label>
                   <Select value={reportFormat} onValueChange={(v) => setReportFormat(v as 'pdf' | 'html')}>
-                    <SelectTrigger id="report-format">
+                    <SelectTrigger id="report-format" className="h-10 mt-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -229,46 +231,49 @@ export function ExportPanel({ plan, onClose }: ExportPanelProps) {
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Metadata</h3>
+                <h3 className="font-semibold text-gray-900 text-base sm:text-lg">Metadata</h3>
                 
                 <div>
-                  <Label htmlFor="report-title">Title</Label>
+                  <Label htmlFor="report-title" className="text-sm">Title</Label>
                   <Input
                     id="report-title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="My Garden Plan"
+                    className="mt-2 h-10"
                   />
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="report-designer">Designer</Label>
+                  <Label htmlFor="report-designer" className="text-sm">Designer</Label>
                   <Input
                     id="report-designer"
                     value={designer}
                     onChange={(e) => setDesigner(e.target.value)}
                     placeholder="Your name"
+                    className="mt-2 h-10"
                   />
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="report-notes">Notes</Label>
+                  <Label htmlFor="report-notes" className="text-sm">Notes</Label>
                   <Textarea
                     id="report-notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Additional notes (one per line)"
                     rows={3}
+                    className="mt-2"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
               <Button
                 variant="outline"
                 disabled={isExporting}
-                className="gap-2"
+                className="gap-2 h-12 sm:h-10 order-2 sm:order-1"
               >
                 <Eye className="h-4 w-4" />
                 Preview
@@ -276,7 +281,7 @@ export function ExportPanel({ plan, onClose }: ExportPanelProps) {
               <Button
                 onClick={handleExportReport}
                 disabled={isExporting}
-                className="gap-2 bg-green-600 hover:bg-green-700"
+                className="gap-2 bg-green-600 hover:bg-green-700 h-12 sm:h-10 order-1 sm:order-2"
               >
                 {isExporting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -288,15 +293,15 @@ export function ExportPanel({ plan, onClose }: ExportPanelProps) {
             </div>
           </TabsContent>
 
-          <TabsContent value="sitePlan" className="space-y-6 mt-6">
-            <div className="grid grid-cols-2 gap-6">
+          <TabsContent value="sitePlan" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Export Settings</h3>
+                <h3 className="font-semibold text-gray-900 text-base sm:text-lg">Export Settings</h3>
                 
                 <div>
-                  <Label htmlFor="plan-format">Format</Label>
+                  <Label htmlFor="plan-format" className="text-sm">Format</Label>
                   <Select value={planFormat} onValueChange={(v) => setPlanFormat(v as 'svg' | 'png')}>
-                    <SelectTrigger id="plan-format">
+                    <SelectTrigger id="plan-format" className="h-10 mt-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -307,9 +312,9 @@ export function ExportPanel({ plan, onClose }: ExportPanelProps) {
                 </div>
                 
                 <div>
-                  <Label htmlFor="plan-quality">Quality</Label>
+                  <Label htmlFor="plan-quality" className="text-sm">Quality</Label>
                   <Select value={planQuality} onValueChange={(v) => setPlanQuality(v as 'draft' | 'final')}>
-                    <SelectTrigger id="plan-quality">
+                    <SelectTrigger id="plan-quality" className="h-10 mt-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -320,7 +325,7 @@ export function ExportPanel({ plan, onClose }: ExportPanelProps) {
                 </div>
                 
                 <div>
-                  <Label htmlFor="plan-scale">Scale ({planScale}x)</Label>
+                  <Label htmlFor="plan-scale" className="text-sm">Scale ({planScale}x)</Label>
                   <input
                     id="plan-scale"
                     type="range"
@@ -329,13 +334,13 @@ export function ExportPanel({ plan, onClose }: ExportPanelProps) {
                     step="0.5"
                     value={planScale}
                     onChange={(e) => setPlanScale(Number(e.target.value))}
-                    className="w-full"
+                    className="w-full mt-2 h-8"
                   />
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="font-semibold text-gray-900">Display Options</h3>
+                <h3 className="font-semibold text-gray-900 text-base sm:text-lg">Display Options</h3>
                 
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -386,34 +391,37 @@ export function ExportPanel({ plan, onClose }: ExportPanelProps) {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
               <Button
                 variant="outline"
                 disabled={isExporting}
-                className="gap-2"
+                className="gap-2 h-12 sm:h-10 order-3 sm:order-1"
               >
                 <Share2 className="h-4 w-4" />
-                Share
+                <span className="hidden sm:inline">Share</span>
+                <span className="sm:hidden">Share</span>
               </Button>
               <Button
                 variant="outline"
                 disabled={isExporting}
-                className="gap-2"
+                className="gap-2 h-12 sm:h-10 order-2 sm:order-2"
               >
                 <Printer className="h-4 w-4" />
-                Print
+                <span className="hidden sm:inline">Print</span>
+                <span className="sm:hidden">Print</span>
               </Button>
               <Button
                 onClick={handleExportSitePlan}
                 disabled={isExporting}
-                className="gap-2 bg-green-600 hover:bg-green-700"
+                className="gap-2 bg-green-600 hover:bg-green-700 h-12 sm:h-10 order-1 sm:order-3"
               >
                 {isExporting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Download className="h-4 w-4" />
                 )}
-                Export Site Plan
+                <span className="hidden sm:inline">Export Site Plan</span>
+                <span className="sm:hidden">Export</span>
               </Button>
             </div>
           </TabsContent>

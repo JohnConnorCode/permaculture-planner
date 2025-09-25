@@ -135,15 +135,15 @@ export default function WizardPage() {
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       {/* Header */}
       <div className="glass border-b border-green-200 sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards' }}>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent">Create Your Permaculture Garden</h1>
-              <p className="text-sm text-gray-600 mt-1">
+        <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
+            <div className="opacity-0 animate-fade-in mb-2 sm:mb-0" style={{ animationFillMode: 'forwards' }}>
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent">Create Your Permaculture Garden</h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">
                 Answer a few questions to get your personalized permaculture design
               </p>
             </div>
-            <div className="text-sm text-gray-500 opacity-0 animate-fade-in"
+            <div className="text-xs sm:text-sm text-gray-500 opacity-0 animate-fade-in self-start sm:self-auto"
                  style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
               Step {currentStep} of {steps.length}
             </div>
@@ -161,7 +161,7 @@ export default function WizardPage() {
           </div>
 
           {/* Step Indicators */}
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center overflow-x-auto pb-2">
             {steps.map((step, idx) => {
               const StepIcon = step.icon
               const isActive = step.id === currentStep
@@ -170,33 +170,33 @@ export default function WizardPage() {
               return (
                 <div
                   key={step.id}
-                  className={`flex flex-col items-center flex-1 opacity-0 animate-fade-in`}
+                  className={`flex flex-col items-center flex-1 min-w-0 px-1 opacity-0 animate-fade-in`}
                   style={{ animationDelay: `${0.4 + idx * 0.1}s`, animationFillMode: 'forwards' }}
                 >
                   <div className="relative">
                     <div
                       className={`
-                        w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300
+                        w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-300
                         ${isActive ? 'gradient-understory text-white scale-110 shadow-lg animate-grow' : ''}
                         ${isCompleted ? 'bg-green-500 text-white shadow-md' : ''}
                         ${!isActive && !isCompleted ? 'bg-gray-200 text-gray-400' : ''}
                       `}
                     >
                       {isCompleted ? (
-                        <CheckCircle className="h-5 w-5" />
+                        <CheckCircle className="h-3 w-3 sm:h-5 sm:w-5" />
                       ) : (
-                        <StepIcon className="h-5 w-5" />
+                        <StepIcon className="h-3 w-3 sm:h-5 sm:w-5" />
                       )}
                     </div>
                     {isActive && (
                       <div className="absolute inset-0 rounded-full bg-green-600 animate-ping opacity-30" />
                     )}
                   </div>
-                  <span className={`text-xs mt-2 font-medium ${isActive ? 'text-green-600' : 'text-gray-500'}`}>
+                  <span className={`text-xs mt-1 sm:mt-2 font-medium text-center truncate w-full ${isActive ? 'text-green-600' : 'text-gray-500'}`}>
                     {step.name}
                   </span>
                   {isActive && (
-                    <span className="text-xs text-gray-500 mt-1">
+                    <span className="text-xs text-gray-500 mt-1 text-center leading-tight hidden sm:block">
                       {step.description}
                     </span>
                   )}
@@ -208,7 +208,7 @@ export default function WizardPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
         <div className={`
           transition-all duration-300 transform
           ${isAnimating ? (direction === 'forward' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0') : 'translate-x-0 opacity-100'}
@@ -269,13 +269,14 @@ export default function WizardPage() {
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between mt-12 opacity-0 animate-fade-in"
+        <div className="flex flex-col sm:flex-row gap-4 sm:justify-between mt-8 sm:mt-12 opacity-0 animate-fade-in"
              style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
           <Button
             variant="outline"
             onClick={handleBack}
             disabled={currentStep === 1}
-            className="hover-lift rounded-lg hover-nature border-green-300"
+            className="hover-lift rounded-lg hover-nature border-green-300 h-12 sm:h-10 text-sm sm:text-base min-w-[120px] order-2 sm:order-1"
+            size="lg"
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
             Previous
@@ -284,7 +285,8 @@ export default function WizardPage() {
           {currentStep === steps.length ? (
             <Button
               onClick={handleComplete}
-              className="gradient-understory text-white hover-lift group rounded-lg shadow-lg hover:shadow-xl"
+              className="gradient-understory text-white hover-lift group rounded-lg shadow-lg hover:shadow-xl h-12 sm:h-10 text-sm sm:text-base min-w-[180px] order-1 sm:order-2"
+              size="lg"
             >
               <Sparkles className="mr-2 h-4 w-4" />
               Generate My Garden Plan
@@ -293,7 +295,8 @@ export default function WizardPage() {
           ) : (
             <Button
               onClick={handleNext}
-              className="gradient-understory hover:opacity-90 hover-lift group rounded-lg shadow-md"
+              className="gradient-understory hover:opacity-90 hover-lift group rounded-lg shadow-md h-12 sm:h-10 text-sm sm:text-base min-w-[120px] order-1 sm:order-2"
+              size="lg"
             >
               Next Step
               <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

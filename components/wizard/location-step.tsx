@@ -106,27 +106,27 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-xl font-semibold mb-4">Where is your garden?</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Where is your garden?</h2>
+        <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
           We'll use your location to automatically determine your growing zone, climate, and soil conditions.
         </p>
       </div>
 
       {/* Quick Location Detection */}
-      <Card className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
-        <div className="flex items-start gap-4">
-          <MapPin className="h-5 w-5 text-green-600 mt-1" />
+      <Card className="p-3 sm:p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
+          <MapPin className="h-5 w-5 text-green-600 mt-1 flex-shrink-0" />
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 mb-1">Auto-Detect Location</h3>
-            <p className="text-sm text-gray-600 mb-3">
+            <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Auto-Detect Location</h3>
+            <p className="text-xs sm:text-sm text-gray-600 mb-3">
               Allow us to detect your location for automatic climate and soil data
             </p>
             <Button
               onClick={handleGetLocation}
               disabled={isLoadingLocation || isLoadingSiteData}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 w-full sm:w-auto h-10 sm:h-9"
               size="sm"
             >
               {isLoadingLocation ? (
@@ -142,15 +142,15 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
               )}
             </Button>
             {locationError && (
-              <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {locationError}
+              <p className="text-xs sm:text-sm text-red-600 mt-2 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3 flex-shrink-0" />
+                <span className="break-words">{locationError}</span>
               </p>
             )}
             {data.location.lat && data.location.lng && (
-              <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
-                <CheckCircle className="h-3 w-3" />
-                Location detected: {data.location.lat.toFixed(4)}, {data.location.lng.toFixed(4)}
+              <p className="text-xs sm:text-sm text-green-600 mt-2 flex items-center gap-1">
+                <CheckCircle className="h-3 w-3 flex-shrink-0" />
+                <span className="break-all">Location detected: {data.location.lat.toFixed(4)}, {data.location.lng.toFixed(4)}</span>
               </p>
             )}
           </div>
@@ -164,7 +164,7 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
             <Info className="h-5 w-5 text-green-600 mt-0.5" />
             <h3 className="font-semibold text-gray-900">Site Intelligence Retrieved</h3>
           </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
             <div>
               <span className="text-gray-600">Climate Type:</span>
               <p className="font-medium">{siteIntelligence.climate.climate_type}</p>
@@ -216,24 +216,24 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="city">City or Zip Code</Label>
+          <Label htmlFor="city" className="text-sm">City or Zip Code</Label>
           <Input
             id="city"
             type="text"
             placeholder="e.g., Portland, OR or 97201"
             value={data.location.city || ''}
             onChange={(e) => updateData('location', { city: e.target.value })}
-            className="mt-2"
+            className="mt-2 h-10"
           />
         </div>
 
         <div>
-          <Label htmlFor="zone">USDA Hardiness Zone</Label>
+          <Label htmlFor="zone" className="text-sm">USDA Hardiness Zone</Label>
           <Select
             value={data.location.usda_zone || ''}
             onValueChange={(value) => updateData('location', { usda_zone: value })}
           >
-            <SelectTrigger className="mt-2">
+            <SelectTrigger className="mt-2 h-10">
               <SelectValue placeholder="Select your zone" />
             </SelectTrigger>
             <SelectContent>
@@ -249,25 +249,25 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="last_frost">Average Last Frost</Label>
+            <Label htmlFor="last_frost" className="text-sm">Average Last Frost</Label>
             <Input
               id="last_frost"
               type="date"
               value={data.location.last_frost || ''}
               onChange={(e) => updateData('location', { last_frost: e.target.value })}
-              className="mt-2"
+              className="mt-2 h-10"
             />
           </div>
           <div>
-            <Label htmlFor="first_frost">Average First Frost</Label>
+            <Label htmlFor="first_frost" className="text-sm">Average First Frost</Label>
             <Input
               id="first_frost"
               type="date"
               value={data.location.first_frost || ''}
               onChange={(e) => updateData('location', { first_frost: e.target.value })}
-              className="mt-2"
+              className="mt-2 h-10"
             />
           </div>
         </div>

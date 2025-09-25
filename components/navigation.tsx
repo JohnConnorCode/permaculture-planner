@@ -97,7 +97,7 @@ export function Navigation() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300 hover-nature"
+              className="md:hidden p-3 rounded-lg hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300 hover-nature min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label="Toggle menu"
               aria-expanded={isMobileMenuOpen}
             >
@@ -112,11 +112,11 @@ export function Navigation() {
 
         {/* Mobile Menu */}
         <div className={cn(
-          "md:hidden absolute top-16 left-0 right-0 bg-white border-b shadow-xl",
+          "md:hidden absolute top-16 left-0 right-0 bg-white border-b shadow-xl z-40",
           "transition-all duration-300",
           isMobileMenuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"
         )}>
-          <div className="container mx-auto px-4 py-4 space-y-2">
+          <div className="container mx-auto px-4 py-6 space-y-3">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
@@ -125,25 +125,25 @@ export function Navigation() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300 hover-nature",
-                    "hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700 hover:scale-105",
+                    "flex items-center gap-3 px-4 py-4 rounded-lg transition-all duration-300 hover-nature min-h-[44px]",
+                    "hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:text-green-700 touch-target-44",
                     active && "gradient-understory text-white font-medium shadow-lg"
                   )}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span>{item.label}</span>
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <span className="text-base">{item.label}</span>
                 </Link>
               )
             })}
-            <div className="pt-4 border-t border-green-200/50 space-y-2">
+            <div className="pt-4 border-t border-green-200/50 space-y-3">
               <Link href="/auth/login" className="block">
-                <Button variant="outline" className="w-full justify-center gap-2 rounded-lg hover-nature hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50">
+                <Button variant="outline" className="w-full justify-center gap-2 rounded-lg hover-nature hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 h-12 text-base">
                   <LogIn className="h-4 w-4" />
                   Sign In
                 </Button>
               </Link>
               <Link href="/auth/signup" className="block">
-                <Button className="w-full justify-center gap-2 gradient-understory rounded-lg hover-lift">
+                <Button className="w-full justify-center gap-2 gradient-understory rounded-lg hover-lift h-12 text-base">
                   <UserPlus className="h-4 w-4" />
                   Get Started
                 </Button>

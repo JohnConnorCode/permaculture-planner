@@ -84,37 +84,39 @@ export default function ToolsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-12">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 sm:space-y-8">
           <AnimateOnScroll animation="slide-in-left">
-            <TabsList className="grid grid-cols-4 w-full max-w-2xl mx-auto">
-              <TabsTrigger value="designer" className="flex items-center gap-2">
+            <TabsList className="grid grid-cols-4 w-full max-w-2xl mx-auto h-12 sm:h-10">
+              <TabsTrigger value="designer" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 text-xs sm:text-sm">
                 <TreePine className="h-4 w-4" />
+                <span className="sm:hidden">Design</span>
                 <span className="hidden sm:inline">Designer</span>
               </TabsTrigger>
-              <TabsTrigger value="water" className="flex items-center gap-2">
+              <TabsTrigger value="water" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 text-xs sm:text-sm">
                 <Droplets className="h-4 w-4" />
-                <span className="hidden sm:inline">Water</span>
+                <span>Water</span>
               </TabsTrigger>
-              <TabsTrigger value="export" className="flex items-center gap-2">
+              <TabsTrigger value="export" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 text-xs sm:text-sm">
                 <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Export</span>
+                <span>Export</span>
               </TabsTrigger>
-              <TabsTrigger value="intelligence" className="flex items-center gap-2">
+              <TabsTrigger value="intelligence" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-2 py-2 text-xs sm:text-sm">
                 <MapPin className="h-4 w-4" />
+                <span className="sm:hidden">Site</span>
                 <span className="hidden sm:inline">Site Intel</span>
               </TabsTrigger>
             </TabsList>
           </AnimateOnScroll>
 
-          <TabsContent value="designer" className="space-y-6">
+          <TabsContent value="designer" className="space-y-4 sm:space-y-6">
             <AnimateOnScroll animation="fade-in">
-              <Card className="p-6">
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <Card className="p-4 sm:p-6">
+                <div className="mb-4 sm:mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                     Visual Garden Designer
                   </h2>
-                  <p className="text-gray-600">
+                  <p className="text-sm sm:text-base text-gray-600">
                     Drag and drop plants, structures, and permaculture elements to create your garden
                   </p>
                 </div>
@@ -123,25 +125,25 @@ export default function ToolsPage() {
             </AnimateOnScroll>
           </TabsContent>
 
-          <TabsContent value="water" className="space-y-6">
+          <TabsContent value="water" className="space-y-4 sm:space-y-6">
             <AnimateOnScroll animation="fade-in">
-              <WaterWasteModule 
-                gardenArea={150} 
+              <WaterWasteModule
+                gardenArea={150}
                 climate={mockClimate}
-                plants={[]} 
+                plants={[]}
               />
             </AnimateOnScroll>
           </TabsContent>
 
-          <TabsContent value="export" className="space-y-6">
+          <TabsContent value="export" className="space-y-4 sm:space-y-6">
             <AnimateOnScroll animation="fade-in">
               <ExportPanel plan={mockPlan} />
             </AnimateOnScroll>
           </TabsContent>
 
-          <TabsContent value="intelligence" className="space-y-6">
+          <TabsContent value="intelligence" className="space-y-4 sm:space-y-6">
             <AnimateOnScroll animation="fade-in">
-              <Card className="p-6">
+              <Card className="p-4 sm:p-6">
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
                     <MapPin className="h-6 w-6 text-green-600" />

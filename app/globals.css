@@ -420,6 +420,54 @@ body {
   color: hsl(142 40% 16%);
 }
 
+/* Mobile Touch Target Guidelines (44x44px minimum) */
+.touch-target-44 {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  /* Larger touch targets on mobile */
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  /* Better spacing for forms on mobile */
+  .form-mobile {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  /* Larger tap targets for interactive elements */
+  a,
+  [role="tab"],
+  [role="menuitem"] {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+  }
+
+  /* Prevent horizontal scrolling */
+  .prevent-scroll {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Better modal spacing on mobile */
+  .modal-mobile {
+    margin: 8px;
+    max-height: calc(100vh - 64px);
+    border-radius: 12px;
+  }
+}
+
 /* Permaculture Theme Classes */
 .nature-pattern {
   background-image:
