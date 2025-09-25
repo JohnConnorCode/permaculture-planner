@@ -5,26 +5,27 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  CheckCircle, Circle, Star, Zap, Shield, Users,
+  CheckCircle, Star, Zap, Shield, Users,
   Cpu, Cloud, Smartphone, Globe, BarChart3, BookOpen,
   Palette, Timer, Award, Heart, Leaf, Droplets,
   Sun, Moon, Wind, Thermometer, Calendar, Map,
   Camera, Bell, Mail, MessageCircle, Share2, Lock,
-  CreditCard, TrendingUp, Package, Truck, ShoppingCart,
+  TrendingUp, Package, Truck, ShoppingCart,
   FileJson, Database, GitBranch, Activity, Search, Filter,
   Layout, Layers, Grid3x3, Move, ZoomIn, Ruler,
   Beaker, Microscope, Calculator, PieChart, LineChart, BarChart,
   Video, Headphones, HelpCircle, FileText, Download, Upload,
-  Wifi, WifiOff, RefreshCw, Save, Settings, Wrench
+  Wifi, WifiOff, RefreshCw, Save, Settings, Wrench,
+  Sparkles, Brain, TreePine, Home, Building, Fish,
+  Bug, Flower, Bird, Rabbit, Egg, Wheat, Apple,
+  Carrot, Coffee, Cherry, Grape, Salad, Soup
 } from 'lucide-react'
 
 interface Feature {
   title: string
   description: string
   icon: React.ElementType
-  tier: 'free' | 'pro' | 'enterprise'
   status: 'available' | 'beta' | 'coming-soon'
   details?: string[]
 }
@@ -39,636 +40,598 @@ interface FeatureCategory {
 
 const FEATURE_CATEGORIES: FeatureCategory[] = [
   {
-    id: 'garden-design',
-    name: 'Garden Design & Planning',
-    description: 'Professional tools for creating your perfect garden layout',
-    icon: Layout,
+    id: 'intelligent-design',
+    name: 'AI-Powered Garden Design',
+    description: 'Leverage OpenAI GPT-4 to create optimized permaculture designs',
+    icon: Brain,
     features: [
       {
-        title: 'Interactive Garden Canvas',
-        description: 'Draw custom garden beds with any shape',
+        title: 'Smart Garden Wizard',
+        description: 'Step-by-step guided garden creation with intelligent defaults',
+        icon: Sparkles,
+        status: 'available',
+        details: [
+          'Location-based climate data integration',
+          'Automatic USDA zone detection',
+          'Frost date calculations',
+          'Customizable area and shape options',
+          'Surface type optimization (soil vs hardscape)',
+          'Water source planning',
+          'Accessibility-focused designs',
+          'Time commitment matching'
+        ]
+      },
+      {
+        title: 'AI Garden Assistant',
+        description: 'ChatGPT-powered assistant for real-time garden advice',
+        icon: Brain,
+        status: 'available',
+        details: [
+          'Context-aware recommendations',
+          'Plant pairing suggestions',
+          'Problem diagnosis and solutions',
+          'Seasonal task reminders',
+          'Pest and disease identification',
+          'Harvest timing optimization',
+          'Recipe suggestions for your crops',
+          'Natural language queries'
+        ]
+      },
+      {
+        title: 'Interactive Design Canvas',
+        description: 'Visual garden editor with drag-and-drop functionality',
         icon: Palette,
-        tier: 'free',
         status: 'available',
         details: [
-          'Freehand drawing tools',
-          'Rectangle and polygon shapes',
-          'Grid snapping for precision',
+          'Real-time garden visualization',
+          'Custom bed shapes and sizes',
+          'Plant placement with spacing guides',
+          'Path and structure planning',
+          'Multi-layer design (canopy, shrub, ground)',
           'Zoom and pan controls',
-          'Multiple bed support'
+          'Grid snapping for precision',
+          'Undo/redo functionality'
         ]
       },
       {
-        title: 'Plant Library',
-        description: 'Comprehensive database of 500+ plants',
-        icon: Leaf,
-        tier: 'free',
+        title: 'Automated Layout Generation',
+        description: 'AI generates optimal bed layouts based on your space',
+        icon: Layout,
         status: 'available',
         details: [
-          'Vegetables, herbs, fruits, flowers',
-          'Native and exotic species',
-          'Detailed growing requirements',
-          'Companion planting data',
-          'Search and filter options'
-        ]
-      },
-      {
-        title: '3D Garden Visualization',
-        description: 'See your garden in realistic 3D',
-        icon: Grid3x3,
-        tier: 'pro',
-        status: 'coming-soon',
-        details: [
-          'Realistic plant models',
-          'Seasonal changes',
-          'Shadow simulation',
-          'Walk-through mode',
-          'VR support'
-        ]
-      },
-      {
-        title: 'Garden Templates',
-        description: 'Pre-designed gardens for quick starts',
-        icon: BookOpen,
-        tier: 'free',
-        status: 'available',
-        details: [
-          '50+ curated templates',
-          'Beginner to advanced',
-          'Theme gardens (Pizza, Tea, etc.)',
-          'Climate-specific designs',
-          'Customizable layouts'
-        ]
-      },
-      {
-        title: 'Multi-Layer Design',
-        description: 'Plan canopy, shrub, and ground layers',
-        icon: Layers,
-        tier: 'pro',
-        status: 'available',
-        details: [
-          'Forest garden planning',
-          'Vertical gardening',
-          'Guild design',
-          'Polyculture systems',
-          'Succession planting'
+          'Space-efficient bed arrangements',
+          'Path width optimization',
+          'Accessibility compliance',
+          'Sun exposure maximization',
+          'Water access optimization',
+          'Companion planting zones',
+          'Crop rotation planning',
+          'Microclimate considerations'
         ]
       }
     ]
   },
   {
-    id: 'plant-intelligence',
-    name: 'Plant Intelligence & Recommendations',
-    description: 'AI-powered insights for optimal plant selection and placement',
-    icon: Cpu,
+    id: 'permaculture-features',
+    name: 'Permaculture Design Systems',
+    description: 'Complete toolkit for sustainable food production',
+    icon: TreePine,
     features: [
       {
-        title: 'Companion Planting AI',
-        description: 'Smart suggestions for plant combinations',
-        icon: Users,
-        tier: 'free',
+        title: 'Comprehensive Plant Database',
+        description: 'Over 50+ plants with detailed permaculture data',
+        icon: Leaf,
         status: 'available',
         details: [
-          'Compatibility checking',
-          'Beneficial relationships',
-          'Pest deterrent combinations',
-          'Nutrient sharing analysis',
-          'Space optimization'
+          'Vegetables, herbs, fruits, and flowers',
+          'Native and adapted varieties',
+          'Companion planting relationships',
+          'Nitrogen fixers and dynamic accumulators',
+          'Growth requirements and zones',
+          'Days to maturity tracking',
+          'Spacing and yield data',
+          'Medicinal and culinary uses'
         ]
       },
       {
-        title: 'Climate Zone Analysis',
-        description: 'Automatic plant selection for your zone',
+        title: 'Permaculture Structures Library',
+        description: 'Pre-designed structures for complete food systems',
+        icon: Building,
+        status: 'available',
+        details: [
+          'Rainwater harvesting systems',
+          'Composting bins and worm farms',
+          'Greenhouse and cold frames',
+          'Chicken coops and rabbit hutches',
+          'Beehives and insect hotels',
+          'Aquaponics and pond systems',
+          'Tool sheds and storage',
+          'Social spaces (benches, pergolas)'
+        ]
+      },
+      {
+        title: 'Water Management Module',
+        description: 'Calculate and optimize water usage',
+        icon: Droplets,
+        status: 'available',
+        details: [
+          'Rainwater collection calculations',
+          'Roof area and runoff estimates',
+          'Storage tank sizing',
+          'Greywater system planning',
+          'Drip irrigation design',
+          'Swales and berms placement',
+          'Water conservation strategies',
+          'Drought resilience planning'
+        ]
+      },
+      {
+        title: 'Crop Rotation Engine',
+        description: 'Multi-year rotation planning for soil health',
+        icon: RefreshCw,
+        status: 'available',
+        details: [
+          'Automatic family grouping',
+          'Nitrogen cycle optimization',
+          'Disease prevention strategies',
+          'Cover crop integration',
+          'Succession planting schedules',
+          '3-4 year rotation plans',
+          'Soil amendment recommendations',
+          'Fallow period management'
+        ]
+      },
+      {
+        title: 'Food Forest Designer',
+        description: 'Create multi-layer productive ecosystems',
+        icon: TreePine,
+        status: 'available',
+        details: [
+          '7-layer forest garden planning',
+          'Guild creation tools',
+          'Canopy tree selection',
+          'Understory plant placement',
+          'Nitrogen-fixing species integration',
+          'Ground cover recommendations',
+          'Vertical layer optimization',
+          'Wildlife habitat creation'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'planning-tools',
+    name: 'Planning & Documentation',
+    description: 'Professional reports and export capabilities',
+    icon: FileText,
+    features: [
+      {
+        title: 'PDF Report Generation',
+        description: 'Professional garden plans with complete details',
+        icon: FileText,
+        status: 'available',
+        details: [
+          'Executive summary with key metrics',
+          'Detailed plant lists and schedules',
+          'Materials and cost estimates',
+          'Planting calendars and timelines',
+          'Maintenance schedules',
+          'Harvest predictions',
+          'Implementation roadmap',
+          'Custom branding options'
+        ]
+      },
+      {
+        title: '2D Site Plan Export',
+        description: 'Professional site plans in multiple formats',
+        icon: Map,
+        status: 'available',
+        details: [
+          'SVG vector graphics export',
+          'High-resolution PNG images',
+          'CAD-compatible formats',
+          'Scale-accurate drawings',
+          'Dimension annotations',
+          'Plant legends and keys',
+          'North arrow and scale bar',
+          'Grid overlay options'
+        ]
+      },
+      {
+        title: 'Materials Calculator',
+        description: 'Accurate estimates for all garden materials',
+        icon: Calculator,
+        status: 'available',
+        details: [
+          'Lumber requirements and cuts',
+          'Soil and amendment volumes',
+          'Mulch and compost needs',
+          'Hardware and fasteners list',
+          'Irrigation components',
+          'Cost estimates by vendor',
+          'Shopping lists by store',
+          'Bulk order optimization'
+        ]
+      },
+      {
+        title: 'Task Management System',
+        description: 'Automated task generation and tracking',
+        icon: CheckCircle,
+        status: 'available',
+        details: [
+          'Build phase tasks',
+          'Planting schedules',
+          'Maintenance reminders',
+          'Harvest windows',
+          'Seasonal checklists',
+          'Weather-based adjustments',
+          'Team task assignment',
+          'Progress tracking'
+        ]
+      }
+    ]
+  },
+  {
+    id: 'site-intelligence',
+    name: 'Site Intelligence & Data',
+    description: 'Location-specific insights for optimal growing',
+    icon: Globe,
+    features: [
+      {
+        title: 'Climate Zone Detection',
+        description: 'Automatic climate data for any location',
         icon: Thermometer,
-        tier: 'pro',
         status: 'available',
         details: [
           'USDA hardiness zones',
-          'Heat zone mapping',
-          'Microclimate detection',
           'Frost date predictions',
-          'Climate change adaptations'
+          'Growing season length',
+          'Average temperatures',
+          'Rainfall patterns',
+          'Humidity levels',
+          'Wind patterns',
+          'Microclimate factors'
         ]
       },
       {
-        title: 'Soil Matching',
-        description: 'Match plants to your soil conditions',
+        title: 'Soil Analysis Integration',
+        description: 'Connect soil test results for tailored recommendations',
         icon: Beaker,
-        tier: 'pro',
-        status: 'beta',
-        details: [
-          'pH requirements',
-          'Nutrient needs',
-          'Drainage preferences',
-          'Soil amendment suggestions',
-          'Testing kit integration'
-        ]
-      },
-      {
-        title: 'Disease & Pest Prediction',
-        description: 'Proactive pest and disease management',
-        icon: Shield,
-        tier: 'enterprise',
-        status: 'beta',
-        details: [
-          'Risk assessment',
-          'Early warning system',
-          'Organic solutions',
-          'IPM strategies',
-          'Regional pest calendars'
-        ]
-      },
-      {
-        title: 'Yield Optimization',
-        description: 'Maximize your harvest potential',
-        icon: TrendingUp,
-        tier: 'pro',
         status: 'available',
         details: [
-          'Spacing optimization',
-          'Succession planting',
-          'Intercropping strategies',
-          'Harvest predictions',
-          'ROI calculations'
+          'pH optimization strategies',
+          'Nutrient deficiency solutions',
+          'Organic matter improvement',
+          'Drainage recommendations',
+          'Amendment calculations',
+          'Soil life enhancement',
+          'Heavy metal remediation',
+          'Contamination testing'
+        ]
+      },
+      {
+        title: 'Sun Exposure Mapping',
+        description: 'Calculate optimal placement based on sun patterns',
+        icon: Sun,
+        status: 'available',
+        details: [
+          'Hour-by-hour sun tracking',
+          'Seasonal variation modeling',
+          'Shade pattern analysis',
+          'Solar panel potential',
+          'Greenhouse placement',
+          'Heat sink identification',
+          'Reflective surface planning',
+          'Passive solar design'
+        ]
+      },
+      {
+        title: 'Local Resource Finder',
+        description: 'Connect with local suppliers and resources',
+        icon: Map,
+        status: 'beta',
+        details: [
+          'Native plant nurseries',
+          'Compost suppliers',
+          'Mulch sources',
+          'Tool libraries',
+          'Seed swaps',
+          'Community gardens',
+          'Extension offices',
+          'Master gardener programs'
         ]
       }
     ]
   },
   {
-    id: 'seasonal-planning',
-    name: 'Seasonal Planning & Scheduling',
-    description: 'Never miss the perfect planting window again',
-    icon: Calendar,
+    id: 'ecosystem-integration',
+    name: 'Ecosystem & Wildlife Support',
+    description: 'Design gardens that support entire ecosystems',
+    icon: Bird,
     features: [
       {
-        title: 'Planting Calendar',
-        description: 'Personalized planting schedules',
-        icon: Calendar,
-        tier: 'free',
+        title: 'Pollinator Garden Planning',
+        description: 'Create habitats for bees, butterflies, and birds',
+        icon: Flower,
         status: 'available',
         details: [
-          'Custom to your location',
-          'Indoor/outdoor timing',
-          'Transplant reminders',
-          'Succession planting',
-          'Moon phase planting'
+          'Native pollinator plants',
+          'Bloom succession planning',
+          'Nesting site design',
+          'Water feature integration',
+          'Pesticide-free zones',
+          'Butterfly waystation certification',
+          'Bee hotel placement',
+          'Hummingbird gardens'
         ]
       },
       {
-        title: 'Task Management',
-        description: 'Automated garden to-do lists',
-        icon: CheckCircle,
-        tier: 'free',
+        title: 'Integrated Pest Management',
+        description: 'Natural pest control through design',
+        icon: Bug,
         status: 'available',
         details: [
-          'Daily/weekly tasks',
-          'Seasonal checklists',
-          'Custom reminders',
-          'Team assignments',
-          'Progress tracking'
+          'Beneficial insect attraction',
+          'Trap crop placement',
+          'Companion planting for pest control',
+          'Physical barrier planning',
+          'Natural predator habitats',
+          'Disease-resistant varieties',
+          'Crop timing strategies',
+          'Organic spray schedules'
         ]
       },
       {
-        title: 'Weather Integration',
-        description: 'Real-time weather monitoring',
-        icon: Cloud,
-        tier: 'pro',
+        title: 'Small Livestock Integration',
+        description: 'Incorporate chickens, rabbits, and more',
+        icon: Egg,
         status: 'available',
         details: [
-          '10-day forecasts',
-          'Frost warnings',
-          'Rain tracking',
-          'Wind alerts',
-          'UV index monitoring'
+          'Chicken tractor routes',
+          'Rabbit colony design',
+          'Duck pond systems',
+          'Rotational grazing plans',
+          'Manure management',
+          'Feed production areas',
+          'Shelter requirements',
+          'Zoning compliance'
         ]
       },
       {
-        title: 'Harvest Tracking',
-        description: 'Log and analyze your yields',
-        icon: Package,
-        tier: 'free',
-        status: 'available',
-        details: [
-          'Weight/count logging',
-          'Photo documentation',
-          'Quality ratings',
-          'Storage tracking',
-          'Preservation planning'
-        ]
-      },
-      {
-        title: 'Crop Rotation Planner',
-        description: 'Multi-year rotation schedules',
-        icon: RefreshCw,
-        tier: 'pro',
-        status: 'available',
-        details: [
-          '4-year planning',
-          'Family grouping',
-          'Nutrient balancing',
-          'Cover crop integration',
-          'Fallow period management'
-        ]
-      }
-    ]
-  },
-  {
-    id: 'water-management',
-    name: 'Water & Resource Management',
-    description: 'Optimize water usage and resource efficiency',
-    icon: Droplets,
-    features: [
-      {
-        title: 'Irrigation Planning',
-        description: 'Design efficient watering systems',
-        icon: Droplets,
-        tier: 'pro',
-        status: 'available',
-        details: [
-          'Drip system design',
-          'Zone planning',
-          'Timer scheduling',
-          'Water usage calculation',
-          'Drought management'
-        ]
-      },
-      {
-        title: 'Rainwater Harvesting',
-        description: 'Calculate collection potential',
-        icon: Cloud,
-        tier: 'pro',
+        title: 'Aquaponics & Fish Systems',
+        description: 'Integrate fish farming with vegetable production',
+        icon: Fish,
         status: 'beta',
         details: [
-          'Roof area calculation',
-          'Storage sizing',
-          'First flush diverters',
-          'Overflow planning',
-          'Usage tracking'
-        ]
-      },
-      {
-        title: 'Greywater Systems',
-        description: 'Reuse household water safely',
-        icon: RefreshCw,
-        tier: 'enterprise',
-        status: 'coming-soon',
-        details: [
-          'System design',
-          'Plant compatibility',
-          'Legal compliance',
-          'Filtration planning',
-          'Maintenance schedules'
-        ]
-      },
-      {
-        title: 'Composting Calculator',
-        description: 'Balance your compost perfectly',
-        icon: Leaf,
-        tier: 'free',
-        status: 'available',
-        details: [
-          'C:N ratio calculator',
-          'Material database',
-          'Volume estimation',
-          'Turn reminders',
-          'Troubleshooting guide'
-        ]
-      },
-      {
-        title: 'Energy Tracking',
-        description: 'Monitor resource consumption',
-        icon: Zap,
-        tier: 'enterprise',
-        status: 'coming-soon',
-        details: [
-          'Solar potential',
-          'Greenhouse heating',
-          'Pump efficiency',
-          'Carbon footprint',
-          'Cost analysis'
+          'System sizing calculators',
+          'Fish stocking rates',
+          'Biofilter design',
+          'Grow bed planning',
+          'Water quality management',
+          'Species selection',
+          'Backup system planning',
+          'Energy requirements'
         ]
       }
     ]
   },
   {
-    id: 'community',
-    name: 'Community & Collaboration',
-    description: 'Connect with gardeners worldwide',
+    id: 'community-marketplace',
+    name: 'Community & Learning',
+    description: 'Connect with the permaculture community',
     icon: Users,
     features: [
       {
-        title: 'Garden Sharing',
-        description: 'Share designs with the community',
+        title: 'Garden Sharing Platform',
+        description: 'Share and discover garden designs',
         icon: Share2,
-        tier: 'free',
         status: 'available',
         details: [
-          'Public garden gallery',
-          'Design templates',
-          'Rating system',
-          'Comments and feedback',
-          'Fork and customize'
+          'Public design gallery',
+          'Template marketplace',
+          'Success story sharing',
+          'Before/after showcases',
+          'Regional adaptations',
+          'Rating and reviews',
+          'Fork and customize designs',
+          'Collaborative planning'
         ]
       },
       {
-        title: 'Expert Consultations',
-        description: 'Connect with master gardeners',
+        title: 'Expert Consultation Network',
+        description: 'Connect with permaculture designers',
         icon: Headphones,
-        tier: 'enterprise',
-        status: 'beta',
-        details: [
-          'Video consultations',
-          'Design reviews',
-          'Problem diagnosis',
-          'Personalized advice',
-          'Follow-up support'
-        ]
-      },
-      {
-        title: 'Local Groups',
-        description: 'Find gardeners near you',
-        icon: Map,
-        tier: 'free',
-        status: 'available',
-        details: [
-          'Neighborhood groups',
-          'Seed swaps',
-          'Tool sharing',
-          'Bulk buying clubs',
-          'Workshop events'
-        ]
-      },
-      {
-        title: 'Knowledge Base',
-        description: 'Comprehensive growing guides',
-        icon: BookOpen,
-        tier: 'free',
-        status: 'available',
-        details: [
-          '1000+ articles',
-          'Video tutorials',
-          'Troubleshooting guides',
-          'Research papers',
-          'Community wiki'
-        ]
-      },
-      {
-        title: 'Marketplace',
-        description: 'Buy, sell, and trade',
-        icon: ShoppingCart,
-        tier: 'pro',
         status: 'coming-soon',
         details: [
-          'Seeds and plants',
-          'Garden supplies',
-          'Fresh produce',
-          'Handmade products',
-          'Services exchange'
+          'Certified designer directory',
+          'Video consultations',
+          'Design review services',
+          'Site analysis help',
+          'Problem troubleshooting',
+          'Implementation support',
+          'Mentorship programs',
+          'Group workshops'
+        ]
+      },
+      {
+        title: 'Knowledge Base & Tutorials',
+        description: 'Comprehensive learning resources',
+        icon: BookOpen,
+        status: 'available',
+        details: [
+          'Permaculture principles guide',
+          'Video tutorials library',
+          'Seasonal guides',
+          'Troubleshooting database',
+          'Case studies',
+          'Research papers',
+          'Glossary of terms',
+          'FAQ section'
+        ]
+      },
+      {
+        title: 'Local Community Features',
+        description: 'Connect with nearby gardeners',
+        icon: Map,
+        status: 'beta',
+        details: [
+          'Local garden tours',
+          'Seed swap events',
+          'Tool sharing network',
+          'Bulk buying groups',
+          'Volunteer opportunities',
+          'Skill sharing workshops',
+          'Harvest sharing',
+          'Community projects'
         ]
       }
     ]
   },
   {
-    id: 'analytics',
-    name: 'Analytics & Insights',
-    description: 'Data-driven gardening decisions',
+    id: 'analytics-tracking',
+    name: 'Analytics & Progress Tracking',
+    description: 'Data-driven insights for continuous improvement',
     icon: BarChart3,
     features: [
       {
         title: 'Garden Dashboard',
-        description: 'Complete garden overview',
+        description: 'Real-time overview of your garden\'s performance',
         icon: PieChart,
-        tier: 'free',
         status: 'available',
         details: [
-          'Plant inventory',
-          'Task progress',
-          'Harvest summary',
-          'Space utilization',
-          'Health indicators'
+          'Active plant inventory',
+          'Task completion rates',
+          'Upcoming harvests',
+          'Space utilization metrics',
+          'Water usage tracking',
+          'Cost per harvest analysis',
+          'Success rate monitoring',
+          'Problem area identification'
         ]
       },
       {
-        title: 'Yield Analytics',
-        description: 'Track productivity over time',
-        icon: LineChart,
-        tier: 'pro',
+        title: 'Harvest Analytics',
+        description: 'Track and optimize your yields',
+        icon: TrendingUp,
         status: 'available',
         details: [
-          'Harvest trends',
-          'Variety comparison',
-          'Cost per yield',
-          'Space efficiency',
-          'Year-over-year analysis'
+          'Weight and count logging',
+          'Variety performance comparison',
+          'Year-over-year analysis',
+          'Peak harvest timing',
+          'Storage tracking',
+          'Preservation records',
+          'Market value estimates',
+          'Nutrition calculations'
+        ]
+      },
+      {
+        title: 'Environmental Impact Metrics',
+        description: 'Measure your ecological footprint',
+        icon: Globe,
+        status: 'beta',
+        details: [
+          'Carbon sequestration estimates',
+          'Water conservation metrics',
+          'Biodiversity scoring',
+          'Pollinator support index',
+          'Food miles saved',
+          'Compost diversion tracking',
+          'Chemical reduction metrics',
+          'Soil health improvements'
         ]
       },
       {
         title: 'Financial Tracking',
-        description: 'Garden economics and ROI',
-        icon: CreditCard,
-        tier: 'pro',
-        status: 'beta',
+        description: 'Understand the economics of your garden',
+        icon: Calculator,
+        status: 'available',
         details: [
-          'Expense tracking',
-          'Market value estimation',
-          'Savings calculation',
-          'Budget planning',
-          'Tax deductions'
-        ]
-      },
-      {
-        title: 'Environmental Impact',
-        description: 'Measure your green footprint',
-        icon: Globe,
-        tier: 'enterprise',
-        status: 'coming-soon',
-        details: [
-          'Carbon sequestration',
-          'Water conservation',
-          'Biodiversity score',
-          'Pollinator support',
-          'Soil health metrics'
-        ]
-      },
-      {
-        title: 'AI Predictions',
-        description: 'Future performance forecasting',
-        icon: Activity,
-        tier: 'enterprise',
-        status: 'coming-soon',
-        details: [
-          'Yield predictions',
-          'Problem forecasting',
-          'Optimal timing',
-          'Market predictions',
-          'Climate adaptation'
+          'Setup cost tracking',
+          'Ongoing expense logging',
+          'Harvest value calculations',
+          'ROI analysis',
+          'Cost per meal estimates',
+          'Savings vs store prices',
+          'Time investment tracking',
+          'Break-even analysis'
         ]
       }
     ]
   },
   {
     id: 'mobile-integration',
-    name: 'Mobile & Device Integration',
-    description: 'Garden management on any device',
+    name: 'Mobile & Accessibility',
+    description: 'Garden management from anywhere',
     icon: Smartphone,
     features: [
       {
-        title: 'Mobile App',
-        description: 'Full-featured iOS/Android apps',
+        title: 'Fully Responsive Design',
+        description: 'Works perfectly on all devices',
         icon: Smartphone,
-        tier: 'free',
         status: 'available',
         details: [
-          'Offline mode',
-          'Photo capture',
-          'Quick logging',
-          'Push notifications',
-          'Garden maps'
+          'Mobile-optimized interface',
+          'Touch-friendly controls',
+          'Offline mode support',
+          'Progressive web app',
+          'Fast loading times',
+          'Data sync across devices',
+          'Low bandwidth mode',
+          'Accessibility features'
         ]
       },
       {
-        title: 'Smart Sensor Integration',
-        description: 'Connect IoT garden sensors',
-        icon: Wifi,
-        tier: 'enterprise',
-        status: 'beta',
-        details: [
-          'Soil moisture sensors',
-          'Temperature monitoring',
-          'Light meters',
-          'pH sensors',
-          'Weather stations'
-        ]
-      },
-      {
-        title: 'Voice Commands',
-        description: 'Hands-free garden management',
-        icon: Headphones,
-        tier: 'pro',
-        status: 'coming-soon',
-        details: [
-          'Alexa integration',
-          'Google Assistant',
-          'Siri shortcuts',
-          'Custom commands',
-          'Audio reports'
-        ]
-      },
-      {
-        title: 'AR Plant Identification',
-        description: 'Identify plants with your camera',
+        title: 'Photo Documentation',
+        description: 'Visual garden journal and progress tracking',
         icon: Camera,
-        tier: 'pro',
-        status: 'beta',
+        status: 'available',
         details: [
-          'Instant identification',
-          'Disease detection',
-          'Pest identification',
-          'Maturity assessment',
-          'AR overlays'
+          'Progress photo timelines',
+          'Plant health documentation',
+          'Pest/disease identification',
+          'Harvest galleries',
+          'Before/after comparisons',
+          'Seasonal changes',
+          'Problem documentation',
+          'Success celebrations'
         ]
       },
       {
-        title: 'Wearable Integration',
-        description: 'Garden alerts on your wrist',
-        icon: Timer,
-        tier: 'enterprise',
-        status: 'coming-soon',
+        title: 'Quick Logging Tools',
+        description: 'Fast data entry for busy gardeners',
+        icon: Zap,
+        status: 'available',
         details: [
-          'Apple Watch app',
-          'Fitness tracking',
+          'Voice note recording',
+          'Quick task completion',
+          'Rapid harvest logging',
+          'Weather observations',
+          'Problem reporting',
+          'Photo annotations',
+          'Batch operations',
+          'Smart suggestions'
+        ]
+      },
+      {
+        title: 'Notification System',
+        description: 'Never miss important garden tasks',
+        icon: Bell,
+        status: 'available',
+        details: [
           'Task reminders',
           'Weather alerts',
-          'Quick logging'
-        ]
-      }
-    ]
-  },
-  {
-    id: 'data-management',
-    name: 'Data & Export Features',
-    description: 'Complete control over your garden data',
-    icon: Database,
-    features: [
-      {
-        title: 'Cloud Backup',
-        description: 'Automatic data synchronization',
-        icon: Cloud,
-        tier: 'free',
-        status: 'available',
-        details: [
-          'Real-time sync',
-          'Version history',
-          'Automatic backup',
-          'Multi-device access',
-          'Data recovery'
-        ]
-      },
-      {
-        title: 'Export Options',
-        description: 'Export data in multiple formats',
-        icon: Download,
-        tier: 'pro',
-        status: 'available',
-        details: [
-          'PDF reports',
-          'Excel spreadsheets',
-          'JSON data',
-          'CAD drawings',
-          'Print layouts'
-        ]
-      },
-      {
-        title: 'API Access',
-        description: 'Integrate with other tools',
-        icon: GitBranch,
-        tier: 'enterprise',
-        status: 'available',
-        details: [
-          'REST API',
-          'GraphQL endpoint',
-          'Webhooks',
-          'Custom integrations',
-          'Rate limiting'
-        ]
-      },
-      {
-        title: 'Data Privacy',
-        description: 'Complete control over your data',
-        icon: Lock,
-        tier: 'free',
-        status: 'available',
-        details: [
-          'GDPR compliant',
-          'Data encryption',
-          'Private gardens',
-          'Selective sharing',
-          'Data deletion'
-        ]
-      },
-      {
-        title: 'Offline Mode',
-        description: 'Work without internet',
-        icon: WifiOff,
-        tier: 'pro',
-        status: 'available',
-        details: [
-          'Full offline access',
-          'Local data storage',
-          'Sync when connected',
-          'Conflict resolution',
-          'Offline maps'
+          'Harvest windows',
+          'Frost warnings',
+          'Watering reminders',
+          'Pest outbreak alerts',
+          'Community events',
+          'System updates'
         ]
       }
     ]
   }
 ]
-
-const tierColors = {
-  free: 'bg-green-100 text-green-800',
-  pro: 'bg-blue-100 text-blue-800',
-  enterprise: 'bg-purple-100 text-purple-800'
-}
 
 const statusColors = {
   available: 'bg-green-100 text-green-800',
@@ -676,9 +639,14 @@ const statusColors = {
   'coming-soon': 'bg-gray-100 text-gray-800'
 }
 
+const statusLabels = {
+  available: 'Available Now',
+  beta: 'Beta',
+  'coming-soon': 'Coming Soon'
+}
+
 export default function FeaturesPage() {
-  const [selectedCategory, setSelectedCategory] = useState('garden-design')
-  const [selectedTier, setSelectedTier] = useState<'all' | 'free' | 'pro' | 'enterprise'>('all')
+  const [selectedCategory, setSelectedCategory] = useState('intelligent-design')
   const [expandedFeature, setExpandedFeature] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
 
@@ -690,14 +658,7 @@ export default function FeaturesPage() {
     return null
   }
 
-  const filteredCategories = FEATURE_CATEGORIES.map(category => ({
-    ...category,
-    features: category.features.filter(
-      feature => selectedTier === 'all' || feature.tier === selectedTier
-    )
-  }))
-
-  const currentCategory = filteredCategories.find(cat => cat.id === selectedCategory)
+  const currentCategory = FEATURE_CATEGORIES.find(cat => cat.id === selectedCategory)
 
   const featureStats = {
     total: FEATURE_CATEGORIES.reduce((sum, cat) => sum + cat.features.length, 0),
@@ -718,15 +679,18 @@ export default function FeaturesPage() {
       <section className="py-12 px-4 border-b bg-white/80 backdrop-blur">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center">
-            <Badge className="mb-4 opacity-0 animate-fade-in" variant="secondary" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
-              {featureStats.total} Features & Counting
+            <Badge className="mb-4 opacity-0 animate-fade-in bg-green-100 text-green-800" variant="secondary"
+                   style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+              Free & Open Source • {featureStats.total} Powerful Features
             </Badge>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-              Everything You Need to Grow
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 opacity-0 animate-fade-in"
+                style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+              Everything You Need for Permaculture Success
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto opacity-0 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-              From beginner-friendly tools to advanced analytics, our platform provides
-              comprehensive features for every aspect of permaculture gardening.
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto opacity-0 animate-fade-in"
+               style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+              AI-powered design tools, comprehensive plant database, water management,
+              crop rotation, and professional reporting - all completely free.
             </p>
           </div>
 
@@ -746,56 +710,39 @@ export default function FeaturesPage() {
             </Card>
             <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
-                <div className="text-3xl font-bold text-gray-600">{featureStats.coming}</div>
-                <div className="text-sm text-gray-600">Coming Soon</div>
+                <div className="text-3xl font-bold text-emerald-600">50+</div>
+                <div className="text-sm text-gray-600">Plant Species</div>
               </CardContent>
             </Card>
             <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
-                <div className="text-3xl font-bold text-purple-600">8</div>
-                <div className="text-sm text-gray-600">Categories</div>
+                <div className="text-3xl font-bold text-blue-600">GPT-4</div>
+                <div className="text-sm text-gray-600">AI Assistant</div>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
-      {/* Tier Filter */}
+      {/* Quick Actions */}
       <section className="py-6 px-4 bg-white border-b sticky top-0 z-10">
         <div className="container mx-auto max-w-7xl">
           <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              <Button
-                variant={selectedTier === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedTier('all')}
-              >
-                All Features
-              </Button>
-              <Button
-                variant={selectedTier === 'free' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedTier('free')}
-                className={selectedTier === 'free' ? 'bg-green-600 hover:bg-green-700' : ''}
-              >
-                Free
-              </Button>
-              <Button
-                variant={selectedTier === 'pro' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedTier('pro')}
-                className={selectedTier === 'pro' ? 'bg-blue-600 hover:bg-blue-700' : ''}
-              >
-                Pro
-              </Button>
-              <Button
-                variant={selectedTier === 'enterprise' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedTier('enterprise')}
-                className={selectedTier === 'enterprise' ? 'bg-purple-600 hover:bg-purple-700' : ''}
-              >
-                Enterprise
-              </Button>
+            <div className="flex gap-2 items-center">
+              <span className="text-sm text-gray-600 mr-2">Jump to:</span>
+              <div className="flex gap-2 overflow-x-auto">
+                {FEATURE_CATEGORIES.slice(0, 4).map((cat) => (
+                  <Button
+                    key={cat.id}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={selectedCategory === cat.id ? 'bg-green-50 border-green-500' : ''}
+                  >
+                    {cat.name.split(' ')[0]}
+                  </Button>
+                ))}
+              </div>
             </div>
             <div className="flex gap-2">
               <Link href="/demo">
@@ -803,9 +750,9 @@ export default function FeaturesPage() {
                   Try Demo
                 </Button>
               </Link>
-              <Link href="/auth/signup">
+              <Link href="/wizard">
                 <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                  Get Started
+                  Start Free
                 </Button>
               </Link>
             </div>
@@ -816,15 +763,12 @@ export default function FeaturesPage() {
       {/* Main Content */}
       <section className="py-8 px-4">
         <div className="container mx-auto max-w-7xl">
-          <div className="grid lg:grid-cols-[280px,1fr] gap-6">
+          <div className="grid lg:grid-cols-[300px,1fr] gap-6">
             {/* Category Sidebar */}
             <div className="space-y-2">
               {FEATURE_CATEGORIES.map((category, index) => {
                 const Icon = category.icon
                 const isActive = selectedCategory === category.id
-                const featureCount = category.features.filter(
-                  f => selectedTier === 'all' || f.tier === selectedTier
-                ).length
 
                 return (
                   <button
@@ -844,7 +788,7 @@ export default function FeaturesPage() {
                       <div className="flex-1">
                         <div className="font-medium text-sm">{category.name}</div>
                         <div className="text-xs text-gray-500 mt-0.5">
-                          {featureCount} features
+                          {category.features.length} features
                         </div>
                       </div>
                     </div>
@@ -879,14 +823,9 @@ export default function FeaturesPage() {
                           <CardHeader>
                             <div className="flex items-start justify-between">
                               <Icon className="h-8 w-8 text-green-600" />
-                              <div className="flex gap-2">
-                                <Badge className={tierColors[feature.tier]} variant="secondary">
-                                  {feature.tier}
-                                </Badge>
-                                <Badge className={statusColors[feature.status]} variant="secondary">
-                                  {feature.status.replace('-', ' ')}
-                                </Badge>
-                              </div>
+                              <Badge className={statusColors[feature.status]} variant="secondary">
+                                {statusLabels[feature.status]}
+                              </Badge>
                             </div>
                             <CardTitle className="text-lg mt-3">{feature.title}</CardTitle>
                             <CardDescription>{feature.description}</CardDescription>
@@ -911,16 +850,47 @@ export default function FeaturesPage() {
                       )
                     })}
                   </div>
-
-                  {currentCategory.features.length === 0 && (
-                    <div className="text-center py-12">
-                      <p className="text-gray-500">
-                        No features match the selected tier filter.
-                      </p>
-                    </div>
-                  )}
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Key Highlights */}
+      <section className="py-16 px-4 bg-white border-t">
+        <div className="container mx-auto max-w-7xl">
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Permaculture Planner?</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Brain className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">AI-Powered Intelligence</h3>
+              <p className="text-gray-600">
+                GPT-4 integration provides personalized advice, plant recommendations,
+                and problem-solving assistance tailored to your specific garden.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Heart className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">100% Free & Open Source</h3>
+              <p className="text-gray-600">
+                No subscriptions, no hidden fees, no premium tiers. Every feature is
+                available to everyone, forever. Community-driven development.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TreePine className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="font-bold text-lg mb-2">True Permaculture Focus</h3>
+              <p className="text-gray-600">
+                Beyond simple gardening - design complete food systems with water
+                harvesting, livestock integration, and regenerative practices.
+              </p>
             </div>
           </div>
         </div>
@@ -930,23 +900,28 @@ export default function FeaturesPage() {
       <section className="py-16 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Ready to Transform Your Garden?
+            Start Your Permaculture Journey Today
           </h2>
           <p className="text-xl mb-8 text-green-100">
-            Join thousands of gardeners using our platform to grow more food with less effort.
+            Join thousands of gardeners creating sustainable food systems with our free,
+            AI-powered permaculture planning tools.
           </p>
           <div className="flex gap-4 justify-center">
             <Link href="/wizard">
               <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100">
-                Start Designing - It's Free!
+                <Sparkles className="mr-2 h-5 w-5" />
+                Create Your Garden Plan
               </Button>
             </Link>
             <Link href="/demo">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                Try the Demo
+                Explore Interactive Demo
               </Button>
             </Link>
           </div>
+          <p className="text-sm text-green-100 mt-6">
+            No credit card required • Instant access • Community support
+          </p>
         </div>
       </section>
     </div>
