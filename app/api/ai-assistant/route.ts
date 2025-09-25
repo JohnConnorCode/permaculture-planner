@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview', // Will use the latest available model
+      model: 'gpt-5-nano', // Fast, efficient, and cost-effective
       messages: aiMessages as any,
       temperature: 0.7,
       max_tokens: 1000,
@@ -176,7 +176,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: 'gpt-5-nano',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: prompt }

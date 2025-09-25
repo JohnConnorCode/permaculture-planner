@@ -42,7 +42,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
   {
     id: 'intelligent-design',
     name: 'AI-Powered Garden Design',
-    description: 'Leverage OpenAI GPT-4 to create optimized permaculture designs',
+    description: 'Leverage OpenAI GPT-5 nano to create optimized permaculture designs',
     icon: Brain,
     features: [
       {
@@ -63,7 +63,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       },
       {
         title: 'AI Garden Assistant',
-        description: 'ChatGPT-powered assistant for real-time garden advice',
+        description: 'GPT-5 nano-powered assistant for real-time garden advice',
         icon: Brain,
         status: 'available',
         details: [
@@ -716,7 +716,7 @@ export default function FeaturesPage() {
             </Card>
             <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
-                <div className="text-3xl font-bold text-blue-600">GPT-4</div>
+                <div className="text-3xl font-bold text-blue-600">GPT-5 nano</div>
                 <div className="text-sm text-gray-600">AI Assistant</div>
               </CardContent>
             </Card>
@@ -868,7 +868,7 @@ export default function FeaturesPage() {
               </div>
               <h3 className="font-bold text-lg mb-2">AI-Powered Intelligence</h3>
               <p className="text-gray-600">
-                GPT-4 integration provides personalized advice, plant recommendations,
+                GPT-5 nano integration provides fast, personalized advice, plant recommendations,
                 and problem-solving assistance tailored to your specific garden.
               </p>
             </div>
