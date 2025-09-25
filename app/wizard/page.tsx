@@ -125,8 +125,42 @@ export default function WizardPage() {
   }
 
   const handleComplete = async () => {
-    // TODO: Save to database
-    router.push('/dashboard')
+    try {
+      // Transform wizard data to match API format
+      const planData = {
+        name: `Garden Plan - ${new Date().toLocaleDateString()}`,
+        location: data.location,
+        dimensions: {
+          width: Math.sqrt(data.area.total_sqft * data.area.usable_fraction),
+          length: Math.sqrt(data.area.total_sqft * data.area.usable_fraction)
+        },
+        surface: data.surface,
+        water: data.water,
+        crops: data.crops,
+        materials: data.materials,
+        template: data.template
+      }
+
+      // Save to database via API
+      const response = await fetch('/api/plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(planData)
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to save plan')
+      }
+
+      const result = await response.json()
+
+      // Navigate to the created plan
+      router.push(`/plans/${result.id}`)
+    } catch (error) {
+      console.error('Error saving plan:', error)
+      // Fallback to dashboard if save fails
+      router.push('/dashboard')
+    }
   }
 
   const progressValue = ((currentStep - 1) / (steps.length - 1)) * 100

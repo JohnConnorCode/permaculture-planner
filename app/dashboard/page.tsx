@@ -15,13 +15,18 @@ import {
   Settings, LogOut, User, Grid3x3, BarChart, Map,
   Star, Heart, MessageCircle, Users, Award
 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { Database } from '@/types/database.types'
 
-interface GardenDesign {
-  id: string
-  name: string
-  beds: any[]
-  timestamp: number
-  thumbnail?: string
+type Plan = Database['public']['Tables']['plans']['Row']
+type Site = Database['public']['Tables']['sites']['Row']
+type Bed = Database['public']['Tables']['beds']['Row']
+type MaterialsEstimate = Database['public']['Tables']['materials_estimates']['Row']
+
+interface PlanWithStats extends Plan {
+  site: Site
+  beds: Bed[]
+  materials_estimates: MaterialsEstimate | null
   stats: {
     plants: number
     varieties: number
@@ -30,68 +35,166 @@ interface GardenDesign {
   }
 }
 
-interface UserData {
-  email: string
-  name: string
-  id: string
-}
-
 export default function DashboardPage() {
   const router = useRouter()
-  const [user, setUser] = useState<UserData | null>(null)
-  const [designs, setDesigns] = useState<GardenDesign[]>([])
+  const [user, setUser] = useState<Database['public']['Tables']['users']['Row'] | null>(null)
+  const [plans, setPlans] = useState<PlanWithStats[]>([])
   const [activeTab, setActiveTab] = useState('designs')
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Check if user is logged in
-    const userData = localStorage.getItem('user')
-    if (!userData) {
+    async function loadUserData() {
+      try {
+        const supabase = createClient()
+
+        // Get current user
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+
+        if (authError || !authUser) {
+          router.push('/auth/login')
+          return
+        }
+
+        // Get or create user profile
+        const { data: userProfile, error: userError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
+          .single()
+
+        if (userError && userError.code === 'PGRST116') {
+          // User doesn't exist, create profile
+          const { data: newUser, error: createError } = await supabase
+            .from('users')
+            .insert({
+              id: authUser.id,
+              email: authUser.email!,
+              name: authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User'
+            } as any)
+            .select()
+            .single()
+
+          if (createError) {
+            setError('Failed to create user profile')
+            setLoading(false)
+            return
+          }
+          setUser(newUser)
+        } else if (userError) {
+          setError('Failed to load user data')
+          setLoading(false)
+          return
+        } else {
+          setUser(userProfile)
+        }
+
+        // First fetch user's sites
+        const { data: sitesData, error: sitesError } = await supabase
+          .from('sites')
+          .select('id')
+          .eq('user_id', authUser.id)
+
+        if (sitesError) {
+          console.error('Error fetching sites:', sitesError)
+          setError('Failed to load sites')
+          setLoading(false)
+          return
+        }
+
+        const siteIds = (sitesData as any[])?.map(s => s.id) || []
+
+        // Fetch user's plans with related data
+        const { data: plansData, error: plansError } = await supabase
+          .from('plans')
+          .select(`
+            *,
+            site:sites(*),
+            beds(*),
+            materials_estimates(*)
+          `)
+          .in('site_id', siteIds)
+          .order('created_at', { ascending: false })
+
+        if (plansError) {
+          console.error('Error fetching plans:', plansError)
+          setError('Failed to load plans')
+        } else {
+          // Calculate stats for each plan
+          const plansWithStats: PlanWithStats[] = (plansData || []).map((plan: any) => {
+            const beds = plan.beds || []
+            const totalArea = beds.reduce((sum: number, bed: Bed) =>
+              sum + (bed.length_ft * bed.width_ft), 0
+            )
+
+            return {
+              ...plan,
+              stats: {
+                plants: Math.floor(totalArea * 2), // Rough estimate: 2 plants per sq ft
+                varieties: Math.min(beds.length * 3, 20), // 3 varieties per bed, max 20
+                area: totalArea,
+                beds: beds.length
+              }
+            }
+          })
+          setPlans(plansWithStats)
+        }
+
+        setLoading(false)
+      } catch (error) {
+        console.error('Error loading dashboard data:', error)
+        setError('An unexpected error occurred')
+        setLoading(false)
+      }
+    }
+
+    loadUserData()
+  }, [router])
+
+  const handleLogout = async () => {
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
       router.push('/auth/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  const deletePlan = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this plan? This action cannot be undone.')) {
       return
     }
 
-    const parsedUser = JSON.parse(userData)
-    setUser(parsedUser)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('plans')
+        .delete()
+        .eq('id', id)
 
-    // Load saved designs
-    const savedDesigns = localStorage.getItem('gardenDesigns')
-    if (savedDesigns) {
-      const designs = JSON.parse(savedDesigns)
-      // Add mock stats if not present
-      const designsWithStats = designs.map((design: any) => ({
-        ...design,
-        id: design.id || Math.random().toString(36).substr(2, 9),
-        stats: design.stats || {
-          plants: Math.floor(Math.random() * 50) + 10,
-          varieties: Math.floor(Math.random() * 15) + 5,
-          area: Math.floor(Math.random() * 500) + 100,
-          beds: Math.floor(Math.random() * 8) + 2
-        }
-      }))
-      setDesigns(designsWithStats)
-    }
+      if (error) {
+        console.error('Error deleting plan:', error)
+        setError('Failed to delete plan')
+        return
+      }
 
-    setLoading(false)
-  }, [router])
-
-  const handleLogout = () => {
-    localStorage.removeItem('user')
-    router.push('/auth/login')
-  }
-
-  const deleteDesign = (id: string) => {
-    if (confirm('Are you sure you want to delete this garden design?')) {
-      const updatedDesigns = designs.filter(d => d.id !== id)
-      setDesigns(updatedDesigns)
-      localStorage.setItem('gardenDesigns', JSON.stringify(updatedDesigns))
+      // Remove from local state
+      setPlans(plans.filter(p => p.id !== id))
+    } catch (error) {
+      console.error('Error deleting plan:', error)
+      setError('Failed to delete plan')
     }
   }
 
-  const exportDesign = (design: GardenDesign) => {
-    const dataStr = JSON.stringify(design, null, 2)
+  const exportPlan = (plan: PlanWithStats) => {
+    const exportData = {
+      plan,
+      exportedAt: new Date().toISOString()
+    }
+    const dataStr = JSON.stringify(exportData, null, 2)
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr)
-    const exportFileDefaultName = `${design.name.replace(/\s+/g, '-')}-${Date.now()}.json`
+    const exportFileDefaultName = `${plan.name.replace(/\s+/g, '-')}-${Date.now()}.json`
 
     const linkElement = document.createElement('a')
     linkElement.setAttribute('href', dataUri)
@@ -101,12 +204,12 @@ export default function DashboardPage() {
 
   // Calculate user stats
   const userStats = {
-    totalDesigns: designs.length,
-    totalPlants: designs.reduce((sum, d) => sum + d.stats.plants, 0),
-    totalArea: designs.reduce((sum, d) => sum + d.stats.area, 0),
-    avgYield: Math.floor(Math.random() * 200) + 100,
-    level: Math.min(Math.floor(designs.length / 3) + 1, 10),
-    points: designs.length * 100 + designs.reduce((sum, d) => sum + d.stats.plants * 2, 0)
+    totalDesigns: plans.length,
+    totalPlants: plans.reduce((sum, p) => sum + p.stats.plants, 0),
+    totalArea: plans.reduce((sum, p) => sum + p.stats.area, 0),
+    avgYield: Math.floor(plans.reduce((sum, p) => sum + p.stats.area, 0) * 0.5), // 0.5 kg per sq ft estimate
+    level: Math.min(Math.floor(plans.length / 3) + 1, 10),
+    points: plans.length * 100 + plans.reduce((sum, p) => sum + p.stats.plants * 2, 0)
   }
 
   if (loading) {
@@ -115,6 +218,21 @@ export default function DashboardPage() {
         <div className="text-center">
           <Leaf className="h-12 w-12 text-green-600 animate-pulse mx-auto mb-4" />
           <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
         </div>
       </div>
     )
@@ -240,7 +358,7 @@ export default function DashboardPage() {
           </TabsList>
 
           <TabsContent value="designs" className="mt-6">
-            {designs.length === 0 ? (
+            {plans.length === 0 ? (
               <Card className="text-center py-12">
                 <CardContent>
                   <Trees className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -256,57 +374,60 @@ export default function DashboardPage() {
               </Card>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {designs.map((design, index) => (
-                  <Card key={design.id} className="overflow-hidden hover:shadow-lg transition-shadow opacity-0 animate-scale-in" style={{ animationDelay: `${0.7 + index * 0.1}s`, animationFillMode: 'forwards' }}>
+                {plans.map((plan, index) => (
+                  <Card key={plan.id} className="overflow-hidden hover:shadow-lg transition-shadow opacity-0 animate-scale-in" style={{ animationDelay: `${0.7 + index * 0.1}s`, animationFillMode: 'forwards' }}>
                     <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 relative">
                       <div className="absolute inset-0 flex items-center justify-center">
                         <Trees className="h-16 w-16 text-green-600/30" />
                       </div>
                       <Badge className="absolute top-3 right-3">
-                        {design.stats.beds} beds
+                        {plan.stats.beds} beds
+                      </Badge>
+                      <Badge className="absolute top-3 left-3" variant={plan.status === 'active' ? 'default' : 'secondary'}>
+                        {plan.status}
                       </Badge>
                     </div>
                     <CardHeader>
-                      <CardTitle className="text-lg">{design.name}</CardTitle>
+                      <CardTitle className="text-lg">{plan.name}</CardTitle>
                       <CardDescription>
                         <Clock className="inline h-3 w-3 mr-1" />
-                        {new Date(design.timestamp).toLocaleDateString()}
+                        {new Date(plan.created_at).toLocaleDateString()}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div className="flex items-center gap-2">
                           <Leaf className="h-4 w-4 text-green-600" />
-                          <span>{design.stats.plants} plants</span>
+                          <span>{plan.stats.plants} plants</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Trees className="h-4 w-4 text-green-600" />
-                          <span>{design.stats.varieties} varieties</span>
+                          <span>{plan.stats.varieties} varieties</span>
                         </div>
                         <div className="flex items-center gap-2 col-span-2">
                           <Map className="h-4 w-4 text-green-600" />
-                          <span>{design.stats.area} sq ft</span>
+                          <span>{plan.stats.area} sq ft</span>
                         </div>
                       </div>
                     </CardContent>
                     <CardFooter className="flex gap-2">
-                      <Link href="/demo" className="flex-1">
+                      <Link href={`/plans/${plan.id}`} className="flex-1">
                         <Button variant="outline" size="sm" className="w-full">
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edit
+                          <Eye className="h-4 w-4 mr-1" />
+                          View
                         </Button>
                       </Link>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => exportDesign(design)}
+                        onClick={() => exportPlan(plan)}
                       >
                         <Download className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteDesign(design.id)}
+                        onClick={() => deletePlan(plan.id)}
                       >
                         <Trash2 className="h-4 w-4 text-red-500" />
                       </Button>
@@ -357,10 +478,10 @@ export default function DashboardPage() {
           <TabsContent value="achievements" className="mt-6">
             <div className="grid md:grid-cols-2 gap-4">
               {[
-                { icon: Leaf, title: 'First Steps', desc: 'Create your first design', earned: true, progress: 100 },
-                { icon: Trees, title: 'System Designer', desc: 'Create 5 complete systems', earned: false, progress: (designs.length / 5) * 100 },
+                { icon: Leaf, title: 'First Steps', desc: 'Create your first design', earned: plans.length > 0, progress: plans.length > 0 ? 100 : 0 },
+                { icon: Trees, title: 'System Designer', desc: 'Create 5 complete systems', earned: plans.length >= 5, progress: Math.min((plans.length / 5) * 100, 100) },
                 { icon: Users, title: 'Community Member', desc: 'Share a permaculture design', earned: false, progress: 0 },
-                { icon: Award, title: 'Master Planner', desc: 'Plant 100+ plants', earned: false, progress: Math.min((userStats.totalPlants / 100) * 100, 100) },
+                { icon: Award, title: 'Master Planner', desc: 'Plant 100+ plants', earned: userStats.totalPlants >= 100, progress: Math.min((userStats.totalPlants / 100) * 100, 100) },
               ].map((achievement, index) => {
                 const Icon = achievement.icon
                 return (

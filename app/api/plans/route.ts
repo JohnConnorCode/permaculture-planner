@@ -9,14 +9,13 @@ export async function POST(request: NextRequest) {
     const supabase = await createServerClientWithWrite()
     const wizardData = await request.json()
     
-    // Get current user (for now, we'll create without auth for demo)
-    // const { data: { user } } = await supabase.auth.getUser()
-    // if (!user) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
-    
-    // For demo, use a default user ID
-    const userId = 'demo-user-001'
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const userId = user.id
     
     // Create site
     const { data: site, error: siteError } = await (supabase

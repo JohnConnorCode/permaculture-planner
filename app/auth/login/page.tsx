@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { Loader2, Leaf, Mail, Lock, LogIn, ArrowRight, Github } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -23,39 +24,68 @@ export default function LoginPage() {
     setLoading(true)
     setError(null)
 
-    // Mock authentication for demo (replace with real auth)
-    setTimeout(() => {
-      if (email && password) {
-        // Store mock user session
-        localStorage.setItem('user', JSON.stringify({
-          email,
-          name: email.split('@')[0],
-          id: Math.random().toString(36).substr(2, 9)
-        }))
-        router.push('/dashboard')
-      } else {
-        setError('Please enter your email and password')
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        setError(error.message)
         setLoading(false)
+        return
       }
-    }, 1000)
+
+      // Redirect will be handled by middleware
+      router.push('/dashboard')
+      router.refresh()
+    } catch (error) {
+      setError('An unexpected error occurred')
+      setLoading(false)
+    }
   }
 
   const handleGoogleLogin = async () => {
     setLoading(true)
-    // Mock OAuth for demo
-    setTimeout(() => {
-      alert('OAuth login coming soon! For now, use email/password.')
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+      }
+    } catch (error) {
+      setError('Google authentication failed')
       setLoading(false)
-    }, 500)
+    }
   }
 
   const handleGithubLogin = async () => {
     setLoading(true)
-    // Mock OAuth for demo
-    setTimeout(() => {
-      alert('GitHub login coming soon! For now, use email/password.')
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      })
+
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+      }
+    } catch (error) {
+      setError('GitHub authentication failed')
       setLoading(false)
-    }, 500)
+    }
   }
 
   return (
