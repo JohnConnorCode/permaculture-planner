@@ -23,7 +23,8 @@ import {
   MousePointer, Square, Pencil, Leaf, Trash2,
   Sun, Droplets, TreePine, Flower, Sprout, Cherry,
   HelpCircle, CheckCircle, AlertCircle, Play,
-  Undo, Redo, FileJson, Upload, BookOpen, Bot
+  Undo, Redo, FileJson, Upload, BookOpen, Bot,
+  Circle, Hexagon, Triangle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -155,7 +156,11 @@ export default function DemoPage() {
     { id: 'select', icon: MousePointer, name: 'Select', description: 'Select and move' },
     { id: 'rect', icon: Square, name: 'Rectangle', description: 'Draw rectangular bed' },
     { id: 'rect-precise', icon: Ruler, name: 'Precise Rect', description: 'Set exact dimensions' },
-    { id: 'draw', icon: Pencil, name: 'Custom Shape', description: 'Draw any shape' },
+    { id: 'circle', icon: Circle, name: 'Circle', description: 'Create circular bed' },
+    { id: 'triangle', icon: Triangle, name: 'Triangle', description: 'Create triangular bed' },
+    { id: 'hexagon', icon: Hexagon, name: 'Hexagon', description: 'Create hexagonal bed' },
+    { id: 'l-shape', icon: Square, name: 'L-Shape', description: 'Create L-shaped bed' },
+    { id: 'draw', icon: Pencil, name: 'Custom', description: 'Draw any shape' },
     { id: 'plant', icon: Leaf, name: 'Plant', description: 'Place plants', requiresPlant: true },
     { id: 'delete', icon: Trash2, name: 'Delete', description: 'Remove elements' }
   ]

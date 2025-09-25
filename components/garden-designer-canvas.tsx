@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { PlantInfo, getPlantById, checkCompatibility } from '@/lib/data/plant-library'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Maximize, Minimize2 } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -99,6 +99,9 @@ export function GardenDesignerCanvas({
   const [transformHandle, setTransformHandle] = useState<string | null>(null)
   const [transformStart, setTransformStart] = useState<{ x: number; y: number } | null>(null)
   const [transformOrigin, setTransformOrigin] = useState<{ x: number; y: number } | null>(null)
+
+  // Copy/paste state
+  const [clipboard, setClipboard] = useState<GardenBed | null>(null)
 
   // Use internal zoom if external not provided
   const zoom = externalZoom ?? internalZoom
@@ -483,11 +486,79 @@ export function GardenDesignerCanvas({
     }))
   }
 
+  // Create shape at point
+  const createShape = (center: { x: number; y: number }, shape: string) => {
+    const size = 100 // Default size in pixels
+    let points: { x: number; y: number }[] = []
+
+    switch (shape) {
+      case 'circle':
+        // Create octagon to approximate circle
+        const radius = size / 2
+        for (let i = 0; i < 8; i++) {
+          const angle = (i * Math.PI * 2) / 8
+          points.push({
+            x: center.x + Math.cos(angle) * radius,
+            y: center.y + Math.sin(angle) * radius
+          })
+        }
+        break
+      case 'triangle':
+        points = [
+          { x: center.x, y: center.y - size / 2 },
+          { x: center.x - size / 2, y: center.y + size / 2 },
+          { x: center.x + size / 2, y: center.y + size / 2 }
+        ]
+        break
+      case 'hexagon':
+        const hexRadius = size / 2
+        for (let i = 0; i < 6; i++) {
+          const angle = (i * Math.PI * 2) / 6
+          points.push({
+            x: center.x + Math.cos(angle) * hexRadius,
+            y: center.y + Math.sin(angle) * hexRadius
+          })
+        }
+        break
+      case 'l-shape':
+        const third = size / 3
+        points = [
+          { x: center.x - size/2, y: center.y - size/2 },
+          { x: center.x - size/2 + third, y: center.y - size/2 },
+          { x: center.x - size/2 + third, y: center.y + size/2 - third },
+          { x: center.x + size/2, y: center.y + size/2 - third },
+          { x: center.x + size/2, y: center.y + size/2 },
+          { x: center.x - size/2, y: center.y + size/2 }
+        ]
+        break
+    }
+
+    const newBed: GardenBed = {
+      id: `bed-${Date.now()}`,
+      name: `${shape.charAt(0).toUpperCase() + shape.slice(1)} Bed ${beds.length + 1}`,
+      points,
+      fill: '#f0fdf4',
+      stroke: '#86efac',
+      plants: [],
+      width: size / 20, // Convert to feet
+      height: size / 20,
+      rotation: 0
+    }
+
+    onBedsChange([...beds, newBed])
+  }
+
   // Handle plant placement and deletion
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (isPanning || isDrawing || transformMode !== 'none') return
 
     const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
+
+    // Handle shape tools
+    if (['circle', 'triangle', 'hexagon', 'l-shape'].includes(selectedTool)) {
+      createShape(point, selectedTool)
+      return
+    }
 
     // Handle precise rectangle tool
     if (selectedTool === 'rect-precise' && !isDrawing) {
