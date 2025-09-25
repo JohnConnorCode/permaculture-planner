@@ -5,6 +5,7 @@ import { Providers } from '@/components/providers'
 import { Navigation } from '@/components/navigation'
 import { Footer } from '@/components/footer'
 import { Toaster } from '@/components/ui/toaster'
+import { ScrollToTop } from '@/components/scroll-to-top'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -35,6 +36,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
+          <ScrollToTop />
           <div className="min-h-screen flex flex-col">
             <Navigation />
             <main className="flex-1">
