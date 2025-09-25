@@ -4,7 +4,8 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { PlantInfo, getPlantById, checkCompatibility } from '@/lib/data/plant-library'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle, XCircle } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export interface GardenBed {
   id: string
@@ -13,6 +14,9 @@ export interface GardenBed {
   fill: string
   stroke: string
   plants: PlantedItem[]
+  width?: number
+  height?: number
+  rotation?: number
 }
 
 export interface PlantedItem {
@@ -23,15 +27,22 @@ export interface PlantedItem {
   plantedDate?: Date
 }
 
+interface ViewBox {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
 interface GardenDesignerCanvasProps {
   beds: GardenBed[]
   onBedsChange: (beds: GardenBed[]) => void
   selectedPlant: PlantInfo | null
   selectedTool: string
-  zoom: number
-  showGrid: boolean
-  showLabels: boolean
-  showSpacing: boolean
+  zoom?: number
+  showGrid?: boolean
+  showLabels?: boolean
+  showSpacing?: boolean
   showSunRequirements?: boolean
   showWaterRequirements?: boolean
   className?: string
@@ -42,7 +53,7 @@ export function GardenDesignerCanvas({
   onBedsChange,
   selectedPlant,
   selectedTool,
-  zoom = 100,
+  zoom: externalZoom,
   showGrid = true,
   showLabels = true,
   showSpacing = false,
@@ -51,11 +62,25 @@ export function GardenDesignerCanvas({
   className
 }: GardenDesignerCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Canvas state
   const [isDrawing, setIsDrawing] = useState(false)
   const [currentPoints, setCurrentPoints] = useState<{ x: number; y: number }[]>([])
   const [selectedBed, setSelectedBed] = useState<string | null>(null)
   const [hoveredPlant, setHoveredPlant] = useState<string | null>(null)
   const [hoveredBed, setHoveredBed] = useState<string | null>(null)
+
+  // Infinite canvas state
+  const [viewBox, setViewBox] = useState<ViewBox>({ x: -100, y: -100, width: 800, height: 600 })
+  const [isPanning, setIsPanning] = useState(false)
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 })
+  const [internalZoom, setInternalZoom] = useState(100)
+  const [spacePressed, setSpacePressed] = useState(false)
+
+  // Use internal zoom if external not provided
+  const zoom = externalZoom ?? internalZoom
+
   const [compatibilityAlerts, setCompatibilityAlerts] = useState<Array<{
     plant1: string
     plant2: string
@@ -63,16 +88,14 @@ export function GardenDesignerCanvas({
     message?: string
   }>>([])
 
-  // Convert screen coordinates to SVG coordinates
-  const screenToSVG = useCallback((clientX: number, clientY: number) => {
-    if (!svgRef.current) return { x: 0, y: 0 }
-    const rect = svgRef.current.getBoundingClientRect()
-    const scale = zoom / 100
-    return {
-      x: (clientX - rect.left) / scale,
-      y: (clientY - rect.top) / scale
-    }
-  }, [zoom])
+  // Convert screen coordinates to SVG world coordinates
+  const screenToWorld = useCallback((clientX: number, clientY: number) => {
+    if (!svgRef.current || !containerRef.current) return { x: 0, y: 0 }
+    const rect = containerRef.current.getBoundingClientRect()
+    const x = viewBox.x + ((clientX - rect.left) / rect.width) * viewBox.width
+    const y = viewBox.y + ((clientY - rect.top) / rect.height) * viewBox.height
+    return { x, y }
+  }, [viewBox])
 
   // Snap to grid if enabled
   const snapToGrid = (point: { x: number; y: number }, gridSize: number = 10) => {
@@ -83,11 +106,177 @@ export function GardenDesignerCanvas({
     }
   }
 
+  // Handle keyboard events for pan (spacebar)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space' && !e.repeat) {
+        e.preventDefault()
+        setSpacePressed(true)
+      }
+      // Zoom with Ctrl/Cmd + Plus/Minus
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === '=' || e.key === '+') {
+          e.preventDefault()
+          handleZoomIn()
+        } else if (e.key === '-' || e.key === '_') {
+          e.preventDefault()
+          handleZoomOut()
+        } else if (e.key === '0') {
+          e.preventDefault()
+          handleResetView()
+        }
+      }
+    }
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        setSpacePressed(false)
+        setIsPanning(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [])
+
+  // Handle mouse wheel for zoom
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault()
+      const delta = e.deltaY > 0 ? 0.9 : 1.1
+      const newZoom = Math.max(25, Math.min(400, zoom * delta))
+
+      // Zoom toward mouse position
+      const mouseWorld = screenToWorld(e.clientX, e.clientY)
+      const scale = newZoom / zoom
+
+      setViewBox(prev => ({
+        x: mouseWorld.x - (mouseWorld.x - prev.x) / scale,
+        y: mouseWorld.y - (mouseWorld.y - prev.y) / scale,
+        width: prev.width / scale,
+        height: prev.height / scale
+      }))
+
+      setInternalZoom(newZoom)
+    }
+  }
+
+  // Pan handlers
+  const handlePanStart = (e: React.MouseEvent) => {
+    if (spacePressed || selectedTool === 'pan') {
+      setIsPanning(true)
+      setPanStart({ x: e.clientX, y: e.clientY })
+      e.preventDefault()
+    }
+  }
+
+  const handlePanMove = (e: React.MouseEvent) => {
+    if (isPanning) {
+      const dx = (e.clientX - panStart.x) * (viewBox.width / (containerRef.current?.clientWidth || 800))
+      const dy = (e.clientY - panStart.y) * (viewBox.height / (containerRef.current?.clientHeight || 600))
+
+      setViewBox(prev => ({
+        ...prev,
+        x: prev.x - dx,
+        y: prev.y - dy
+      }))
+
+      setPanStart({ x: e.clientX, y: e.clientY })
+    }
+  }
+
+  const handlePanEnd = () => {
+    setIsPanning(false)
+  }
+
+  // Zoom controls
+  const handleZoomIn = () => {
+    const newZoom = Math.min(400, zoom * 1.2)
+    const scale = newZoom / zoom
+    setViewBox(prev => ({
+      x: prev.x + prev.width * (1 - 1/scale) / 2,
+      y: prev.y + prev.height * (1 - 1/scale) / 2,
+      width: prev.width / scale,
+      height: prev.height / scale
+    }))
+    setInternalZoom(newZoom)
+  }
+
+  const handleZoomOut = () => {
+    const newZoom = Math.max(25, zoom * 0.8)
+    const scale = newZoom / zoom
+    setViewBox(prev => ({
+      x: prev.x + prev.width * (1 - 1/scale) / 2,
+      y: prev.y + prev.height * (1 - 1/scale) / 2,
+      width: prev.width / scale,
+      height: prev.height / scale
+    }))
+    setInternalZoom(newZoom)
+  }
+
+  const handleResetView = () => {
+    setViewBox({ x: -100, y: -100, width: 800, height: 600 })
+    setInternalZoom(100)
+  }
+
+  const handleFitToContent = () => {
+    if (beds.length === 0) {
+      handleResetView()
+      return
+    }
+
+    // Find bounds of all content
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+
+    beds.forEach(bed => {
+      bed.points.forEach(point => {
+        minX = Math.min(minX, point.x)
+        minY = Math.min(minY, point.y)
+        maxX = Math.max(maxX, point.x)
+        maxY = Math.max(maxY, point.y)
+      })
+      bed.plants.forEach(plant => {
+        minX = Math.min(minX, plant.x - 20)
+        minY = Math.min(minY, plant.y - 20)
+        maxX = Math.max(maxX, plant.x + 20)
+        maxY = Math.max(maxY, plant.y + 20)
+      })
+    })
+
+    const padding = 50
+    const contentWidth = maxX - minX + padding * 2
+    const contentHeight = maxY - minY + padding * 2
+
+    setViewBox({
+      x: minX - padding,
+      y: minY - padding,
+      width: contentWidth,
+      height: contentHeight
+    })
+
+    // Adjust zoom to fit
+    const containerWidth = containerRef.current?.clientWidth || 800
+    const containerHeight = containerRef.current?.clientHeight || 600
+    const scaleX = containerWidth / contentWidth
+    const scaleY = containerHeight / contentHeight
+    const scale = Math.min(scaleX, scaleY, 2) // Max 200% zoom
+    setInternalZoom(scale * 100)
+  }
+
   // Handle custom bed drawing
   const handleMouseDown = (e: React.MouseEvent) => {
-    const point = snapToGrid(screenToSVG(e.clientX, e.clientY))
+    if (isPanning) return
 
-    if (selectedTool === 'draw') {
+    const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
+
+    if (spacePressed || selectedTool === 'pan') {
+      handlePanStart(e)
+    } else if (selectedTool === 'draw') {
       setIsDrawing(true)
       setCurrentPoints([point])
     } else if (selectedTool === 'rect') {
@@ -97,9 +286,14 @@ export function GardenDesignerCanvas({
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (isPanning) {
+      handlePanMove(e)
+      return
+    }
+
     if (!isDrawing) return
 
-    const point = snapToGrid(screenToSVG(e.clientX, e.clientY))
+    const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
 
     if (selectedTool === 'draw') {
       // Freehand drawing - add point if moved enough
@@ -123,6 +317,11 @@ export function GardenDesignerCanvas({
   }
 
   const handleMouseUp = (e: React.MouseEvent) => {
+    if (isPanning) {
+      handlePanEnd()
+      return
+    }
+
     if (!isDrawing || currentPoints.length < 3) {
       setIsDrawing(false)
       setCurrentPoints([])
@@ -168,7 +367,9 @@ export function GardenDesignerCanvas({
 
   // Handle plant placement and deletion
   const handleCanvasClick = (e: React.MouseEvent) => {
-    const point = snapToGrid(screenToSVG(e.clientX, e.clientY))
+    if (isPanning || isDrawing) return
+
+    const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
 
     // Handle delete tool
     if (selectedTool === 'delete') {
@@ -203,60 +404,47 @@ export function GardenDesignerCanvas({
     }
 
     // Handle plant placement
-    if (selectedTool !== 'plant' || !selectedPlant) return
+    if (selectedTool === 'plant' && selectedPlant) {
+      // Find which bed was clicked
+      const clickedBed = beds.find(bed => isPointInPolygon(point, bed.points))
 
-    // Find which bed was clicked
-    const clickedBed = beds.find(bed => isPointInPolygon(point, bed.points))
-    if (!clickedBed) {
-      setCompatibilityAlerts([{
-        plant1: 'info',
-        plant2: 'info',
-        type: 'info',
-        message: 'Click inside a garden bed to place plants'
-      }])
-      setTimeout(() => setCompatibilityAlerts([]), 3000)
-      return
+      if (clickedBed) {
+        // Check compatibility with existing plants
+        const warnings: typeof compatibilityAlerts = []
+        clickedBed.plants.forEach(existingPlant => {
+          const plant = getPlantById(existingPlant.plantId)
+          if (plant) {
+            const compatibility = checkCompatibility(selectedPlant.id, plant.id)
+            if (compatibility.type !== 'neutral') {
+              warnings.push({
+                plant1: selectedPlant.name,
+                plant2: plant.name,
+                type: compatibility.type === 'companion' ? 'good' : 'bad',
+                message: compatibility.reason
+              })
+            }
+          }
+        })
+        setCompatibilityAlerts(warnings)
+
+        // Add plant to bed
+        const newPlant: PlantedItem = {
+          id: `plant-${Date.now()}`,
+          plantId: selectedPlant.id,
+          x: point.x,
+          y: point.y,
+          plantedDate: new Date()
+        }
+
+        const updatedBeds = beds.map(bed =>
+          bed.id === clickedBed.id
+            ? { ...bed, plants: [...bed.plants, newPlant] }
+            : bed
+        )
+
+        onBedsChange(updatedBeds)
+      }
     }
-
-    // Check spacing requirements
-    const minSpacing = selectedPlant.size.spacing
-    const tooClose = clickedBed.plants.some(plant => {
-      const distance = Math.sqrt(
-        Math.pow(plant.x - point.x, 2) + Math.pow(plant.y - point.y, 2)
-      )
-      return distance < minSpacing
-    })
-
-    if (tooClose) {
-      setCompatibilityAlerts([{
-        plant1: selectedPlant.id,
-        plant2: 'spacing',
-        type: 'info',
-        message: `${selectedPlant.name} needs at least ${minSpacing}" spacing`
-      }])
-      setTimeout(() => setCompatibilityAlerts([]), 3000)
-      return
-    }
-
-    // Add plant to bed
-    const newPlant: PlantedItem = {
-      id: `plant-${Date.now()}`,
-      plantId: selectedPlant.id,
-      x: point.x,
-      y: point.y,
-      plantedDate: new Date()
-    }
-
-    const updatedBeds = beds.map(bed =>
-      bed.id === clickedBed.id
-        ? { ...bed, plants: [...bed.plants, newPlant] }
-        : bed
-    )
-
-    onBedsChange(updatedBeds)
-
-    // Check compatibility with nearby plants
-    checkPlantCompatibility(clickedBed, newPlant)
   }
 
   // Check if point is inside polygon
@@ -265,7 +453,6 @@ export function GardenDesignerCanvas({
     for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
       const xi = polygon[i].x, yi = polygon[i].y
       const xj = polygon[j].x, yj = polygon[j].y
-
       const intersect = ((yi > point.y) !== (yj > point.y))
         && (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi)
       if (intersect) inside = !inside
@@ -273,339 +460,274 @@ export function GardenDesignerCanvas({
     return inside
   }
 
-  // Check plant compatibility
-  const checkPlantCompatibility = (bed: GardenBed, newPlant: PlantedItem) => {
-    const alerts: typeof compatibilityAlerts = []
-
-    bed.plants.forEach(existingPlant => {
-      const compatibility = checkCompatibility(newPlant.plantId, existingPlant.plantId)
-      if (compatibility !== 'neutral') {
-        alerts.push({
-          plant1: newPlant.plantId,
-          plant2: existingPlant.plantId,
-          type: compatibility as 'good' | 'bad' | 'info'
-        })
-      }
-    })
-
-    setCompatibilityAlerts(alerts)
-    setTimeout(() => setCompatibilityAlerts([]), 5000) // Clear after 5 seconds
+  // Convert polygon points to SVG path
+  const pointsToPath = (points: { x: number; y: number }[]) => {
+    if (points.length < 2) return ''
+    return points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z'
   }
 
-  // Calculate bed area (in square feet)
-  const calculateBedArea = (points: { x: number; y: number }[]) => {
-    if (points.length < 3) return 0
+  // Generate infinite grid
+  const generateGrid = () => {
+    const gridSize = 20
+    const lines = []
 
-    let area = 0
-    for (let i = 0; i < points.length; i++) {
-      const j = (i + 1) % points.length
-      area += points[i].x * points[j].y
-      area -= points[j].x * points[i].y
+    // Extend grid beyond viewbox for infinite feel
+    const startX = Math.floor((viewBox.x - 100) / gridSize) * gridSize
+    const endX = Math.ceil((viewBox.x + viewBox.width + 100) / gridSize) * gridSize
+    const startY = Math.floor((viewBox.y - 100) / gridSize) * gridSize
+    const endY = Math.ceil((viewBox.y + viewBox.height + 100) / gridSize) * gridSize
+
+    // Vertical lines
+    for (let x = startX; x <= endX; x += gridSize) {
+      const isMajor = x % 100 === 0
+      lines.push(
+        <line
+          key={`v-${x}`}
+          x1={x}
+          y1={startY}
+          x2={x}
+          y2={endY}
+          stroke={isMajor ? '#cbd5e1' : '#e2e8f0'}
+          strokeWidth={isMajor ? 0.5 : 0.25}
+        />
+      )
     }
 
-    return Math.abs(area / 2) / 144 // Convert to square feet (assuming 1 unit = 1 inch)
+    // Horizontal lines
+    for (let y = startY; y <= endY; y += gridSize) {
+      const isMajor = y % 100 === 0
+      lines.push(
+        <line
+          key={`h-${y}`}
+          x1={startX}
+          y1={y}
+          x2={endX}
+          y2={y}
+          stroke={isMajor ? '#cbd5e1' : '#e2e8f0'}
+          strokeWidth={isMajor ? 0.5 : 0.25}
+        />
+      )
+    }
+
+    // Origin lines
+    if (viewBox.x <= 0 && viewBox.x + viewBox.width >= 0) {
+      lines.push(
+        <line
+          key="origin-y"
+          x1={0}
+          y1={startY}
+          x2={0}
+          y2={endY}
+          stroke="#94a3b8"
+          strokeWidth={1}
+        />
+      )
+    }
+    if (viewBox.y <= 0 && viewBox.y + viewBox.height >= 0) {
+      lines.push(
+        <line
+          key="origin-x"
+          x1={startX}
+          y1={0}
+          x2={endX}
+          y2={0}
+          stroke="#94a3b8"
+          strokeWidth={1}
+        />
+      )
+    }
+
+    return lines
   }
 
   return (
-    <div className="relative">
-      {/* Compatibility Alerts */}
-      {compatibilityAlerts.length > 0 && (
-        <div className="absolute top-4 right-4 z-20 space-y-2 max-w-xs">
-          {compatibilityAlerts.map((alert, i) => {
-            if (alert.message) {
-              return (
-                <Alert key={i} className={alert.type === 'info' ? 'border-blue-500' : 'border-orange-500'}>
-                  <AlertCircle className={`h-4 w-4 ${
-                    alert.type === 'info' ? 'text-blue-500' : 'text-orange-500'
-                  }`} />
-                  <AlertDescription className="text-xs">
-                    {alert.message}
-                  </AlertDescription>
-                </Alert>
-              )
-            }
-            const plant1 = getPlantById(alert.plant1)
-            const plant2 = getPlantById(alert.plant2)
-            return (
-              <Alert key={i} className={alert.type === 'good' ? 'border-green-500' : 'border-red-500'}>
-                {alert.type === 'good' ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-red-500" />
-                )}
-                <AlertDescription className="text-xs">
-                  <strong>{plant1?.name}</strong> and <strong>{plant2?.name}</strong>
-                  {alert.type === 'good' ? ' grow well together!' : ' should be separated'}
-                </AlertDescription>
-              </Alert>
-            )
-          })}
+    <div className={cn("relative w-full h-full bg-white rounded-lg overflow-hidden", className)}>
+      {/* Canvas Controls */}
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={handleZoomIn}
+          title="Zoom In (Ctrl +)"
+        >
+          <ZoomIn className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={handleZoomOut}
+          title="Zoom Out (Ctrl -)"
+        >
+          <ZoomOut className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={handleFitToContent}
+          title="Fit to Content"
+        >
+          <Maximize2 className="h-4 w-4" />
+        </Button>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={handleResetView}
+          title="Reset View (Ctrl 0)"
+        >
+          <Home className="h-4 w-4" />
+        </Button>
+        <div className="px-2 py-1 bg-white/90 rounded text-sm font-mono">
+          {Math.round(zoom)}%
+        </div>
+      </div>
+
+      {/* Pan Mode Indicator */}
+      {(spacePressed || selectedTool === 'pan') && (
+        <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded">
+          <Move className="h-4 w-4" />
+          <span className="text-sm">Pan Mode (hold Space)</span>
         </div>
       )}
 
-      {/* Layer Legends */}
-      {(showSunRequirements || showWaterRequirements) && (
-        <div className="absolute top-4 left-4 z-20 bg-white rounded-lg shadow-lg p-3 space-y-2">
-          {showSunRequirements && (
-            <div>
-              <div className="text-xs font-semibold mb-1">☀️ Sun Requirements</div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-yellow-400 rounded-full"></div>
-                  <span className="text-xs">Full sun</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-orange-400 rounded-full"></div>
-                  <span className="text-xs">Partial sun</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-gray-500 rounded-full"></div>
-                  <span className="text-xs">Shade</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {showWaterRequirements && (
-            <div>
-              <div className="text-xs font-semibold mb-1">💧 Water Requirements</div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-blue-500 rounded-full"></div>
-                  <span className="text-xs">High water</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
-                  <span className="text-xs">Medium water</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
-                  <span className="text-xs">Low water</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Canvas */}
-      <svg
-        ref={svgRef}
-        viewBox="0 0 800 600"
-        className={cn("w-full h-full cursor-crosshair", className)}
-        style={{ transform: `scale(${zoom / 100})` }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={() => {
-          setIsDrawing(false)
-          setCurrentPoints([])
-        }}
-        onClick={handleCanvasClick}
+      {/* SVG Canvas */}
+      <div
+        ref={containerRef}
+        className="w-full h-full"
+        style={{ cursor: isPanning ? 'grabbing' : (spacePressed || selectedTool === 'pan') ? 'grab' : 'crosshair' }}
       >
-        {/* Grid */}
-        {showGrid && (
-          <>
-            <defs>
-              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <rect width="10" height="10" fill="none" stroke="#e5e7eb" strokeWidth="0.5" />
-              </pattern>
-              <pattern id="grid-major" width="100" height="100" patternUnits="userSpaceOnUse">
-                <rect width="100" height="100" fill="none" stroke="#d1d5db" strokeWidth="1" />
-              </pattern>
-            </defs>
-            <rect width="800" height="600" fill="url(#grid)" />
-            <rect width="800" height="600" fill="url(#grid-major)" />
-
-            {/* Grid measurements */}
-            <g className="text-[10px] fill-gray-400">
-              {[0, 100, 200, 300, 400, 500, 600, 700].map(x => (
-                <text key={x} x={x} y={595} textAnchor="middle">{x/12}"</text>
-              ))}
-              {[0, 100, 200, 300, 400, 500].map(y => (
-                <text key={y} x={5} y={y} textAnchor="start">{y/12}"</text>
-              ))}
+        <svg
+          ref={svgRef}
+          width="100%"
+          height="100%"
+          viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onClick={handleCanvasClick}
+          onWheel={handleWheel}
+        >
+          {/* Grid */}
+          {showGrid && (
+            <g className="grid-layer" opacity={0.5}>
+              {generateGrid()}
             </g>
-          </>
-        )}
+          )}
 
-        {/* Existing beds */}
-        {beds.map(bed => (
-          <g key={bed.id}>
-            <polygon
-              points={bed.points.map(p => `${p.x},${p.y}`).join(' ')}
-              fill={bed.fill}
-              stroke={bed.stroke}
-              strokeWidth={hoveredBed === bed.id ? 3 : bed.id === selectedBed ? 2.5 : 2}
-              opacity={hoveredBed === bed.id ? 0.95 : 0.85}
-              className="transition-all duration-200"
-              style={{
-                cursor: selectedTool === 'delete' ? 'pointer' :
-                        selectedTool === 'plant' && selectedPlant ? 'crosshair' :
-                        'default',
-                filter: hoveredBed === bed.id ? 'brightness(1.05)' : 'none'
-              }}
-              onMouseEnter={() => setHoveredBed(bed.id)}
-              onMouseLeave={() => setHoveredBed(null)}
-              onClick={() => selectedTool === 'select' && setSelectedBed(bed.id)}
-            />
+          {/* Garden Beds */}
+          <g className="beds-layer">
+            {beds.map(bed => (
+              <g key={bed.id}>
+                <path
+                  d={pointsToPath(bed.points)}
+                  fill={bed.fill}
+                  stroke={bed.stroke}
+                  strokeWidth={hoveredBed === bed.id ? 3 : 2}
+                  opacity={hoveredBed === bed.id ? 1 : 0.8}
+                  onMouseEnter={() => setHoveredBed(bed.id)}
+                  onMouseLeave={() => setHoveredBed(null)}
+                />
 
-            {/* Bed label */}
-            {showLabels && bed.points.length > 0 && (
-              <text
-                x={bed.points.reduce((sum, p) => sum + p.x, 0) / bed.points.length}
-                y={bed.points.reduce((sum, p) => sum + p.y, 0) / bed.points.length}
-                textAnchor="middle"
-                className="text-xs font-medium fill-gray-700"
-              >
-                {bed.name}
-                <tspan x={bed.points.reduce((sum, p) => sum + p.x, 0) / bed.points.length} dy="12">
-                  {calculateBedArea(bed.points).toFixed(1)} sq ft
-                </tspan>
-              </text>
-            )}
-
-            {/* Plants in bed */}
-            {bed.plants.map(plant => {
-              const plantInfo = getPlantById(plant.plantId)
-              if (!plantInfo) return null
-
-              return (
-                <g key={plant.id}>
-                  {/* Plant spacing circle (if enabled) */}
-                  {showSpacing && (
-                    <circle
-                      cx={plant.x}
-                      cy={plant.y}
-                      r={plantInfo.size.spacing / 2}
-                      fill="none"
-                      stroke="#94a3b8"
-                      strokeWidth="1"
-                      strokeDasharray="2,2"
-                      opacity="0.3"
-                    />
-                  )}
-
-                  {/* Sun requirement indicator */}
-                  {showSunRequirements && (
-                    <circle
-                      cx={plant.x}
-                      cy={plant.y}
-                      r={plantInfo.size.mature_width / 3}
-                      fill="none"
-                      stroke={
-                        plantInfo.requirements.sun === 'full' ? '#fbbf24' :
-                        plantInfo.requirements.sun === 'partial' ? '#fb923c' :
-                        '#6b7280'
-                      }
-                      strokeWidth="2"
-                      strokeDasharray="4,2"
-                      opacity="0.5"
-                      className="pointer-events-none"
-                    />
-                  )}
-
-                  {/* Water requirement indicator */}
-                  {showWaterRequirements && (
-                    <circle
-                      cx={plant.x}
-                      cy={plant.y}
-                      r={plantInfo.size.mature_width / 2.5}
-                      fill="none"
-                      stroke={
-                        plantInfo.requirements.water === 'high' ? '#3b82f6' :
-                        plantInfo.requirements.water === 'medium' ? '#60a5fa' :
-                        '#cbd5e1'
-                      }
-                      strokeWidth="1.5"
-                      strokeDasharray="2,3"
-                      opacity="0.6"
-                      className="pointer-events-none"
-                    />
-                  )}
-
-                  {/* Plant icon */}
-                  <circle
-                    cx={plant.x}
-                    cy={plant.y}
-                    r={plantInfo.size.mature_width / 4}
-                    fill={plantInfo.color}
-                    stroke={hoveredPlant === plant.id ? '#000' : plantInfo.color}
-                    strokeWidth={hoveredPlant === plant.id ? 2 : 1}
-                    className="cursor-pointer"
-                    onMouseEnter={() => setHoveredPlant(plant.id)}
-                    onMouseLeave={() => setHoveredPlant(null)}
-                  />
-
-                  {/* Plant emoji/icon */}
+                {/* Bed label */}
+                {showLabels && bed.points.length > 0 && (
                   <text
-                    x={plant.x}
-                    y={plant.y}
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize={plantInfo.size.mature_width / 3}
-                    className="pointer-events-none select-none"
+                    x={bed.points[0].x + 10}
+                    y={bed.points[0].y + 20}
+                    fill="#065f46"
+                    fontSize="12"
+                    fontWeight="bold"
                   >
-                    {plantInfo.icon}
+                    {bed.name}
                   </text>
+                )}
 
-                  {/* Plant label (on hover) */}
-                  {hoveredPlant === plant.id && (
-                    <g>
-                      <rect
-                        x={plant.x - 30}
-                        y={plant.y - plantInfo.size.mature_width / 2 - 20}
-                        width="60"
-                        height="16"
+                {/* Plants in bed */}
+                {bed.plants.map(plant => {
+                  const plantInfo = getPlantById(plant.plantId)
+                  if (!plantInfo) return null
+
+                  return (
+                    <g key={plant.id}>
+                      <circle
+                        cx={plant.x}
+                        cy={plant.y}
+                        r={15}
                         fill="white"
-                        stroke="black"
-                        strokeWidth="1"
-                        rx="2"
+                        stroke={hoveredPlant === plant.id ? '#22c55e' : '#94a3b8'}
+                        strokeWidth={hoveredPlant === plant.id ? 2 : 1}
+                        onMouseEnter={() => setHoveredPlant(plant.id)}
+                        onMouseLeave={() => setHoveredPlant(null)}
                       />
                       <text
                         x={plant.x}
-                        y={plant.y - plantInfo.size.mature_width / 2 - 8}
+                        y={plant.y + 5}
                         textAnchor="middle"
-                        className="text-[10px] font-medium fill-black"
+                        fontSize="20"
+                        style={{ pointerEvents: 'none' }}
                       >
-                        {plantInfo.name}
+                        {plantInfo.icon}
                       </text>
+
+                      {/* Plant spacing guide */}
+                      {showSpacing && hoveredPlant === plant.id && (
+                        <circle
+                          cx={plant.x}
+                          cy={plant.y}
+                          r={plantInfo.spacing * 2}
+                          fill="none"
+                          stroke="#3b82f6"
+                          strokeWidth="1"
+                          strokeDasharray="4 4"
+                          opacity={0.5}
+                        />
+                      )}
                     </g>
-                  )}
-                </g>
-              )
-            })}
+                  )
+                })}
+              </g>
+            ))}
           </g>
-        ))}
 
-        {/* Current drawing */}
-        {isDrawing && currentPoints.length > 1 && (
-          <polygon
-            points={currentPoints.map(p => `${p.x},${p.y}`).join(' ')}
-            fill="#d4f4dd"
-            fillOpacity="0.5"
-            stroke="#22c55e"
-            strokeWidth="2"
-            strokeDasharray="5,5"
-          />
-        )}
+          {/* Current drawing */}
+          {isDrawing && currentPoints.length > 1 && (
+            <path
+              d={pointsToPath(currentPoints)}
+              fill="rgba(34, 197, 94, 0.2)"
+              stroke="#22c55e"
+              strokeWidth="2"
+              strokeDasharray="5 5"
+            />
+          )}
 
-        {/* Drawing instructions */}
-        {selectedTool === 'draw' && !isDrawing && (
-          <text x="400" y="20" textAnchor="middle" className="text-sm fill-gray-500">
-            Click and drag to draw a custom garden bed shape
-          </text>
-        )}
-        {selectedTool === 'rect' && !isDrawing && (
-          <text x="400" y="20" textAnchor="middle" className="text-sm fill-gray-500">
-            Click and drag to create a rectangular bed
-          </text>
-        )}
-        {selectedTool === 'plant' && selectedPlant && (
-          <text x="400" y="20" textAnchor="middle" className="text-sm fill-gray-500">
-            Click inside a bed to plant {selectedPlant.name} (needs {selectedPlant.size.spacing}" spacing)
-          </text>
-        )}
-      </svg>
+          {/* Ruler/Scale indicator */}
+          <g className="scale-indicator" transform={`translate(${viewBox.x + 20}, ${viewBox.y + viewBox.height - 40})`}>
+            <line x1={0} y1={0} x2={100} y2={0} stroke="#64748b" strokeWidth={2} />
+            <line x1={0} y1={-5} x2={0} y2={5} stroke="#64748b" strokeWidth={2} />
+            <line x1={100} y1={-5} x2={100} y2={5} stroke="#64748b" strokeWidth={2} />
+            <text x={50} y={20} textAnchor="middle" fill="#64748b" fontSize="12">
+              100 units ({Math.round(100 / (zoom / 100))} px)
+            </text>
+          </g>
+        </svg>
+      </div>
+
+      {/* Compatibility Alerts */}
+      {compatibilityAlerts.length > 0 && (
+        <div className="absolute bottom-4 left-4 space-y-2 max-w-sm">
+          {compatibilityAlerts.map((alert, index) => (
+            <Alert key={index} variant={alert.type === 'good' ? 'default' : 'destructive'}>
+              {alert.type === 'good' ? (
+                <CheckCircle className="h-4 w-4" />
+              ) : (
+                <XCircle className="h-4 w-4" />
+              )}
+              <AlertDescription>
+                {alert.plant1} & {alert.plant2}: {alert.message || (alert.type === 'good' ? 'Good companions!' : 'Not compatible')}
+              </AlertDescription>
+            </Alert>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
