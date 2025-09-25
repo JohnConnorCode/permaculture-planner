@@ -397,7 +397,7 @@ export default function HomePage() {
             <div className="opacity-0 animate-scale-in"
                  style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
               <Link href="/demo">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20 px-8 py-6 text-lg hover-lift rounded-lg">
+                <Button size="lg" variant="outline" className="border-2 border-white/80 text-white bg-white/10 hover:bg-white/20 px-8 py-6 text-lg hover-lift rounded-lg backdrop-blur-sm">
                   <TreePine className="mr-2 h-5 w-5" />
                   See Full Platform
                 </Button>

@@ -113,8 +113,8 @@ export function Navigation() {
         {/* Mobile Menu */}
         <div className={cn(
           "md:hidden absolute top-16 left-0 right-0 bg-white border-b shadow-xl",
-          "transition-all duration-300 overflow-hidden",
-          isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          "transition-all duration-300",
+          isMobileMenuOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"
         )}>
           <div className="container mx-auto px-4 py-4 space-y-2">
             {NAV_ITEMS.map((item) => {
