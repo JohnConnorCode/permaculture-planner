@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { PlantInfo, getPlantById, checkCompatibility } from '@/lib/data/plant-library'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Maximize, Minimize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -93,6 +93,12 @@ export function GardenDesignerCanvas({
   const [dimensionInput, setDimensionInput] = useState({ width: 4, height: 8 })
   const [dimensionStartPoint, setDimensionStartPoint] = useState<{ x: number; y: number } | null>(null)
   const [showMeasurements, setShowMeasurements] = useState(true)
+
+  // Transform controls state
+  const [transformMode, setTransformMode] = useState<'none' | 'resize' | 'rotate' | 'scale'>('none')
+  const [transformHandle, setTransformHandle] = useState<string | null>(null)
+  const [transformStart, setTransformStart] = useState<{ x: number; y: number } | null>(null)
+  const [transformOrigin, setTransformOrigin] = useState<{ x: number; y: number } | null>(null)
 
   // Use internal zoom if external not provided
   const zoom = externalZoom ?? internalZoom
@@ -307,9 +313,67 @@ export function GardenDesignerCanvas({
       return
     }
 
-    if (!isDrawing) return
-
     const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
+
+    // Handle transform operations
+    if (transformMode !== 'none' && transformStart && selectedBed) {
+      const bed = beds.find(b => b.id === selectedBed)
+      if (!bed) return
+
+      if (transformMode === 'resize' && transformHandle) {
+        const cornerIndex = parseInt(transformHandle.split('-')[1])
+        const updatedBeds = beds.map(b => {
+          if (b.id === selectedBed) {
+            const newPoints = [...b.points]
+            newPoints[cornerIndex] = point
+
+            // Update dimensions if it's a rectangle
+            if (b.points.length === 4) {
+              const width = Math.abs(newPoints[1].x - newPoints[0].x) / 20 // Convert to feet
+              const height = Math.abs(newPoints[3].y - newPoints[0].y) / 20
+              return { ...b, points: newPoints, width, height }
+            }
+            return { ...b, points: newPoints }
+          }
+          return b
+        })
+        onBedsChange(updatedBeds)
+      } else if (transformMode === 'rotate' && transformOrigin) {
+        const angle1 = Math.atan2(transformStart.y - transformOrigin.y, transformStart.x - transformOrigin.x)
+        const angle2 = Math.atan2(point.y - transformOrigin.y, point.x - transformOrigin.x)
+        const angleDiff = (angle2 - angle1) * 180 / Math.PI
+
+        const updatedBeds = beds.map(b => {
+          if (b.id === selectedBed) {
+            const rotatedPoints = b.points.map(p => rotatePoint(p, transformOrigin, angleDiff))
+            const newRotation = ((b.rotation || 0) + angleDiff) % 360
+            return { ...b, points: rotatedPoints, rotation: newRotation }
+          }
+          return b
+        })
+        onBedsChange(updatedBeds)
+        setTransformStart(point) // Update start for continuous rotation
+      } else if (transformMode === 'scale' && transformOrigin) {
+        const dist1 = Math.sqrt(Math.pow(transformStart.x - transformOrigin.x, 2) + Math.pow(transformStart.y - transformOrigin.y, 2))
+        const dist2 = Math.sqrt(Math.pow(point.x - transformOrigin.x, 2) + Math.pow(point.y - transformOrigin.y, 2))
+        const scaleFactor = dist2 / dist1
+
+        const updatedBeds = beds.map(b => {
+          if (b.id === selectedBed) {
+            const scaledPoints = scaleBed(b, scaleFactor)
+            const newWidth = (b.width || 4) * scaleFactor
+            const newHeight = (b.height || 8) * scaleFactor
+            return { ...b, points: scaledPoints, width: newWidth, height: newHeight }
+          }
+          return b
+        })
+        onBedsChange(updatedBeds)
+        setTransformStart(point) // Update start for continuous scaling
+      }
+      return
+    }
+
+    if (!isDrawing) return
 
     if (selectedTool === 'draw') {
       // Freehand drawing - add point if moved enough
@@ -335,6 +399,15 @@ export function GardenDesignerCanvas({
   const handleMouseUp = (e: React.MouseEvent) => {
     if (isPanning) {
       handlePanEnd()
+      return
+    }
+
+    // Reset transform state
+    if (transformMode !== 'none') {
+      setTransformMode('none')
+      setTransformHandle(null)
+      setTransformStart(null)
+      setTransformOrigin(null)
       return
     }
 
@@ -381,9 +454,38 @@ export function GardenDesignerCanvas({
     return simplified
   }
 
+  // Get bed center for rotation
+  const getBedCenter = (bed: GardenBed) => {
+    const sumX = bed.points.reduce((sum, p) => sum + p.x, 0)
+    const sumY = bed.points.reduce((sum, p) => sum + p.y, 0)
+    return {
+      x: sumX / bed.points.length,
+      y: sumY / bed.points.length
+    }
+  }
+
+  // Rotate point around center
+  const rotatePoint = (point: { x: number; y: number }, center: { x: number; y: number }, angle: number) => {
+    const rad = (angle * Math.PI) / 180
+    const cos = Math.cos(rad)
+    const sin = Math.sin(rad)
+    const nx = cos * (point.x - center.x) - sin * (point.y - center.y) + center.x
+    const ny = sin * (point.x - center.x) + cos * (point.y - center.y) + center.y
+    return { x: nx, y: ny }
+  }
+
+  // Scale bed around center
+  const scaleBed = (bed: GardenBed, scale: number) => {
+    const center = getBedCenter(bed)
+    return bed.points.map(point => ({
+      x: center.x + (point.x - center.x) * scale,
+      y: center.y + (point.y - center.y) * scale
+    }))
+  }
+
   // Handle plant placement and deletion
   const handleCanvasClick = (e: React.MouseEvent) => {
-    if (isPanning || isDrawing) return
+    if (isPanning || isDrawing || transformMode !== 'none') return
 
     const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
 
@@ -684,10 +786,17 @@ export function GardenDesignerCanvas({
                   d={pointsToPath(bed.points)}
                   fill={bed.fill}
                   stroke={bed.stroke}
-                  strokeWidth={hoveredBed === bed.id ? 3 : 2}
-                  opacity={hoveredBed === bed.id ? 1 : 0.8}
+                  strokeWidth={hoveredBed === bed.id || selectedBed === bed.id ? 3 : 2}
+                  opacity={hoveredBed === bed.id || selectedBed === bed.id ? 1 : 0.8}
                   onMouseEnter={() => setHoveredBed(bed.id)}
                   onMouseLeave={() => setHoveredBed(null)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (selectedTool === 'select') {
+                      setSelectedBed(selectedBed === bed.id ? null : bed.id)
+                    }
+                  }}
+                  className={selectedTool === 'select' ? 'cursor-pointer' : ''}
                 />
                 {/* Measurements */}
                 {showMeasurements && bed.width && bed.height && (
@@ -713,6 +822,87 @@ export function GardenDesignerCanvas({
                     >
                       {bed.height}ft
                     </text>
+                  </>
+                )}
+
+                {/* Transform Handles when selected */}
+                {selectedBed === bed.id && selectedTool === 'select' && (
+                  <>
+                    {/* Resize handles at corners */}
+                    {bed.points.map((point, i) => (
+                      <circle
+                        key={`handle-${i}`}
+                        cx={point.x}
+                        cy={point.y}
+                        r="4"
+                        fill="white"
+                        stroke="#3b82f6"
+                        strokeWidth="2"
+                        className="cursor-nwse-resize hover:fill-blue-100"
+                        onMouseDown={(e) => {
+                          e.stopPropagation()
+                          setTransformMode('resize')
+                          setTransformHandle(`corner-${i}`)
+                          setTransformStart(screenToWorld(e.clientX, e.clientY))
+                        }}
+                      />
+                    ))}
+
+                    {/* Rotation handle */}
+                    {(() => {
+                      const center = getBedCenter(bed)
+                      return (
+                        <g>
+                          <line
+                            x1={center.x}
+                            y1={center.y - 30}
+                            x2={center.x}
+                            y2={center.y - 50}
+                            stroke="#3b82f6"
+                            strokeWidth="2"
+                          />
+                          <circle
+                            cx={center.x}
+                            cy={center.y - 50}
+                            r="5"
+                            fill="white"
+                            stroke="#3b82f6"
+                            strokeWidth="2"
+                            className="cursor-grab hover:fill-blue-100"
+                            onMouseDown={(e) => {
+                              e.stopPropagation()
+                              setTransformMode('rotate')
+                              setTransformOrigin(center)
+                              setTransformStart(screenToWorld(e.clientX, e.clientY))
+                            }}
+                          />
+                        </g>
+                      )
+                    })()}
+
+                    {/* Scale handle */}
+                    {(() => {
+                      const maxX = Math.max(...bed.points.map(p => p.x))
+                      const maxY = Math.max(...bed.points.map(p => p.y))
+                      return (
+                        <rect
+                          x={maxX + 10}
+                          y={maxY + 10}
+                          width="8"
+                          height="8"
+                          fill="white"
+                          stroke="#10b981"
+                          strokeWidth="2"
+                          className="cursor-nwse-resize hover:fill-green-100"
+                          onMouseDown={(e) => {
+                            e.stopPropagation()
+                            setTransformMode('scale')
+                            setTransformOrigin(getBedCenter(bed))
+                            setTransformStart(screenToWorld(e.clientX, e.clientY))
+                          }}
+                        />
+                      )
+                    })()}
                   </>
                 )}
 
