@@ -540,12 +540,12 @@ export function GardenDesignerCanvas({
           const plant = getPlantById(existingPlant.plantId)
           if (plant) {
             const compatibility = checkCompatibility(selectedPlant.id, plant.id)
-            if (compatibility.type !== 'neutral') {
+            if (compatibility !== 'neutral') {
               warnings.push({
                 plant1: selectedPlant.name,
                 plant2: plant.name,
-                type: compatibility.type === 'companion' ? 'good' : 'bad',
-                message: compatibility.reason
+                type: compatibility === 'good' ? 'good' : 'bad',
+                message: compatibility === 'good' ? 'Good companions!' : 'Not compatible'
               })
             }
           }
@@ -951,7 +951,7 @@ export function GardenDesignerCanvas({
                         <circle
                           cx={plant.x}
                           cy={plant.y}
-                          r={plantInfo.spacing * 2}
+                          r={12}
                           fill="none"
                           stroke="#3b82f6"
                           strokeWidth="1"
