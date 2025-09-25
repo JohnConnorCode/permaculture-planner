@@ -4,8 +4,18 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { PlantInfo, getPlantById, checkCompatibility } from '@/lib/data/plant-library'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 export interface GardenBed {
   id: string
@@ -77,6 +87,12 @@ export function GardenDesignerCanvas({
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const [internalZoom, setInternalZoom] = useState(100)
   const [spacePressed, setSpacePressed] = useState(false)
+
+  // Precise dimension input state
+  const [showDimensionDialog, setShowDimensionDialog] = useState(false)
+  const [dimensionInput, setDimensionInput] = useState({ width: 4, height: 8 })
+  const [dimensionStartPoint, setDimensionStartPoint] = useState<{ x: number; y: number } | null>(null)
+  const [showMeasurements, setShowMeasurements] = useState(true)
 
   // Use internal zoom if external not provided
   const zoom = externalZoom ?? internalZoom
@@ -371,6 +387,13 @@ export function GardenDesignerCanvas({
 
     const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
 
+    // Handle precise rectangle tool
+    if (selectedTool === 'rect-precise' && !isDrawing) {
+      setDimensionStartPoint(point)
+      setShowDimensionDialog(true)
+      return
+    }
+
     // Handle delete tool
     if (selectedTool === 'delete') {
       // Check for plant to delete first
@@ -445,6 +468,36 @@ export function GardenDesignerCanvas({
         onBedsChange(updatedBeds)
       }
     }
+  }
+
+  // Create bed with precise dimensions
+  const createPreciseBed = () => {
+    if (!dimensionStartPoint) return
+
+    const scale = 20 // pixels per foot
+    const width = dimensionInput.width * scale
+    const height = dimensionInput.height * scale
+
+    const newBed: GardenBed = {
+      id: `bed-${Date.now()}`,
+      name: `Bed ${beds.length + 1}`,
+      points: [
+        dimensionStartPoint,
+        { x: dimensionStartPoint.x + width, y: dimensionStartPoint.y },
+        { x: dimensionStartPoint.x + width, y: dimensionStartPoint.y + height },
+        { x: dimensionStartPoint.x, y: dimensionStartPoint.y + height }
+      ],
+      fill: '#f0fdf4',
+      stroke: '#86efac',
+      plants: [],
+      width: dimensionInput.width,
+      height: dimensionInput.height,
+      rotation: 0
+    }
+
+    onBedsChange([...beds, newBed])
+    setShowDimensionDialog(false)
+    setDimensionStartPoint(null)
   }
 
   // Check if point is inside polygon
@@ -541,7 +594,8 @@ export function GardenDesignerCanvas({
   }
 
   return (
-    <div className={cn("relative w-full h-full bg-white rounded-lg overflow-hidden", className)}>
+    <>
+      <div className={cn("relative w-full h-full bg-white rounded-lg overflow-hidden", className)}>
       {/* Canvas Controls */}
       <div className="absolute top-4 right-4 z-10 flex gap-2">
         <Button
@@ -579,6 +633,14 @@ export function GardenDesignerCanvas({
         <div className="px-2 py-1 bg-white/90 rounded text-sm font-mono">
           {Math.round(zoom)}%
         </div>
+        <Button
+          size="sm"
+          variant={showMeasurements ? "default" : "secondary"}
+          onClick={() => setShowMeasurements(!showMeasurements)}
+          title="Toggle Measurements"
+        >
+          <Ruler className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Pan Mode Indicator */}
@@ -627,6 +689,32 @@ export function GardenDesignerCanvas({
                   onMouseEnter={() => setHoveredBed(bed.id)}
                   onMouseLeave={() => setHoveredBed(null)}
                 />
+                {/* Measurements */}
+                {showMeasurements && bed.width && bed.height && (
+                  <>
+                    <text
+                      x={(bed.points[0].x + bed.points[1].x) / 2}
+                      y={bed.points[0].y - 5}
+                      textAnchor="middle"
+                      fontSize="12"
+                      fill="#4b5563"
+                      className="pointer-events-none select-none font-mono"
+                    >
+                      {bed.width}ft
+                    </text>
+                    <text
+                      x={bed.points[0].x - 15}
+                      y={(bed.points[0].y + bed.points[3].y) / 2}
+                      textAnchor="middle"
+                      fontSize="12"
+                      fill="#4b5563"
+                      className="pointer-events-none select-none font-mono"
+                      transform={`rotate(-90, ${bed.points[0].x - 15}, ${(bed.points[0].y + bed.points[3].y) / 2})`}
+                    >
+                      {bed.height}ft
+                    </text>
+                  </>
+                )}
 
                 {/* Bed label */}
                 {showLabels && bed.points.length > 0 && (
@@ -728,6 +816,68 @@ export function GardenDesignerCanvas({
           ))}
         </div>
       )}
-    </div>
+      </div>
+
+      {/* Dimension Input Dialog */}
+      <Dialog open={showDimensionDialog} onOpenChange={setShowDimensionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set Bed Dimensions</DialogTitle>
+            <DialogDescription>
+              Enter the exact dimensions for your garden bed in feet.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="width" className="text-right">
+                Width (ft)
+              </Label>
+              <Input
+                id="width"
+                type="number"
+                min="1"
+                max="20"
+                step="0.5"
+                value={dimensionInput.width}
+                onChange={(e) => setDimensionInput({ ...dimensionInput, width: parseFloat(e.target.value) || 4 })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="height" className="text-right">
+                Length (ft)
+              </Label>
+              <Input
+                id="height"
+                type="number"
+                min="1"
+                max="20"
+                step="0.5"
+                value={dimensionInput.height}
+                onChange={(e) => setDimensionInput({ ...dimensionInput, height: parseFloat(e.target.value) || 8 })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="text-sm text-gray-600 text-center">
+              Area: {(dimensionInput.width * dimensionInput.height).toFixed(1)} sq ft
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDimensionDialog(false)
+                setDimensionStartPoint(null)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={createPreciseBed}>
+              Create Bed
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

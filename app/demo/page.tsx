@@ -154,6 +154,7 @@ export default function DemoPage() {
   const tools = [
     { id: 'select', icon: MousePointer, name: 'Select', description: 'Select and move' },
     { id: 'rect', icon: Square, name: 'Rectangle', description: 'Draw rectangular bed' },
+    { id: 'rect-precise', icon: Ruler, name: 'Precise Rect', description: 'Set exact dimensions' },
     { id: 'draw', icon: Pencil, name: 'Custom Shape', description: 'Draw any shape' },
     { id: 'plant', icon: Leaf, name: 'Plant', description: 'Place plants', requiresPlant: true },
     { id: 'delete', icon: Trash2, name: 'Delete', description: 'Remove elements' }
