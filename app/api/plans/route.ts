@@ -178,8 +178,8 @@ export async function POST(request: NextRequest) {
       await (supabase.from('tasks') as any).insert(tasks)
     }
     
-    return NextResponse.json({ 
-      planId: plan.id,
+    return NextResponse.json({
+      id: plan.id,
       success: true,
       summary: {
         beds: layout.beds.length,
