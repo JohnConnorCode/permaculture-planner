@@ -85,28 +85,28 @@ export function ElementSelector({ selectedElement, onElementSelect }: ElementSel
   const [activeCategory, setActiveCategory] = useState('water_management')
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <Tabs value={activeCategory} onValueChange={setActiveCategory} className="flex-1">
-        <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-1 h-auto p-1">
+    <div className="w-full h-full flex flex-col overflow-hidden">
+      <Tabs value={activeCategory} onValueChange={setActiveCategory} className="flex flex-col h-full">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-1 h-auto p-1 shrink-0">
           {Object.entries(ELEMENT_CATEGORIES).map(([key, category]) => {
             const Icon = category.icon
             return (
               <TabsTrigger
                 key={key}
                 value={key}
-                className="flex flex-col gap-1 h-auto py-2 data-[state=active]:bg-green-50"
+                className="flex flex-col gap-1 h-auto py-1.5 px-1 text-center data-[state=active]:bg-green-50 min-w-0"
               >
-                <Icon className="h-4 w-4" />
-                <span className="text-xs">{category.label}</span>
+                <Icon className="h-3 w-3 mx-auto" />
+                <span className="text-[10px] leading-tight truncate w-full">{category.label}</span>
               </TabsTrigger>
             )
           })}
         </TabsList>
 
-        <ScrollArea className="flex-1 mt-4">
+        <ScrollArea className="flex-1 mt-2">
           {Object.entries(ELEMENT_CATEGORIES).map(([categoryKey, category]) => (
-            <TabsContent key={categoryKey} value={categoryKey} className="mt-0">
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+            <TabsContent key={categoryKey} value={categoryKey} className="mt-0 px-1">
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-1.5">
                 {category.elements.map((element) => {
                   const Icon = element.icon
                   const style = ELEMENT_STYLES[element.type]
@@ -116,21 +116,21 @@ export function ElementSelector({ selectedElement, onElementSelect }: ElementSel
                     <Button
                       key={element.type}
                       variant={isSelected ? 'default' : 'outline'}
-                      className={`h-auto flex flex-col gap-2 p-3 ${
+                      className={`h-auto flex flex-col gap-1 p-2 min-w-0 ${
                         isSelected ? 'ring-2 ring-green-500' : ''
                       }`}
                       onClick={() => onElementSelect(element.type)}
                     >
                       <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center"
+                        className="w-10 h-10 rounded-md flex items-center justify-center mx-auto"
                         style={{
                           backgroundColor: style.defaultFill === 'none' ? 'transparent' : style.defaultFill,
-                          border: `2px solid ${style.defaultStroke}`,
+                          border: `1px solid ${style.defaultStroke}`,
                         }}
                       >
-                        <Icon className="h-6 w-6" />
+                        <Icon className="h-5 w-5" />
                       </div>
-                      <span className="text-xs text-center">{element.label}</span>
+                      <span className="text-[10px] text-center leading-tight break-words hyphens-auto">{element.label}</span>
                     </Button>
                   )
                 })}
