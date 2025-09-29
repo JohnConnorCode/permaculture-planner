@@ -456,7 +456,12 @@ export function getZoneOverlay(
   fill: string
   opacity: number
 }[] {
-  const overlays = []
+  const overlays: {
+    zone: number
+    path: string
+    fill: string
+    opacity: number
+  }[] = []
   const maxRadius = Math.max(canvasSize.width, canvasSize.height) / 2
 
   PERMACULTURE_ZONES.forEach(zone => {

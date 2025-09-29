@@ -164,7 +164,7 @@ export function calculateGroupWaterNeeds(plants: PlantedItem[], plantLibrary: Pl
         case 'low':
           waterScore += 1
           break
-        case 'moderate':
+        case 'medium':
           waterScore += 2
           break
         case 'high':
@@ -231,7 +231,7 @@ export function calculateSunExposure(
   })
 
   // Check if all plants have compatible sun requirements
-  const uniqueRequirements = [...new Set(sunRequirements)]
+  const uniqueRequirements = Array.from(new Set(sunRequirements))
   const compatible = uniqueRequirements.length === 1
 
   // Return the most common requirement

@@ -23,12 +23,12 @@ export interface ElementRequirements {
     height: number // feet
     depth?: number // feet for 3D elements
   }
-  sun: 'full' | 'partial' | 'shade'
+  sun: 'full' | 'partial' | 'shade' | 'any'
   water: number // gallons per day
   soil: {
     type?: 'clay' | 'sand' | 'loam' | 'any'
     pH?: { min: number, max: number }
-    drainage: 'poor' | 'moderate' | 'good' | 'excellent'
+    drainage: 'poor' | 'moderate' | 'good' | 'excellent' | 'any'
   }
   climate: {
     zones?: number[] // USDA zones
