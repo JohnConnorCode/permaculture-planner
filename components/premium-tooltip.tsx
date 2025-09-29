@@ -82,6 +82,7 @@ export function RichTooltip({
   return (
     <PremiumTooltip
       {...props}
+      children={children}
       content={
         <div className="space-y-2 max-w-xs">
           {image && (

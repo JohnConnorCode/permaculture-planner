@@ -91,13 +91,28 @@ function ContextMenu() {
   const handleGroup = () => {
     if (state.selectedPlantIds.length > 1) {
       // Create group from selected plants
+      // Find the bed ID from selected plants
+      let bedId = ''
+      for (const bed of state.beds) {
+        if (bed.plants.some(p => state.selectedPlantIds.includes(p.id))) {
+          bedId = bed.id
+          break
+        }
+      }
+
+      // Create PlantedItem objects from selected IDs
+      const plantedItems = state.beds.flatMap(bed =>
+        bed.plants.filter(p => state.selectedPlantIds.includes(p.id))
+      )
+
       const group = {
         id: `group-${Date.now()}`,
         name: `Group ${state.plantGroups.length + 1}`,
-        bedId: '', // Will need to determine from selected plants
-        plantIds: state.selectedPlantIds
+        bedId,
+        plants: plantedItems,
+        plantingDate: new Date()
       }
-      groupSelectedPlants(group)
+      groupSelectedPlants(group as any)
     }
     dispatch({ type: 'HIDE_CONTEXT_MENU' })
   }
@@ -105,7 +120,7 @@ function ContextMenu() {
   const handleUngroup = () => {
     // Find groups containing selected plants
     const groupsToUngroup = state.plantGroups.filter(g =>
-      g.plantIds.some(id => state.selectedPlantIds.includes(id))
+      g.plants.some(p => state.selectedPlantIds.includes(p.id))
     )
     groupsToUngroup.forEach(g => ungroupPlants(g.id))
     dispatch({ type: 'HIDE_CONTEXT_MENU' })

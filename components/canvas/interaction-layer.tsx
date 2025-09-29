@@ -12,6 +12,48 @@ interface InteractionLayerProps {
   onViewBoxChange: (viewBox: { x: number; y: number; width: number; height: number }) => void
 }
 
+// Helper to create simple shapes
+function createSimpleShape(type: string, center: { x: number, y: number }, width: number, height: number) {
+  switch(type) {
+    case 'rectangle':
+      return [
+        { x: center.x - width/2, y: center.y - height/2 },
+        { x: center.x + width/2, y: center.y - height/2 },
+        { x: center.x + width/2, y: center.y + height/2 },
+        { x: center.x - width/2, y: center.y + height/2 }
+      ]
+    case 'circle':
+      const points = []
+      const segments = 32
+      for (let i = 0; i < segments; i++) {
+        const angle = (i / segments) * 2 * Math.PI
+        points.push({
+          x: center.x + Math.cos(angle) * width/2,
+          y: center.y + Math.sin(angle) * height/2
+        })
+      }
+      return points
+    case 'triangle':
+      return [
+        { x: center.x, y: center.y - height/2 },
+        { x: center.x + width/2, y: center.y + height/2 },
+        { x: center.x - width/2, y: center.y + height/2 }
+      ]
+    case 'hexagon':
+      const hexPoints = []
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * 2 * Math.PI
+        hexPoints.push({
+          x: center.x + Math.cos(angle) * width/2,
+          y: center.y + Math.sin(angle) * height/2
+        })
+      }
+      return hexPoints
+    default:
+      return createSimpleShape('rectangle', center, width, height)
+  }
+}
+
 export function InteractionLayer({ width, height, viewBox, onViewBoxChange }: InteractionLayerProps) {
   const { state, dispatch, addBed, updateBed, addPlantToBed } = useGardenDesigner()
   const svgRef = useRef<SVGSVGElement>(null)
@@ -80,7 +122,7 @@ export function InteractionLayer({ width, height, viewBox, onViewBoxChange }: In
       setDragStart(point)
     } else if (['rectangle', 'circle', 'triangle', 'hexagon'].includes(selectedTool)) {
       // Create shape immediately
-      const shape = createElementShape(selectedTool as any, point, point)
+      const shape = createSimpleShape(selectedTool, point, 100, 100)
       const newBed = {
         id: `bed-${Date.now()}`,
         name: `${selectedTool} ${beds.length + 1}`,

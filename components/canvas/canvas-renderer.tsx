@@ -23,17 +23,16 @@ export function CanvasRenderer({ width, height, viewBox }: CanvasRendererProps) 
     const pathData = bed.points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ') + ' Z'
 
     // If it's an element, use element styles
-    if (bed.elementType && bed.elementCategory) {
-      const elementStyle = ELEMENT_STYLES[bed.elementCategory]?.[bed.elementType]
+    if (bed.elementType) {
+      const elementStyle = ELEMENT_STYLES[bed.elementType as keyof typeof ELEMENT_STYLES]
       if (elementStyle) {
         return (
           <g key={bed.id}>
             <path
               d={pathData}
-              fill={elementStyle.fill}
-              stroke={isSelected ? '#3b82f6' : elementStyle.stroke}
-              strokeWidth={isSelected ? 3 : 2}
-              strokeDasharray={elementStyle.strokeDasharray}
+              fill={elementStyle.defaultFill}
+              stroke={isSelected ? '#3b82f6' : elementStyle.defaultStroke}
+              strokeWidth={isSelected ? 3 : elementStyle.defaultStrokeWidth}
               opacity={0.8}
             />
             {viewSettings.showLabels && bed.name && (
@@ -85,7 +84,7 @@ export function CanvasRenderer({ width, height, viewBox }: CanvasRendererProps) 
 
       const isSelected = selectedPlantIds.includes(plant.id)
       const group = plantGroups.find(g =>
-        g.bedId === bed.id && g.plantIds.includes(plant.id)
+        g.bedId === bed.id && g.plants.some(p => p.id === plant.id)
       )
 
       return (
@@ -169,7 +168,7 @@ export function CanvasRenderer({ width, height, viewBox }: CanvasRendererProps) 
       const bed = beds.find(b => b.id === group.bedId)
       if (!bed) return null
 
-      const groupPlants = bed.plants.filter(p => group.plantIds.includes(p.id))
+      const groupPlants = bed.plants.filter(p => group.plants.some(gp => gp.id === p.id))
       if (groupPlants.length === 0) return null
 
       // Calculate bounding box

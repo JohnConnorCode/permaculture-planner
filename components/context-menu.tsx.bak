@@ -183,7 +183,7 @@ export const gardenContextMenuItems: MenuItem[] = [
     shortcut: '⌘⇧Z',
     action: () => console.log('Redo')
   },
-  { id: 'separator-1', label: '', separator: true },
+  { separator: true },
   {
     id: 'copy',
     label: 'Copy',
@@ -205,7 +205,7 @@ export const gardenContextMenuItems: MenuItem[] = [
     shortcut: 'Del',
     action: () => console.log('Delete')
   },
-  { id: 'separator-2', label: '', separator: true },
+  { separator: true },
   {
     id: 'transform',
     label: 'Transform',
@@ -248,7 +248,7 @@ export const gardenContextMenuItems: MenuItem[] = [
         shortcut: '⌘[',
         action: () => console.log('Send to Back')
       },
-      { id: 'separator-3', label: '', separator: true },
+      { separator: true },
       {
         id: 'lock',
         label: 'Lock Layer',
@@ -263,7 +263,7 @@ export const gardenContextMenuItems: MenuItem[] = [
       }
     ]
   },
-  { id: 'separator-4', label: '', separator: true },
+  { separator: true },
   {
     id: 'export',
     label: 'Export As...',
@@ -292,7 +292,7 @@ export const gardenContextMenuItems: MenuItem[] = [
     icon: Share2,
     action: () => console.log('Share')
   },
-  { id: 'separator-5', label: '', separator: true },
+  { separator: true },
   {
     id: 'properties',
     label: 'Properties',

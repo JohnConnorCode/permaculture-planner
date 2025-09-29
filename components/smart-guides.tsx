@@ -105,7 +105,7 @@ export function SmartGuides({
       }
     })
 
-    setGuides({ vertical: [...new Set(vertical)], horizontal: [...new Set(horizontal)], distances })
+    setGuides({ vertical: Array.from(new Set(vertical)), horizontal: Array.from(new Set(horizontal)), distances })
   }, [activeElement, elements, snapThreshold, showDistances])
 
   if (!activeElement || (guides.vertical.length === 0 && guides.horizontal.length === 0)) {

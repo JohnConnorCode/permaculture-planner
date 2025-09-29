@@ -264,7 +264,7 @@ export const ELEMENT_STYLES: Record<ElementSubtype, {
     defaultFill: '#fde047',
     defaultStroke: '#a16207',
     defaultStrokeWidth: 2,
-    defaultShape: 'hexagon',
+    defaultShape: 'polygon',
     icon: 'hexagon',
     minWidth: 20,
     minHeight: 20
@@ -339,16 +339,6 @@ export function createElementShape(
         return {
           x: centerX + r * Math.cos(angle),
           y: centerY + r * Math.sin(angle)
-        }
-      })
-
-    case 'hexagon':
-      const hr = Math.min(w, h) / 2
-      return Array.from({ length: 6 }, (_, i) => {
-        const angle = (i * Math.PI * 2) / 6
-        return {
-          x: centerX + hr * Math.cos(angle),
-          y: centerY + hr * Math.sin(angle)
         }
       })
 

@@ -39,8 +39,8 @@ export function useAutosave<T>(
     lastSaved: null
   })
 
-  const timeoutRef = useRef<NodeJS.Timeout>()
-  const intervalRef = useRef<NodeJS.Timeout>()
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const lastDataRef = useRef<T>(data)
   const isFirstRender = useRef(true)
 

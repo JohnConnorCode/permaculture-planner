@@ -80,7 +80,7 @@ export default function UnifiedEditor({ plan, isDemo = false }: UnifiedEditorPro
 
     setSaving(true)
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('beds')
         .upsert(
           gardenBeds.map(bed => ({
@@ -341,7 +341,7 @@ export default function UnifiedEditor({ plan, isDemo = false }: UnifiedEditorPro
                 <div className="mt-2">
                   <ElementSelector
                     selectedElement={selectedElement}
-                    onSelectElement={(element) => {
+                    onElementSelect={(element) => {
                       setSelectedElement(element)
                       setSelectedTool('element')
                       setSelectedPlant(null)
