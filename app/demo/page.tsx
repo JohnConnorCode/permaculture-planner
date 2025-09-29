@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -16,7 +16,13 @@ import { GardenTutorial } from '@/components/garden-tutorial'
 import { PlantInfoModal } from '@/components/plant-info-modal'
 import { GARDEN_TEMPLATES } from '@/lib/data/garden-templates'
 import { useHistory } from '@/hooks/use-history'
+import { ElementSelector } from '@/components/element-selector'
+import { ElementSubtype } from '@/lib/canvas-elements'
 import { AIAssistant } from '@/components/ai-assistant'
+import { CommandPalette } from '@/components/command-palette'
+import { StatusBar } from '@/components/status-bar'
+import { PremiumTooltip, RichTooltip } from '@/components/premium-tooltip'
+import { MobileMenu } from '@/components/mobile-menu'
 import {
   Layers, Save, Share2, Download, Settings, Info,
   ZoomIn, ZoomOut, Grid, Eye, EyeOff, Ruler,
@@ -95,6 +101,7 @@ export default function DemoPage() {
   const [selectedTool, setSelectedTool] = useState('select')
   const [isFirstVisit, setIsFirstVisit] = useState(true)
   const [selectedPlant, setSelectedPlant] = useState<PlantInfo | null>(null)
+  const [selectedElement, setSelectedElement] = useState<ElementSubtype | null>(null)
   const { state: gardenBeds, setState: setGardenBeds, undo, redo, canUndo, canRedo } = useHistory<GardenBed[]>(STARTER_GARDEN)
   const [zoom, setZoom] = useState(100)
   const [showGrid, setShowGrid] = useState(true)
@@ -111,6 +118,25 @@ export default function DemoPage() {
   const [showPlantModal, setShowPlantModal] = useState<string | null>(null)
   const [showTemplates, setShowTemplates] = useState(false)
   const [showAIAssistant, setShowAIAssistant] = useState(false)
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
+  const [showElements, setShowElements] = useState(false)
+
+  // Track mouse position for status bar
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const canvas = document.querySelector('#canvas-svg')
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect()
+        setMousePosition({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        })
+      }
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
   // Check if user has seen tutorial before
   useEffect(() => {
@@ -162,6 +188,7 @@ export default function DemoPage() {
     { id: 'l-shape', icon: Square, name: 'L-Shape', description: 'Create L-shaped bed' },
     { id: 'draw', icon: Pencil, name: 'Custom', description: 'Draw any shape' },
     { id: 'plant', icon: Leaf, name: 'Plant', description: 'Place plants', requiresPlant: true },
+    { id: 'element', icon: TreePine, name: 'Element', description: 'Place structures', requiresElement: true },
     { id: 'delete', icon: Trash2, name: 'Delete', description: 'Remove elements' }
   ]
 
@@ -170,11 +197,21 @@ export default function DemoPage() {
     if (toolId !== 'plant') {
       setSelectedPlant(null)
     }
+    if (toolId !== 'element') {
+      setSelectedElement(null)
+    }
   }
 
   const handlePlantSelect = (plant: PlantInfo) => {
     setSelectedPlant(plant)
     setSelectedTool('plant')
+    setSelectedElement(null)
+  }
+
+  const handleElementSelect = (element: ElementSubtype) => {
+    setSelectedElement(element)
+    setSelectedTool('element')
+    setSelectedPlant(null)
   }
 
   const clearGarden = () => {
@@ -195,7 +232,8 @@ export default function DemoPage() {
   }
 
   // Save design to localStorage
-  const saveDesign = () => {
+  const saveDesign = useCallback(() => {
+    setSaveStatus('saving')
     const design = {
       name: `Garden Design ${new Date().toLocaleDateString()}`,
       beds: gardenBeds,
@@ -204,8 +242,8 @@ export default function DemoPage() {
     const saved = JSON.parse(localStorage.getItem('gardenDesigns') || '[]')
     saved.push(design)
     localStorage.setItem('gardenDesigns', JSON.stringify(saved))
-    alert('Design saved successfully!')
-  }
+    setTimeout(() => setSaveStatus('saved'), 1000)
+  }, [gardenBeds])
 
   // Load design from localStorage
   const loadDesign = () => {
@@ -219,8 +257,47 @@ export default function DemoPage() {
     }
   }
 
+  // Handle command palette actions
+  const handleCommand = useCallback((actionId: string) => {
+    switch (actionId) {
+      case 'new-bed':
+        setSelectedTool('rect')
+        break
+      case 'save':
+        saveDesign()
+        break
+      case 'export':
+        exportDesign()
+        break
+      case 'import':
+        document.querySelector<HTMLInputElement>('#import-input')?.click()
+        break
+      case 'undo':
+        if (canUndo) undo()
+        break
+      case 'redo':
+        if (canRedo) redo()
+        break
+      case 'toggle-grid':
+        setShowGrid(!showGrid)
+        break
+      case 'zoom-in':
+        setZoom(Math.min(200, zoom + 10))
+        break
+      case 'zoom-out':
+        setZoom(Math.max(50, zoom - 10))
+        break
+      case 'fit-to-screen':
+        setZoom(100)
+        break
+      case 'help':
+        setShowTutorial(true)
+        break
+    }
+  }, [canUndo, canRedo, undo, redo, showGrid, zoom, saveDesign])
+
   // Export design as JSON
-  const exportDesign = () => {
+  const exportDesign = useCallback(() => {
     const design = {
       name: `Garden Design ${new Date().toLocaleDateString()}`,
       beds: gardenBeds,
@@ -236,7 +313,7 @@ export default function DemoPage() {
     linkElement.setAttribute('href', dataUri)
     linkElement.setAttribute('download', exportFileDefaultName)
     linkElement.click()
-  }
+  }, [gardenBeds])
 
   // Import design from JSON file
   const importDesign = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -320,49 +397,58 @@ export default function DemoPage() {
   }, [canUndo, canRedo, undo, redo, selectedTool])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white pb-8">
+      {/* Command Palette */}
+      <CommandPalette onAction={handleCommand} />
       {/* Header */}
-      <section className="py-8 px-4 border-b glass">
+      <section className="py-4 md:py-8 px-4 border-b glass">
         <div className="container mx-auto max-w-7xl">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
                 Real Garden Designer
               </h1>
-              <p className="text-gray-600 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-                Draw custom beds • Plant real vegetables • Check companion compatibility
+              <p className="text-sm md:text-base text-gray-600 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                <span className="hidden sm:inline">Draw custom beds • Plant real vegetables • Check companion compatibility</span>
+                <span className="sm:hidden">Design your perfect garden</span>
               </p>
             </div>
-            <div className="flex gap-2 opacity-0 animate-slide-in-right" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+
+            {/* Desktop Controls */}
+            <div className="hidden md:flex gap-2 opacity-0 animate-slide-in-right" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
               {/* Undo/Redo */}
               <div className="flex gap-1 border-r pr-2">
-                <Button
+                <PremiumTooltip content="Undo last action" shortcut="⌘Z">
+                  <Button
                   variant="outline"
                   size="sm"
                   onClick={undo}
                   disabled={!canUndo}
-                  title="Undo (Ctrl+Z)"
-                >
-                  <Undo className="h-4 w-4" />
-                </Button>
-                <Button
+                  >
+                    <Undo className="h-4 w-4" />
+                  </Button>
+                </PremiumTooltip>
+                <PremiumTooltip content="Redo last action" shortcut="⌘⇧Z">
+                  <Button
                   variant="outline"
                   size="sm"
                   onClick={redo}
                   disabled={!canRedo}
-                  title="Redo (Ctrl+Y)"
-                >
-                  <Redo className="h-4 w-4" />
-                </Button>
+                  >
+                    <Redo className="h-4 w-4" />
+                  </Button>
+                </PremiumTooltip>
               </div>
 
-              <Button
-                variant="outline"
-                onClick={() => setShowTemplates(!showTemplates)}
-              >
-                <BookOpen className="h-4 w-4 mr-2" />
-                Templates
-              </Button>
+              <PremiumTooltip content="Browse garden templates">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowTemplates(!showTemplates)}
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Templates</span>
+                </Button>
+              </PremiumTooltip>
               <Button variant="outline" onClick={loadDesign}>
                 <Download className="h-4 w-4 mr-2" />
                 Load
@@ -390,15 +476,16 @@ export default function DemoPage() {
                 <HelpCircle className="h-4 w-4 mr-2" />
                 Help
               </Button>
-              <Button
-                id="save-button"
-                className="gradient-understory rounded-lg hover-lift"
-                onClick={saveDesign}
-                title="Save to browser (Ctrl+S)"
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save
-              </Button>
+              <PremiumTooltip content="Save to browser" shortcut="⌘S">
+                <Button
+                  id="save-button"
+                  className="gradient-understory rounded-lg hover-lift"
+                  onClick={saveDesign}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Save</span>
+                </Button>
+              </PremiumTooltip>
               <Button
                 variant="outline"
                 onClick={exportDesign}
@@ -409,6 +496,7 @@ export default function DemoPage() {
               </Button>
               <label>
                 <input
+                  id="import-input"
                   type="file"
                   accept=".json"
                   className="hidden"
@@ -427,31 +515,40 @@ export default function DemoPage() {
                 </Button>
               </label>
             </div>
+
+            {/* Mobile Menu */}
+            <MobileMenu
+              onSave={saveDesign}
+              onExport={exportDesign}
+              onImport={() => document.querySelector<HTMLInputElement>('#import-input')?.click()}
+              onUndo={undo}
+              onRedo={redo}
+              onClear={clearGarden}
+              onTemplates={() => setShowTemplates(true)}
+              onHelp={() => setShowTutorial(true)}
+              onAI={() => setShowAIAssistant(!showAIAssistant)}
+              canUndo={canUndo}
+              canRedo={canRedo}
+              showAI={showAIAssistant}
+              className="absolute top-4 right-4 md:hidden"
+            />
           </div>
 
           {/* Quick Stats */}
-          <div className="flex gap-6 mt-4 opacity-0 animate-slide-in-left" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">{stats.beds} Beds</Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">{stats.plants} Plants</Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">{stats.varieties} Varieties</Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">{stats.area} sq ft</Badge>
-            </div>
+          <div className="flex flex-wrap gap-2 md:gap-6 mt-4 opacity-0 animate-slide-in-left" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+            <Badge variant="secondary" className="text-xs md:text-sm">{stats.beds} Beds</Badge>
+            <Badge variant="secondary" className="text-xs md:text-sm">{stats.plants} Plants</Badge>
+            <Badge variant="secondary" className="text-xs md:text-sm">{stats.varieties} Varieties</Badge>
+            <Badge variant="secondary" className="text-xs md:text-sm">{stats.area} sq ft</Badge>
           </div>
         </div>
       </section>
 
       {/* Main Interface */}
-      <section className="container mx-auto max-w-7xl p-4">
-        <div className="grid lg:grid-cols-[320px,1fr] gap-4">
-          {/* Left Sidebar */}
-          <div className="space-y-4">
+      <section className="container mx-auto max-w-7xl p-2 md:p-4">
+        <div className="grid md:grid-cols-[320px,1fr] gap-2 md:gap-4">
+          {/* Left Sidebar - Hidden on mobile, visible on md+ */}
+          <div className="hidden md:block space-y-4">
             {/* Tools */}
             <Card id="drawing-tools" className="card-nature rounded-lg opacity-0 animate-slide-in-left" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
               <CardHeader className="py-3">
@@ -460,20 +557,27 @@ export default function DemoPage() {
               <CardContent className="p-2">
                 <div className="grid grid-cols-2 gap-1">
                   {tools.map(tool => (
-                    <Button
+                    <RichTooltip
                       key={tool.id}
-                      variant={selectedTool === tool.id ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => handleToolSelect(tool.id)}
-                      className={cn(
-                        "justify-start rounded-lg hover-nature",
-                        selectedTool === tool.id && "gradient-understory hover:bg-green-700"
-                      )}
-                      disabled={tool.requiresPlant && !selectedPlant}
+                      title={tool.name}
+                      description={tool.description}
+                      shortcut={tool.id === 'select' ? 'V' : tool.id === 'rect' ? 'R' : tool.id === 'draw' ? 'D' : undefined}
                     >
-                      <tool.icon className="h-4 w-4 mr-2" />
-                      {tool.name}
-                    </Button>
+                      <Button
+                        variant={selectedTool === tool.id ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => handleToolSelect(tool.id)}
+                        className={cn(
+                          "justify-start rounded-lg hover-nature transition-all duration-200 hover:scale-105 active:scale-95",
+                          selectedTool === tool.id && "gradient-understory hover:bg-green-700 shadow-lg"
+                        )}
+                        disabled={(tool.requiresPlant && !selectedPlant) || (tool.requiresElement && !selectedElement)}
+                      >
+                        <tool.icon className="h-4 w-4 mr-2" />
+                        <span className="hidden lg:inline">{tool.name}</span>
+                        <span className="lg:hidden">{tool.name.slice(0, 4)}</span>
+                      </Button>
+                    </RichTooltip>
                   ))}
                 </div>
               </CardContent>
@@ -587,6 +691,20 @@ export default function DemoPage() {
               </CardContent>
             </Card>
 
+            {/* Permaculture Elements */}
+            <Card className="card-nature rounded-lg opacity-0 animate-slide-in-left" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
+              <CardHeader className="py-3">
+                <CardTitle className="text-base">Permaculture Elements</CardTitle>
+                <CardDescription>Water, structures, paths, and more</CardDescription>
+              </CardHeader>
+              <CardContent className="p-2">
+                <ElementSelector
+                  selectedElement={selectedElement}
+                  onElementSelect={handleElementSelect}
+                />
+              </CardContent>
+            </Card>
+
             {/* Selected Plant Info */}
             {selectedPlant && (
               <Card className="card-nature rounded-lg opacity-0 animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
@@ -637,18 +755,18 @@ export default function DemoPage() {
             )}
           </div>
 
-          {/* Canvas Area */}
-          <Card className="overflow-hidden card-nature rounded-lg opacity-0 animate-scale-in" id="canvas" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
-            <CardHeader className="py-3 gradient-canopy text-white">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Garden Canvas</CardTitle>
-                <div className="flex gap-2" id="view-controls">
+          {/* Canvas Area - Full width on mobile */}
+          <Card className="overflow-hidden card-nature rounded-lg opacity-0 animate-scale-in md:col-span-1" id="canvas" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+            <CardHeader className="py-2 md:py-3 gradient-canopy text-white">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                <CardTitle className="text-base md:text-lg">Garden Canvas</CardTitle>
+                <div className="flex gap-1 md:gap-2" id="view-controls">
                   {/* View Controls */}
                   <Button
                     size="sm"
                     variant={showGrid ? 'secondary' : 'ghost'}
                     onClick={() => setShowGrid(!showGrid)}
-                    className="text-white hover:text-white"
+                    className={showGrid ? "bg-green-600 text-white hover:bg-green-700" : "text-white hover:bg-white/20"}
                     title="Toggle Grid"
                   >
                     <Grid className="h-4 w-4" />
@@ -657,7 +775,7 @@ export default function DemoPage() {
                     size="sm"
                     variant={showLabels ? 'secondary' : 'ghost'}
                     onClick={() => setShowLabels(!showLabels)}
-                    className="text-white hover:text-white"
+                    className={showLabels ? "bg-green-600 text-white hover:bg-green-700" : "text-white hover:bg-white/20"}
                     title="Toggle Labels"
                   >
                     <Eye className="h-4 w-4" />
@@ -666,7 +784,7 @@ export default function DemoPage() {
                     size="sm"
                     variant={showSpacing ? 'secondary' : 'ghost'}
                     onClick={() => setShowSpacing(!showSpacing)}
-                    className="text-white hover:text-white"
+                    className={showSpacing ? "bg-green-600 text-white hover:bg-green-700" : "text-white hover:bg-white/20"}
                     title="Show Spacing"
                   >
                     <Ruler className="h-4 w-4" />
@@ -675,7 +793,7 @@ export default function DemoPage() {
                     size="sm"
                     variant={showSunRequirements ? 'secondary' : 'ghost'}
                     onClick={() => setShowSunRequirements(!showSunRequirements)}
-                    className="text-white hover:text-white"
+                    className={showSunRequirements ? "bg-green-600 text-white hover:bg-green-700" : "text-white hover:bg-white/20"}
                     title="Show Sun Requirements"
                   >
                     <Sun className="h-4 w-4" />
@@ -684,7 +802,7 @@ export default function DemoPage() {
                     size="sm"
                     variant={showWaterRequirements ? 'secondary' : 'ghost'}
                     onClick={() => setShowWaterRequirements(!showWaterRequirements)}
-                    className="text-white hover:text-white"
+                    className={showWaterRequirements ? "bg-green-600 text-white hover:bg-green-700" : "text-white hover:bg-white/20"}
                     title="Show Water Requirements"
                   >
                     <Droplets className="h-4 w-4" />
@@ -695,16 +813,16 @@ export default function DemoPage() {
                     size="sm"
                     variant="ghost"
                     onClick={() => setZoom(Math.min(200, zoom + 10))}
-                    className="text-white hover:text-white"
+                    className="text-white hover:bg-white/20"
                   >
                     <ZoomIn className="h-4 w-4" />
                   </Button>
-                  <span className="text-sm px-2">{zoom}%</span>
+                  <span className="text-sm px-2 text-white">{zoom}%</span>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => setZoom(Math.max(50, zoom - 10))}
-                    className="text-white hover:text-white"
+                    className="text-white hover:bg-white/20"
                   >
                     <ZoomOut className="h-4 w-4" />
                   </Button>
@@ -712,7 +830,7 @@ export default function DemoPage() {
               </div>
             </CardHeader>
             <CardContent className="p-0 bg-white">
-              <div className="relative h-[600px]">
+              <div className="relative h-[400px] md:h-[600px]">
                 {/* Welcome message for first-time users */}
                 {gardenBeds.length === 0 && isFirstVisit && (
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-50/50 to-emerald-50/50">
@@ -753,27 +871,30 @@ export default function DemoPage() {
                 )}
 
                 {/* Garden Designer Canvas */}
-                <GardenDesignerCanvas
-                  beds={gardenBeds}
-                  onBedsChange={setGardenBeds}
-                  selectedPlant={selectedPlant}
-                  selectedTool={selectedTool}
-                  zoom={zoom}
-                  showGrid={showGrid}
-                  showLabels={showLabels}
-                  showSpacing={showSpacing}
-                  showSunRequirements={showSunRequirements}
-                  showWaterRequirements={showWaterRequirements}
-                  className="h-full"
-                />
+                <div id="canvas-svg">
+                  <GardenDesignerCanvas
+                    beds={gardenBeds}
+                    onBedsChange={setGardenBeds}
+                    selectedPlant={selectedPlant}
+                    selectedTool={selectedTool}
+                    selectedElement={selectedElement}
+                    zoom={zoom}
+                    showGrid={showGrid}
+                    showLabels={showLabels}
+                    showSpacing={showSpacing}
+                    showSunRequirements={showSunRequirements}
+                    showWaterRequirements={showWaterRequirements}
+                    className="h-full"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* Help Section */}
-      <section className="container mx-auto max-w-7xl p-4">
+      {/* Help Section - Hidden on mobile */}
+      <section className="hidden md:block container mx-auto max-w-7xl p-4">
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
@@ -783,6 +904,27 @@ export default function DemoPage() {
           </AlertDescription>
         </Alert>
       </section>
+
+      {/* Mobile Tools Panel */}
+      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-white border-t p-2">
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {tools.map(tool => (
+            <Button
+              key={tool.id}
+              variant={selectedTool === tool.id ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleToolSelect(tool.id)}
+              className={cn(
+                "shrink-0 rounded-lg",
+                selectedTool === tool.id && "gradient-understory"
+              )}
+              disabled={(tool.requiresPlant && !selectedPlant) || (tool.requiresElement && !selectedElement)}
+            >
+              <tool.icon className="h-4 w-4" />
+            </Button>
+          ))}
+        </div>
+      </div>
 
       {/* Tutorial Overlay */}
       <GardenTutorial
@@ -797,11 +939,11 @@ export default function DemoPage() {
         onClose={() => setShowPlantModal(null)}
       />
 
-      {/* Templates Drawer */}
+      {/* Templates Drawer - Responsive width */}
       {showTemplates && (
         <div className="fixed inset-0 z-40">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowTemplates(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-96 glass shadow-xl overflow-y-auto">
+          <div className="absolute right-0 top-0 bottom-0 w-full sm:w-96 glass shadow-xl overflow-y-auto">
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold">Garden Templates</h2>
@@ -849,9 +991,9 @@ export default function DemoPage() {
         </div>
       )}
 
-      {/* AI Assistant Panel */}
+      {/* AI Assistant Panel - Responsive positioning */}
       {showAIAssistant && (
-        <div className="fixed bottom-4 right-4 z-40 w-96">
+        <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 z-40 md:w-96">
           <AIAssistant
             context={{
               beds: gardenBeds,
@@ -866,6 +1008,19 @@ export default function DemoPage() {
           />
         </div>
       )}
+
+      {/* Status Bar */}
+      <StatusBar
+        zoom={zoom}
+        selectedTool={selectedTool}
+        gridEnabled={showGrid}
+        layersCount={1}
+        saved={saveStatus === 'saved'}
+        online={true}
+        coordinates={mousePosition}
+        itemsCount={{ beds: stats.beds, plants: stats.plants }}
+        className="hidden md:flex"
+      />
     </div>
   )
 }

@@ -4,7 +4,8 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { PlantInfo, getPlantById, checkCompatibility } from '@/lib/data/plant-library'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square, Edit2, Palette, Copy, Paste } from 'lucide-react'
+import { ElementSubtype, ELEMENT_STYLES, createElementShape } from '@/lib/canvas-elements'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { BedPropertiesPanel } from '@/components/bed-properties-panel'
 
 export interface GardenBed {
   id: string
@@ -27,6 +29,11 @@ export interface GardenBed {
   width?: number
   height?: number
   rotation?: number
+  // New properties for element support
+  elementType?: ElementSubtype
+  elementCategory?: 'bed' | 'water_management' | 'structure' | 'access' | 'energy' | 'animal' | 'waste'
+  zone?: 0 | 1 | 2 | 3 | 4 | 5
+  metadata?: Record<string, any>
 }
 
 export interface PlantedItem {
@@ -49,6 +56,7 @@ interface GardenDesignerCanvasProps {
   onBedsChange: (beds: GardenBed[]) => void
   selectedPlant: PlantInfo | null
   selectedTool: string
+  selectedElement?: ElementSubtype | null
   zoom?: number
   showGrid?: boolean
   showLabels?: boolean
@@ -63,6 +71,7 @@ export function GardenDesignerCanvas({
   onBedsChange,
   selectedPlant,
   selectedTool,
+  selectedElement,
   zoom: externalZoom,
   showGrid = true,
   showLabels = true,
@@ -95,13 +104,22 @@ export function GardenDesignerCanvas({
   const [showMeasurements, setShowMeasurements] = useState(true)
 
   // Transform controls state
-  const [transformMode, setTransformMode] = useState<'none' | 'resize' | 'rotate' | 'scale'>('none')
+  const [transformMode, setTransformMode] = useState<'none' | 'resize' | 'rotate' | 'scale' | 'move'>('none')
   const [transformHandle, setTransformHandle] = useState<string | null>(null)
   const [transformStart, setTransformStart] = useState<{ x: number; y: number } | null>(null)
   const [transformOrigin, setTransformOrigin] = useState<{ x: number; y: number } | null>(null)
 
+  // Drag state for moving beds
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number } | null>(null)
+  const [originalBedPosition, setOriginalBedPosition] = useState<GardenBed | null>(null)
+
   // Copy/paste state
   const [clipboard, setClipboard] = useState<GardenBed | null>(null)
+
+  // Properties panel state
+  const [showPropertiesPanel, setShowPropertiesPanel] = useState(false)
+  const [editingBed, setEditingBed] = useState<GardenBed | null>(null)
 
   // Use internal zoom if external not provided
   const zoom = externalZoom ?? internalZoom
@@ -149,6 +167,60 @@ export function GardenDesignerCanvas({
         } else if (e.key === '0') {
           e.preventDefault()
           handleResetView()
+        } else if (e.key === 'c' && selectedBed) {
+          // Copy selected bed
+          e.preventDefault()
+          const bed = beds.find(b => b.id === selectedBed)
+          if (bed) {
+            setClipboard(bed)
+          }
+        } else if (e.key === 'v' && clipboard) {
+          // Paste clipboard bed
+          e.preventDefault()
+          const newBed: GardenBed = {
+            ...clipboard,
+            id: `bed-${Date.now()}`,
+            name: `${clipboard.name} (Copy)`,
+            points: clipboard.points.map(p => ({
+              x: p.x + 20,
+              y: p.y + 20
+            }))
+          }
+          onBedsChange([...beds, newBed])
+          setSelectedBed(newBed.id)
+        } else if (e.key === 'd' && selectedBed) {
+          // Duplicate selected bed
+          e.preventDefault()
+          const bed = beds.find(b => b.id === selectedBed)
+          if (bed) {
+            const newBed: GardenBed = {
+              ...bed,
+              id: `bed-${Date.now()}`,
+              name: `${bed.name} (Copy)`,
+              points: bed.points.map(p => ({
+                x: p.x + 30,
+                y: p.y + 30
+              }))
+            }
+            onBedsChange([...beds, newBed])
+            setSelectedBed(newBed.id)
+          }
+        }
+      }
+      // Delete key to remove selected bed
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedBed && selectedTool === 'select') {
+        e.preventDefault()
+        const updatedBeds = beds.filter(b => b.id !== selectedBed)
+        onBedsChange(updatedBeds)
+        setSelectedBed(null)
+      }
+      // E key to edit selected bed properties
+      if (e.key === 'e' && selectedBed && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault()
+        const bed = beds.find(b => b.id === selectedBed)
+        if (bed) {
+          setEditingBed(bed)
+          setShowPropertiesPanel(true)
         }
       }
     }
@@ -249,6 +321,7 @@ export function GardenDesignerCanvas({
     setInternalZoom(100)
   }
 
+  // fitToContent implementation
   const handleFitToContent = () => {
     if (beds.length === 0) {
       handleResetView()
@@ -301,12 +374,39 @@ export function GardenDesignerCanvas({
 
     if (spacePressed || selectedTool === 'pan') {
       handlePanStart(e)
+    } else if (selectedTool === 'select') {
+      // Check if clicking on a bed
+      const clickedBed = beds.find(bed => isPointInPolygon(point, bed.points))
+      if (clickedBed) {
+        setSelectedBed(clickedBed.id)
+        // Start dragging immediately
+        setIsDragging(true)
+        setTransformMode('move')
+        const bedCenter = getBedCenter(clickedBed)
+        setDragOffset({
+          x: point.x - bedCenter.x,
+          y: point.y - bedCenter.y
+        })
+        setOriginalBedPosition(clickedBed)
+      } else {
+        // Clicked on empty space, deselect
+        setSelectedBed(null)
+      }
     } else if (selectedTool === 'draw') {
       setIsDrawing(true)
       setCurrentPoints([point])
     } else if (selectedTool === 'rect') {
       setIsDrawing(true)
       setCurrentPoints([point])
+    } else if (selectedTool === 'rect-precise') {
+      setDimensionStartPoint(point)
+      setShowDimensionDialog(true)
+    } else if (['circle', 'triangle', 'hexagon', 'l-shape'].includes(selectedTool)) {
+      // Create shape immediately at click point
+      createShape(point, selectedTool)
+    } else if (selectedElement) {
+      // Create permaculture element at click point
+      createElementAtPoint(point, selectedElement)
     }
   }
 
@@ -318,8 +418,36 @@ export function GardenDesignerCanvas({
 
     const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
 
+    // Handle bed dragging
+    if (isDragging && selectedBed && dragOffset && transformMode === 'move') {
+      const newCenter = {
+        x: point.x - dragOffset.x,
+        y: point.y - dragOffset.y
+      }
+
+      const bed = beds.find(b => b.id === selectedBed)
+      if (bed) {
+        const oldCenter = getBedCenter(bed)
+        const dx = newCenter.x - oldCenter.x
+        const dy = newCenter.y - oldCenter.y
+
+        const updatedBeds = beds.map(b => {
+          if (b.id === selectedBed) {
+            const movedPoints = b.points.map(p => ({
+              x: p.x + dx,
+              y: p.y + dy
+            }))
+            return { ...b, points: movedPoints }
+          }
+          return b
+        })
+        onBedsChange(updatedBeds)
+      }
+      return
+    }
+
     // Handle transform operations
-    if (transformMode !== 'none' && transformStart && selectedBed) {
+    if (transformMode !== 'none' && transformStart && selectedBed && transformMode !== 'move') {
       const bed = beds.find(b => b.id === selectedBed)
       if (!bed) return
 
@@ -405,6 +533,15 @@ export function GardenDesignerCanvas({
       return
     }
 
+    // Reset drag state
+    if (isDragging) {
+      setIsDragging(false)
+      setDragOffset(null)
+      setOriginalBedPosition(null)
+      setTransformMode('none')
+      return
+    }
+
     // Reset transform state
     if (transformMode !== 'none') {
       setTransformMode('none')
@@ -486,7 +623,7 @@ export function GardenDesignerCanvas({
     }))
   }
 
-  // Create shape at point
+  // Create shape or element at point
   const createShape = (center: { x: number; y: number }, shape: string) => {
     const size = 100 // Default size in pixels
     let points: { x: number; y: number }[] = []
@@ -548,6 +685,44 @@ export function GardenDesignerCanvas({
     onBedsChange([...beds, newBed])
   }
 
+  // Create permaculture element at point
+  const createElementAtPoint = (center: { x: number; y: number }, elementType: ElementSubtype) => {
+    const style = ELEMENT_STYLES[elementType]
+    const points = createElementShape(elementType, center.x, center.y)
+
+    // Determine category from element type
+    let category: GardenBed['elementCategory'] = 'structure'
+    if (['water_tank', 'pond', 'swale', 'rain_garden', 'greywater'].includes(elementType)) {
+      category = 'water_management'
+    } else if (['greenhouse', 'shed', 'trellis', 'arbor', 'pergola', 'cold_frame'].includes(elementType)) {
+      category = 'structure'
+    } else if (['path', 'fence', 'gate', 'stairs', 'ramp'].includes(elementType)) {
+      category = 'access'
+    } else if (['solar_panel', 'wind_turbine', 'battery'].includes(elementType)) {
+      category = 'energy'
+    } else if (['chicken_coop', 'beehive', 'rabbit_hutch', 'duck_pond'].includes(elementType)) {
+      category = 'animal'
+    } else if (['compost_bin', 'worm_farm', 'biodigester'].includes(elementType)) {
+      category = 'waste'
+    }
+
+    const newElement: GardenBed = {
+      id: `element-${Date.now()}`,
+      name: elementType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      points,
+      fill: style.defaultFill,
+      stroke: style.defaultStroke,
+      plants: [],
+      elementType,
+      elementCategory: category,
+      width: style.minWidth ? style.minWidth / 20 : 2.5,
+      height: style.minHeight ? style.minHeight / 20 : 2.5,
+      rotation: 0
+    }
+
+    onBedsChange([...beds, newElement])
+  }
+
   // Handle plant placement and deletion
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (isPanning || isDrawing || transformMode !== 'none') return
@@ -557,6 +732,12 @@ export function GardenDesignerCanvas({
     // Handle shape tools
     if (['circle', 'triangle', 'hexagon', 'l-shape'].includes(selectedTool)) {
       createShape(point, selectedTool)
+      return
+    }
+
+    // Handle element tools
+    if (selectedElement) {
+      createElementAtPoint(point, selectedElement)
       return
     }
 
@@ -776,6 +957,7 @@ export function GardenDesignerCanvas({
           variant="secondary"
           onClick={handleZoomIn}
           title="Zoom In (Ctrl +)"
+          className="transition-all duration-200 hover:scale-110 active:scale-95"
         >
           <ZoomIn className="h-4 w-4" />
         </Button>
@@ -784,6 +966,7 @@ export function GardenDesignerCanvas({
           variant="secondary"
           onClick={handleZoomOut}
           title="Zoom Out (Ctrl -)"
+          className="transition-all duration-200 hover:scale-110 active:scale-95"
         >
           <ZoomOut className="h-4 w-4" />
         </Button>
@@ -792,6 +975,7 @@ export function GardenDesignerCanvas({
           variant="secondary"
           onClick={handleFitToContent}
           title="Fit to Content"
+          className="transition-all duration-200 hover:scale-110 active:scale-95"
         >
           <Maximize2 className="h-4 w-4" />
         </Button>
@@ -800,10 +984,11 @@ export function GardenDesignerCanvas({
           variant="secondary"
           onClick={handleResetView}
           title="Reset View (Ctrl 0)"
+          className="transition-all duration-200 hover:scale-110 active:scale-95"
         >
-          <Home className="h-4 w-4" />
+          <Home className="h-4 w-4 transition-transform duration-300" />
         </Button>
-        <div className="px-2 py-1 bg-white/90 rounded text-sm font-mono">
+        <div className="px-2 py-1 bg-white/90 rounded text-sm font-mono transition-all duration-200 hover:bg-white">
           {Math.round(zoom)}%
         </div>
         <Button
@@ -811,15 +996,16 @@ export function GardenDesignerCanvas({
           variant={showMeasurements ? "default" : "secondary"}
           onClick={() => setShowMeasurements(!showMeasurements)}
           title="Toggle Measurements"
+          className="transition-all duration-200 hover:scale-110 active:scale-95"
         >
-          <Ruler className="h-4 w-4" />
+          <Ruler className={`h-4 w-4 transition-transform duration-200 ${showMeasurements ? 'rotate-45' : ''}`} />
         </Button>
       </div>
 
       {/* Pan Mode Indicator */}
       {(spacePressed || selectedTool === 'pan') && (
-        <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded">
-          <Move className="h-4 w-4" />
+        <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded animate-fade-in shadow-lg">
+          <Move className="h-4 w-4 animate-pulse" />
           <span className="text-sm">Pan Mode (hold Space)</span>
         </div>
       )}
@@ -864,10 +1050,23 @@ export function GardenDesignerCanvas({
                   onClick={(e) => {
                     e.stopPropagation()
                     if (selectedTool === 'select') {
-                      setSelectedBed(selectedBed === bed.id ? null : bed.id)
+                      setSelectedBed(bed.id)
+                    } else if (selectedTool === 'delete') {
+                      const updatedBeds = beds.filter(b => b.id !== bed.id)
+                      onBedsChange(updatedBeds)
+                      if (selectedBed === bed.id) {
+                        setSelectedBed(null)
+                      }
                     }
                   }}
-                  className={selectedTool === 'select' ? 'cursor-pointer' : ''}
+                  className={selectedTool === 'select' ? 'cursor-move' : ''}
+                  style={{
+                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    filter: selectedBed === bed.id ? 'drop-shadow(0 4px 8px rgba(34, 197, 94, 0.3))' : 'none',
+                    cursor: selectedTool === 'select' ? (isDragging && selectedBed === bed.id ? 'grabbing' : 'grab') :
+                            selectedTool === 'delete' ? 'pointer' : 'default',
+                    pointerEvents: 'all'
+                  }}
                 />
                 {/* Measurements */}
                 {showMeasurements && bed.width && bed.height && (
@@ -910,6 +1109,10 @@ export function GardenDesignerCanvas({
                         stroke="#3b82f6"
                         strokeWidth="2"
                         className="cursor-nwse-resize hover:fill-blue-100"
+                        style={{
+                          transition: 'all 0.15s ease-out',
+                          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
+                        }}
                         onMouseDown={(e) => {
                           e.stopPropagation()
                           setTransformMode('resize')
@@ -931,6 +1134,7 @@ export function GardenDesignerCanvas({
                             y2={center.y - 50}
                             stroke="#3b82f6"
                             strokeWidth="2"
+                            style={{ transition: 'all 0.2s ease-out' }}
                           />
                           <circle
                             cx={center.x}
