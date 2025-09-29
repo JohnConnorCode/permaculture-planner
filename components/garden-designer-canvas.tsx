@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { PlantInfo, getPlantById, checkCompatibility } from '@/lib/data/plant-library'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square, Edit2, Palette, Copy, Paste } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square, Edit2, Palette, Copy, Clipboard, Group, Ungroup, Layers } from 'lucide-react'
 import { ElementSubtype, ELEMENT_STYLES, createElementShape } from '@/lib/canvas-elements'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { BedPropertiesPanel } from '@/components/bed-properties-panel'
+import { PlantGroup, groupPlants, ungroupPlants, checkGroupCompatibility, SelectionState, addToSelection, removeFromSelection, clearSelection } from '@/lib/plant-management'
 
 export interface GardenBed {
   id: string
@@ -90,12 +91,30 @@ export function GardenDesignerCanvas({
   const [hoveredPlant, setHoveredPlant] = useState<string | null>(null)
   const [hoveredBed, setHoveredBed] = useState<string | null>(null)
 
+  // Multi-select and grouping state
+  const [selectionState, setSelectionState] = useState<SelectionState>({
+    selectedPlants: [],
+    selectedBeds: [],
+    selectedGroups: [],
+    mode: 'single'
+  })
+  const [plantGroups, setPlantGroups] = useState<PlantGroup[]>([])
+  const [showContextMenu, setShowContextMenu] = useState(false)
+  const [contextMenuPos, setContextMenuPos] = useState({ x: 0, y: 0 })
+  const [ctrlPressed, setCtrlPressed] = useState(false)
+  const [shiftPressed, setShiftPressed] = useState(false)
+
   // Infinite canvas state
   const [viewBox, setViewBox] = useState<ViewBox>({ x: -100, y: -100, width: 800, height: 600 })
   const [isPanning, setIsPanning] = useState(false)
   const [panStart, setPanStart] = useState({ x: 0, y: 0 })
   const [internalZoom, setInternalZoom] = useState(100)
   const [spacePressed, setSpacePressed] = useState(false)
+
+  // Selection rectangle state
+  const [isSelecting, setIsSelecting] = useState(false)
+  const [selectionRect, setSelectionRect] = useState<{ x: number; y: number; width: number; height: number } | null>(null)
+  const [selectionStart, setSelectionStart] = useState<{ x: number; y: number } | null>(null)
 
   // Precise dimension input state
   const [showDimensionDialog, setShowDimensionDialog] = useState(false)
@@ -152,10 +171,24 @@ export function GardenDesignerCanvas({
   // Handle keyboard events for pan (spacebar)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Track modifier keys for multi-select
+      setCtrlPressed(e.ctrlKey || e.metaKey)
+      setShiftPressed(e.shiftKey)
+
       if (e.code === 'Space' && !e.repeat) {
         e.preventDefault()
         setSpacePressed(true)
       }
+
+      // Grouping shortcuts
+      if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+        e.preventDefault()
+        handleGroupSelected()
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+        e.preventDefault()
+        handleUngroupSelected()
+      }
+
       // Zoom with Ctrl/Cmd + Plus/Minus
       if (e.ctrlKey || e.metaKey) {
         if (e.key === '=' || e.key === '+') {
@@ -226,6 +259,10 @@ export function GardenDesignerCanvas({
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
+      // Track modifier keys for multi-select
+      setCtrlPressed(e.ctrlKey || e.metaKey)
+      setShiftPressed(e.shiftKey)
+
       if (e.code === 'Space') {
         setSpacePressed(false)
         setIsPanning(false)
@@ -604,6 +641,62 @@ export function GardenDesignerCanvas({
     }
   }
 
+  // Group/Ungroup handlers
+  const handleGroupSelected = () => {
+    if (selectionState.selectedPlants.length > 1) {
+      const firstBed = beds.find(bed =>
+        bed.plants.some(p => selectionState.selectedPlants.includes(p.id))
+      )
+
+      if (firstBed) {
+        const plantGroup = groupPlants(
+          firstBed,
+          selectionState.selectedPlants,
+          `Group ${plantGroups.length + 1}`
+        )
+        setPlantGroups([...plantGroups, plantGroup])
+        setSelectionState(clearSelection())
+      }
+    }
+  }
+
+  const handleUngroupSelected = () => {
+    if (selectionState.selectedGroups.length > 0) {
+      const groupsToUngroup = plantGroups.filter(g =>
+        selectionState.selectedGroups.includes(g.id)
+      )
+
+      groupsToUngroup.forEach(group => {
+        const ungroupedPlants = ungroupPlants(group)
+        // Update the bed with ungrouped plants
+        const updatedBeds = beds.map(bed => {
+          if (bed.id === group.bedId) {
+            return {
+              ...bed,
+              plants: [...bed.plants.filter(p =>
+                !group.plants.some(gp => gp.id === p.id)
+              ), ...ungroupedPlants]
+            }
+          }
+          return bed
+        })
+        onBedsChange(updatedBeds)
+      })
+
+      setPlantGroups(plantGroups.filter(g =>
+        !selectionState.selectedGroups.includes(g.id)
+      ))
+      setSelectionState(clearSelection())
+    }
+  }
+
+  // Handle context menu
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setContextMenuPos({ x: e.clientX, y: e.clientY })
+    setShowContextMenu(true)
+  }
+
   // Rotate point around center
   const rotatePoint = (point: { x: number; y: number }, center: { x: number; y: number }, angle: number) => {
     const rad = (angle * Math.PI) / 180
@@ -950,6 +1043,40 @@ export function GardenDesignerCanvas({
   return (
     <>
       <div className={cn("relative w-full h-full bg-white rounded-lg overflow-hidden", className)}>
+      {/* Grouping Controls */}
+      {(selectionState.selectedPlants.length > 0 || selectionState.selectedGroups.length > 0) && (
+        <div className="absolute top-4 left-4 z-10 flex gap-2 bg-white/90 backdrop-blur rounded-lg p-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleGroupSelected}
+            disabled={selectionState.selectedPlants.length < 2}
+            title="Group Selected (Ctrl+G)"
+          >
+            <Group className="h-4 w-4 mr-1" />
+            Group ({selectionState.selectedPlants.length})
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={handleUngroupSelected}
+            disabled={selectionState.selectedGroups.length === 0}
+            title="Ungroup Selected (Ctrl+U)"
+          >
+            <Ungroup className="h-4 w-4 mr-1" />
+            Ungroup
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setSelectionState(clearSelection())}
+            title="Clear Selection"
+          >
+            Clear
+          </Button>
+        </div>
+      )}
+
       {/* Canvas Controls */}
       <div className="absolute top-4 right-4 z-10 flex gap-2">
         <Button
@@ -1027,6 +1154,7 @@ export function GardenDesignerCanvas({
           onMouseLeave={handleMouseUp}
           onClick={handleCanvasClick}
           onWheel={handleWheel}
+          onContextMenu={handleContextMenu}
         >
           {/* Grid */}
           {showGrid && (
@@ -1194,6 +1322,49 @@ export function GardenDesignerCanvas({
                   </text>
                 )}
 
+                {/* Group indicators */}
+                {plantGroups
+                  .filter(group => group.bedId === bed.id)
+                  .map(group => {
+                    const groupPlants = bed.plants.filter(p =>
+                      group.plants.some(gp => gp.id === p.id)
+                    )
+                    if (groupPlants.length === 0) return null
+
+                    // Calculate bounding box for group
+                    const minX = Math.min(...groupPlants.map(p => p.x)) - 20
+                    const maxX = Math.max(...groupPlants.map(p => p.x)) + 20
+                    const minY = Math.min(...groupPlants.map(p => p.y)) - 20
+                    const maxY = Math.max(...groupPlants.map(p => p.y)) + 20
+
+                    return (
+                      <g key={group.id}>
+                        <rect
+                          x={minX}
+                          y={minY}
+                          width={maxX - minX}
+                          height={maxY - minY}
+                          fill="#3b82f6"
+                          fillOpacity={0.05}
+                          stroke="#3b82f6"
+                          strokeWidth="2"
+                          strokeDasharray="10,5"
+                          rx="8"
+                          ry="8"
+                        />
+                        <text
+                          x={minX + 5}
+                          y={minY - 5}
+                          fontSize="12"
+                          fill="#3b82f6"
+                          fontWeight="bold"
+                        >
+                          {group.name}
+                        </text>
+                      </g>
+                    )
+                  })}
+
                 {/* Plants in bed */}
                 {bed.plants.map(plant => {
                   const plantInfo = getPlantById(plant.plantId)
@@ -1206,8 +1377,21 @@ export function GardenDesignerCanvas({
                         cy={plant.y}
                         r={15}
                         fill="white"
-                        stroke={hoveredPlant === plant.id ? '#22c55e' : '#94a3b8'}
-                        strokeWidth={hoveredPlant === plant.id ? 2 : 1}
+                        stroke={
+                          selectionState.selectedPlants.includes(plant.id)
+                            ? '#3b82f6'
+                            : hoveredPlant === plant.id
+                            ? '#22c55e'
+                            : '#94a3b8'
+                        }
+                        strokeWidth={
+                          selectionState.selectedPlants.includes(plant.id) || hoveredPlant === plant.id
+                            ? 3
+                            : 1
+                        }
+                        strokeDasharray={
+                          selectionState.selectedPlants.includes(plant.id) ? '5,5' : 'none'
+                        }
                         onMouseEnter={() => setHoveredPlant(plant.id)}
                         onMouseLeave={() => setHoveredPlant(null)}
                       />
@@ -1252,6 +1436,21 @@ export function GardenDesignerCanvas({
             />
           )}
 
+          {/* Selection Rectangle */}
+          {isSelecting && selectionRect && (
+            <rect
+              x={selectionRect.x}
+              y={selectionRect.y}
+              width={selectionRect.width}
+              height={selectionRect.height}
+              fill="#3b82f6"
+              fillOpacity={0.1}
+              stroke="#3b82f6"
+              strokeWidth="2"
+              strokeDasharray="5,5"
+            />
+          )}
+
           {/* Ruler/Scale indicator */}
           <g className="scale-indicator" transform={`translate(${viewBox.x + 20}, ${viewBox.y + viewBox.height - 40})`}>
             <line x1={0} y1={0} x2={100} y2={0} stroke="#64748b" strokeWidth={2} />
@@ -1263,6 +1462,59 @@ export function GardenDesignerCanvas({
           </g>
         </svg>
       </div>
+
+      {/* Context Menu */}
+      {showContextMenu && (
+        <div
+          className="absolute bg-white border border-gray-200 rounded-md shadow-lg py-1 z-50"
+          style={{ left: contextMenuPos.x, top: contextMenuPos.y }}
+          onMouseLeave={() => setShowContextMenu(false)}
+        >
+          <button
+            className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 flex items-center gap-2"
+            onClick={() => {
+              handleGroupSelected()
+              setShowContextMenu(false)
+            }}
+            disabled={selectionState.selectedPlants.length < 2}
+          >
+            <Group className="h-4 w-4" />
+            Group Selected
+          </button>
+          <button
+            className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 flex items-center gap-2"
+            onClick={() => {
+              handleUngroupSelected()
+              setShowContextMenu(false)
+            }}
+            disabled={selectionState.selectedGroups.length === 0}
+          >
+            <Ungroup className="h-4 w-4" />
+            Ungroup Selected
+          </button>
+          <div className="border-t my-1" />
+          <button
+            className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 flex items-center gap-2"
+            onClick={() => {
+              // TODO: Implement copy
+              setShowContextMenu(false)
+            }}
+          >
+            <Copy className="h-4 w-4" />
+            Copy
+          </button>
+          <button
+            className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 flex items-center gap-2"
+            onClick={() => {
+              // TODO: Implement paste
+              setShowContextMenu(false)
+            }}
+          >
+            <Clipboard className="h-4 w-4" />
+            Paste
+          </button>
+        </div>
+      )}
 
       {/* Compatibility Alerts */}
       {compatibilityAlerts.length > 0 && (

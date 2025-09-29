@@ -23,6 +23,8 @@ import { CommandPalette } from '@/components/command-palette'
 import { StatusBar } from '@/components/status-bar'
 import { PremiumTooltip, RichTooltip } from '@/components/premium-tooltip'
 import { MobileMenu } from '@/components/mobile-menu'
+import { PlantGroupPanel } from '@/components/plant-group-panel'
+import { PlantGroup } from '@/lib/plant-management'
 import {
   Layers, Save, Share2, Download, Settings, Info,
   ZoomIn, ZoomOut, Grid, Eye, EyeOff, Ruler,
@@ -121,6 +123,9 @@ export default function DemoPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
   const [showElements, setShowElements] = useState(false)
+  const [plantGroups, setPlantGroups] = useState<PlantGroup[]>([])
+  const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(undefined)
+  const [showGroupPanel, setShowGroupPanel] = useState(false)
 
   // Track mouse position for status bar
   useEffect(() => {

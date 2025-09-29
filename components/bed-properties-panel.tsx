@@ -383,7 +383,7 @@ export function BedPropertiesPanel({
                   <SelectItem value="full-sun">Full Sun (6+ hours)</SelectItem>
                   <SelectItem value="partial-sun">Partial Sun (3-6 hours)</SelectItem>
                   <SelectItem value="partial-shade">Partial Shade (2-3 hours)</SelectItem>
-                  <SelectItem value="full-shade">Full Shade (< 2 hours)</SelectItem>
+                  <SelectItem value="full-shade">Full Shade (&lt; 2 hours)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
