@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { X } from 'lucide-react'
-import { GardenDesignerCanvas, GardenBed } from '@/components/garden-designer-canvas'
+import { GardenDesignerCanvas, GardenBed } from '@/components/garden-designer-canvas-v2'
 import { PLANT_LIBRARY, PlantInfo, getPlantsByCategory } from '@/lib/data/plant-library'
 import { GardenTutorial } from '@/components/garden-tutorial'
 import { PlantInfoModal } from '@/components/plant-info-modal'
@@ -127,20 +127,26 @@ export default function DemoPage() {
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(undefined)
   const [showGroupPanel, setShowGroupPanel] = useState(false)
 
-  // Track mouse position for status bar
+  // Track mouse position for status bar - only within canvas
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const canvas = document.querySelector('#canvas-svg')
-      if (canvas) {
-        const rect = canvas.getBoundingClientRect()
+      if (!canvas) return
+
+      const rect = canvas.getBoundingClientRect()
+      // Only update if mouse is within canvas bounds
+      if (e.clientX >= rect.left && e.clientX <= rect.right &&
+          e.clientY >= rect.top && e.clientY <= rect.bottom) {
         setMousePosition({
           x: e.clientX - rect.left,
           y: e.clientY - rect.top
         })
       }
     }
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
+
+    const canvasElement = document.querySelector('#canvas-svg') as HTMLElement | null
+    canvasElement?.addEventListener('mousemove', handleMouseMove as EventListener)
+    return () => canvasElement?.removeEventListener('mousemove', handleMouseMove as EventListener)
   }, [])
 
   // Check if user has seen tutorial before
@@ -876,7 +882,7 @@ export default function DemoPage() {
                 )}
 
                 {/* Garden Designer Canvas */}
-                <div id="canvas-svg">
+                <div id="canvas-svg" className="relative h-full">
                   <GardenDesignerCanvas
                     beds={gardenBeds}
                     onBedsChange={setGardenBeds}
@@ -889,7 +895,6 @@ export default function DemoPage() {
                     showSpacing={showSpacing}
                     showSunRequirements={showSunRequirements}
                     showWaterRequirements={showWaterRequirements}
-                    className="h-full"
                   />
                 </div>
               </div>
