@@ -1,0 +1,1469 @@
+
+> permaculture-planner@1.0.0 test
+> jest
+
+FAIL __tests__/validation.test.ts
+  ● Constraint Validators › validateOverlap › respects tolerance parameter
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      308 |         size: { widthIn: 48, heightIn: 96 }
+      309 |       }
+    > 310 |       expect(validateOverlap([bed1], adjacentBed, 0)).toBe(false)
+          |                                                       ^
+      311 |       expect(validateOverlap([bed1], adjacentBed, 5)).toBe(true)
+      312 |     })
+      313 |   })
+
+      at Object.toBe (__tests__/validation.test.ts:310:55)
+
+FAIL __tests__/storage.test.ts
+  ● Console
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (lib/storage/indexed-db.ts:350:6)
+      at Object.<anonymous> (__tests__/storage.test.ts:6:20)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as savePlan] (lib/storage/indexed-db.ts:83:30)
+      at Object.savePlan (__tests__/storage.test.ts:28:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as getPlan] (lib/storage/indexed-db.ts:100:30)
+      at Object.getPlan (__tests__/storage.test.ts:35:31)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as getAllPlans] (lib/storage/indexed-db.ts:113:30)
+      at Object.getAllPlans (__tests__/storage.test.ts:40:30)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as deletePlan] (lib/storage/indexed-db.ts:126:30)
+      at Object.deletePlan (__tests__/storage.test.ts:46:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as addPendingChange] (lib/storage/indexed-db.ts:140:30)
+      at Object.addPendingChange (__tests__/storage.test.ts:58:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as getPendingChanges] (lib/storage/indexed-db.ts:157:30)
+      at Object.getPendingChanges (__tests__/storage.test.ts:62:32)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as markChangeAsSynced] (lib/storage/indexed-db.ts:171:30)
+      at Object.markChangeAsSynced (__tests__/storage.test.ts:67:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as savePreference] (lib/storage/indexed-db.ts:195:30)
+      at Object.savePreference (__tests__/storage.test.ts:73:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as savePreference] (lib/storage/indexed-db.ts:195:30)
+      at Object.savePreference (__tests__/storage.test.ts:77:16)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as saveDraft] (lib/storage/indexed-db.ts:222:30)
+      at Object.saveDraft (__tests__/storage.test.ts:89:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as saveDraft] (lib/storage/indexed-db.ts:222:30)
+      at Object.saveDraft (__tests__/storage.test.ts:97:16)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as deleteDraft] (lib/storage/indexed-db.ts:252:30)
+      at Object.deleteDraft (__tests__/storage.test.ts:103:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as cacheData] (lib/storage/indexed-db.ts:266:30)
+      at Object.cacheData (__tests__/storage.test.ts:110:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as cacheData] (lib/storage/indexed-db.ts:266:30)
+      at Object.cacheData (__tests__/storage.test.ts:115:16)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as cleanupCache] (lib/storage/indexed-db.ts:304:30)
+      at Object.cleanupCache (__tests__/storage.test.ts:121:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:10:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:127:23)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:14:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:134:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as savePlan] (lib/storage/indexed-db.ts:83:30)
+      at Object.savePlan (__tests__/storage.test.ts:150:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:138:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at Object.init (__tests__/storage.test.ts:134:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as saveDraft] (lib/storage/indexed-db.ts:222:30)
+      at Object.saveDraft (__tests__/storage.test.ts:176:14)
+
+    console.warn
+      IndexedDB not available
+
+      26 |   async init(): Promise<void> {
+      27 |     if (typeof window === 'undefined' || !window.indexedDB) {
+    > 28 |       console.warn('IndexedDB not available')
+         |               ^
+      29 |       return
+      30 |     }
+      31 |
+
+      at IndexedDBManager.warn (lib/storage/indexed-db.ts:28:15)
+      at IndexedDBManager.init [as clearAll] (lib/storage/indexed-db.ts:327:30)
+      at Object.clearAll (__tests__/storage.test.ts:138:14)
+
+  ● IndexedDB Storage › Plan Operations › savePlan stores plan data
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      26 |
+      27 |       // Since we're mocking, we'll just verify the method doesn't throw
+    > 28 |       await expect(db.savePlan(plan)).resolves.not.toThrow()
+         |                   ^
+      29 |     })
+      30 |
+      31 |     test('getPlan retrieves plan by ID', async () => {
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:28:19)
+
+  ● IndexedDB Storage › Plan Operations › savePlan stores plan data
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Plan Operations › getPlan retrieves plan by ID
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      101 |
+      102 |     return new Promise((resolve, reject) => {
+    > 103 |       const transaction = this.db!.transaction(['plans'], 'readonly')
+          |                                    ^
+      104 |       const store = transaction.objectStore('plans')
+      105 |       const request = store.get(id)
+      106 |
+
+      at transaction (lib/storage/indexed-db.ts:103:36)
+      at IndexedDBManager.getPlan (lib/storage/indexed-db.ts:102:12)
+      at Object.<anonymous> (__tests__/storage.test.ts:35:22)
+
+  ● IndexedDB Storage › Plan Operations › getPlan retrieves plan by ID
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Plan Operations › getAllPlans retrieves all stored plans
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      114 |
+      115 |     return new Promise((resolve, reject) => {
+    > 116 |       const transaction = this.db!.transaction(['plans'], 'readonly')
+          |                                    ^
+      117 |       const store = transaction.objectStore('plans')
+      118 |       const request = store.getAll()
+      119 |
+
+      at transaction (lib/storage/indexed-db.ts:116:36)
+      at IndexedDBManager.getAllPlans (lib/storage/indexed-db.ts:115:12)
+      at Object.<anonymous> (__tests__/storage.test.ts:40:21)
+
+  ● IndexedDB Storage › Plan Operations › getAllPlans retrieves all stored plans
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Plan Operations › deletePlan removes plan by ID
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      44 |     test('deletePlan removes plan by ID', async () => {
+      45 |       const planId = 'test-plan-1'
+    > 46 |       await expect(db.deletePlan(planId)).resolves.not.toThrow()
+         |                   ^
+      47 |     })
+      48 |   })
+      49 |
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:46:19)
+
+  ● IndexedDB Storage › Plan Operations › deletePlan removes plan by ID
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Pending Changes › addPendingChange stores offline changes
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      56 |       }
+      57 |
+    > 58 |       await expect(db.addPendingChange(change)).resolves.not.toThrow()
+         |                   ^
+      59 |     })
+      60 |
+      61 |     test('getPendingChanges retrieves unsynced changes', async () => {
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:58:19)
+
+  ● IndexedDB Storage › Pending Changes › addPendingChange stores offline changes
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Pending Changes › getPendingChanges retrieves unsynced changes
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      158 |
+      159 |     return new Promise((resolve, reject) => {
+    > 160 |       const transaction = this.db!.transaction(['pendingChanges'], 'readonly')
+          |                                    ^
+      161 |       const store = transaction.objectStore('pendingChanges')
+      162 |       const index = store.index('synced')
+      163 |       const request = index.getAll(IDBKeyRange.only(false))
+
+      at transaction (lib/storage/indexed-db.ts:160:36)
+      at IndexedDBManager.getPendingChanges (lib/storage/indexed-db.ts:159:12)
+      at Object.<anonymous> (__tests__/storage.test.ts:62:23)
+
+  ● IndexedDB Storage › Pending Changes › getPendingChanges retrieves unsynced changes
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Pending Changes › markChangeAsSynced updates sync status
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      65 |
+      66 |     test('markChangeAsSynced updates sync status', async () => {
+    > 67 |       await expect(db.markChangeAsSynced(1)).resolves.not.toThrow()
+         |                   ^
+      68 |     })
+      69 |   })
+      70 |
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:67:19)
+
+  ● IndexedDB Storage › Pending Changes › markChangeAsSynced updates sync status
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Preferences › savePreference stores user preferences
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      71 |   describe('Preferences', () => {
+      72 |     test('savePreference stores user preferences', async () => {
+    > 73 |       await expect(db.savePreference('theme', 'dark')).resolves.not.toThrow()
+         |                   ^
+      74 |     })
+      75 |
+      76 |     test('getPreference retrieves stored preference', async () => {
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:73:19)
+
+  ● IndexedDB Storage › Preferences › savePreference stores user preferences
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Preferences › getPreference retrieves stored preference
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      196 |
+      197 |     return new Promise((resolve, reject) => {
+    > 198 |       const transaction = this.db!.transaction(['preferences'], 'readwrite')
+          |                                    ^
+      199 |       const store = transaction.objectStore('preferences')
+      200 |       const request = store.put({ key, value, timestamp: Date.now() })
+      201 |
+
+      at transaction (lib/storage/indexed-db.ts:198:36)
+      at IndexedDBManager.savePreference (lib/storage/indexed-db.ts:197:12)
+      at Object.<anonymous> (__tests__/storage.test.ts:77:7)
+
+  ● IndexedDB Storage › Preferences › getPreference retrieves stored preference
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Draft Management › saveDraft stores wizard progress
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      87 |         area: { total_sqft: 200 }
+      88 |       }
+    > 89 |       await expect(db.saveDraft('draft-1', draftData)).resolves.not.toThrow()
+         |                   ^
+      90 |     })
+      91 |
+      92 |     test('getDraft retrieves saved draft', async () => {
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:89:19)
+
+  ● IndexedDB Storage › Draft Management › saveDraft stores wizard progress
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Draft Management › getDraft retrieves saved draft
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      223 |
+      224 |     return new Promise((resolve, reject) => {
+    > 225 |       const transaction = this.db!.transaction(['drafts'], 'readwrite')
+          |                                    ^
+      226 |       const store = transaction.objectStore('drafts')
+      227 |       const request = store.put({
+      228 |         id,
+
+      at transaction (lib/storage/indexed-db.ts:225:36)
+      at IndexedDBManager.saveDraft (lib/storage/indexed-db.ts:224:12)
+      at Object.<anonymous> (__tests__/storage.test.ts:97:7)
+
+  ● IndexedDB Storage › Draft Management › getDraft retrieves saved draft
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Draft Management › deleteDraft removes draft
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      101 |
+      102 |     test('deleteDraft removes draft', async () => {
+    > 103 |       await expect(db.deleteDraft('draft-1')).resolves.not.toThrow()
+          |                   ^
+      104 |     })
+      105 |   })
+      106 |
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:103:19)
+
+  ● IndexedDB Storage › Draft Management › deleteDraft removes draft
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Cache Operations › cacheData stores with TTL
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      108 |     test('cacheData stores with TTL', async () => {
+      109 |       const data = { crops: ['tomato', 'basil'] }
+    > 110 |       await expect(db.cacheData('crops', data, 60)).resolves.not.toThrow()
+          |                   ^
+      111 |     })
+      112 |
+      113 |     test('getCachedData retrieves non-expired data', async () => {
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:110:19)
+
+  ● IndexedDB Storage › Cache Operations › cacheData stores with TTL
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Cache Operations › getCachedData retrieves non-expired data
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      267 |
+      268 |     return new Promise((resolve, reject) => {
+    > 269 |       const transaction = this.db!.transaction(['cache'], 'readwrite')
+          |                                    ^
+      270 |       const store = transaction.objectStore('cache')
+      271 |       const request = store.put({
+      272 |         key,
+
+      at transaction (lib/storage/indexed-db.ts:269:36)
+      at IndexedDBManager.cacheData (lib/storage/indexed-db.ts:268:12)
+      at Object.<anonymous> (__tests__/storage.test.ts:115:7)
+
+  ● IndexedDB Storage › Cache Operations › getCachedData retrieves non-expired data
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Cache Operations › cleanupCache removes expired entries
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      119 |
+      120 |     test('cleanupCache removes expired entries', async () => {
+    > 121 |       await expect(db.cleanupCache()).resolves.not.toThrow()
+          |                   ^
+      122 |     })
+      123 |   })
+      124 |
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:121:19)
+
+  ● IndexedDB Storage › Cache Operations › cleanupCache removes expired entries
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● IndexedDB Storage › Utility Operations › clearAll removes all stored data
+
+    expect(received).resolves.not.toThrow()
+
+    Received promise rejected instead of resolved
+    Rejected to value: [TypeError: Cannot read properties of null (reading 'transaction')]
+
+      125 |   describe('Utility Operations', () => {
+      126 |     test('clearAll removes all stored data', async () => {
+    > 127 |       await expect(db.clearAll()).resolves.not.toThrow()
+          |                   ^
+      128 |     })
+      129 |   })
+      130 | })
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (__tests__/storage.test.ts:127:19)
+
+  ● IndexedDB Storage › Utility Operations › clearAll removes all stored data
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:14:5)
+
+  ● Storage Integration › handles offline-first workflow
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      84 |
+      85 |     return new Promise((resolve, reject) => {
+    > 86 |       const transaction = this.db!.transaction(['plans'], 'readwrite')
+         |                                    ^
+      87 |       const store = transaction.objectStore('plans')
+      88 |       const request = store.put({
+      89 |         ...plan,
+
+      at transaction (lib/storage/indexed-db.ts:86:36)
+      at IndexedDBManager.savePlan (lib/storage/indexed-db.ts:85:12)
+      at Object.<anonymous> (__tests__/storage.test.ts:150:5)
+
+  ● Storage Integration › handles offline-first workflow
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:138:5)
+
+  ● Storage Integration › supports draft recovery
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      223 |
+      224 |     return new Promise((resolve, reject) => {
+    > 225 |       const transaction = this.db!.transaction(['drafts'], 'readwrite')
+          |                                    ^
+      226 |       const store = transaction.objectStore('drafts')
+      227 |       const request = store.put({
+      228 |         id,
+
+      at transaction (lib/storage/indexed-db.ts:225:36)
+      at IndexedDBManager.saveDraft (lib/storage/indexed-db.ts:224:12)
+      at Object.<anonymous> (__tests__/storage.test.ts:176:5)
+
+  ● Storage Integration › supports draft recovery
+
+    TypeError: Cannot read properties of null (reading 'transaction')
+
+      330 |     const promises = storeNames.map(storeName => {
+      331 |       return new Promise<void>((resolve, reject) => {
+    > 332 |         const transaction = this.db!.transaction([storeName], 'readwrite')
+          |                                      ^
+      333 |         const store = transaction.objectStore(storeName)
+      334 |         const request = store.clear()
+      335 |
+
+      at transaction (lib/storage/indexed-db.ts:332:38)
+      at lib/storage/indexed-db.ts:331:14
+          at Array.map (<anonymous>)
+      at IndexedDBManager.map [as clearAll] (lib/storage/indexed-db.ts:330:33)
+      at Object.<anonymous> (__tests__/storage.test.ts:138:5)
+
+Test Suites: 2 failed, 2 total
+Tests:       19 failed, 35 passed, 54 total
+Snapshots:   0 total
+Time:        0.504 s, estimated 1 s
+Ran all test suites.

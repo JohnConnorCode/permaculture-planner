@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -136,29 +136,17 @@ function DemoPageContent() {
   const feedback = useFeedback()
   const { user, loading: authLoading } = useAuth()
 
-  // Garden persistence with auto-save
-  const {
-    saveState,
-    save,
-    load,
-    listGardens,
-    deleteGarden,
-    canSave,
-    hasUnsavedChanges,
-    lastSaved,
-    planId
-  } = useGardenPersistence(gardenBeds, {
-    zoom,
-    viewBox: { x: 0, y: 0, width: 800, height: 600 },
-    showGrid,
-    showLabels,
-    showSpacing,
-    showSunRequirements,
-    showWaterRequirements
-  }, {
-    autoSaveInterval: 30000, // 30 seconds
-    enableAutoSave: true
-  })
+  // Garden persistence with auto-save - DISABLED TEMPORARILY
+  // Comment out to isolate infinite loop issue
+  const saveState = { status: 'idle' as const, hasUnsavedChanges: false }
+  const save = async () => ({ success: false, error: 'Persistence disabled' })
+  const load = async () => ({ success: false, error: 'Persistence disabled' })
+  const listGardens = async () => []
+  const deleteGarden = async () => ({ success: false })
+  const canSave = false
+  const hasUnsavedChanges = false
+  const lastSaved = null as Date | null
+  const planId = undefined as string | undefined
 
   // Track mouse position for status bar - only within canvas
   useEffect(() => {
@@ -197,6 +185,8 @@ function DemoPageContent() {
 
   // Load plan from URL parameter (from wizard completion)
   useEffect(() => {
+    // Temporarily disabled to isolate infinite loop
+    /*
     const planIdFromUrl = searchParams?.get('planId')
     if (planIdFromUrl && load && !loadingPlan) {
       setLoadingPlan(true)
@@ -217,10 +207,22 @@ function DemoPageContent() {
           setLoadingPlan(false)
         })
     }
-  }, [searchParams, load, loadingPlan, setGardenBeds, feedback])
+    */
+  }, [searchParams]) // Removed feedback from dependencies
 
-  // Calculate garden statistics
-  const calculateStats = () => {
+  // Calculate garden statistics - memoized to prevent recalculation
+  const calculatePolygonArea = useCallback((points: { x: number; y: number }[]) => {
+    if (points.length < 3) return 0
+    let area = 0
+    for (let i = 0; i < points.length; i++) {
+      const j = (i + 1) % points.length
+      area += points[i].x * points[j].y
+      area -= points[j].x * points[i].y
+    }
+    return Math.abs(area / 2)
+  }, [])
+
+  const stats = useMemo(() => {
     const totalPlants = gardenBeds.reduce((sum, bed) => sum + bed.plants.length, 0)
     const uniquePlants = new Set(gardenBeds.flatMap(bed => bed.plants.map(p => p.plantId))).size
     const totalArea = gardenBeds.reduce((sum, bed) => {
@@ -234,20 +236,7 @@ function DemoPageContent() {
       varieties: uniquePlants,
       area: Math.round(totalArea / 144) // Convert to sq ft
     }
-  }
-
-  const calculatePolygonArea = (points: { x: number; y: number }[]) => {
-    if (points.length < 3) return 0
-    let area = 0
-    for (let i = 0; i < points.length; i++) {
-      const j = (i + 1) % points.length
-      area += points[i].x * points[j].y
-      area -= points[j].x * points[i].y
-    }
-    return Math.abs(area / 2)
-  }
-
-  const stats = calculateStats()
+  }, [gardenBeds, calculatePolygonArea])
 
   // Tool configuration
   const tools = [
@@ -313,9 +302,7 @@ function DemoPageContent() {
     }
 
     try {
-      const result = await save(false, {
-        name: `Garden Design ${new Date().toLocaleDateString()}`
-      })
+      const result = await save()
 
       if (result.success) {
         feedback.success('Garden saved successfully!')
@@ -333,29 +320,8 @@ function DemoPageContent() {
       return
     }
 
-    try {
-      const gardens = await listGardens()
-      if (gardens.length > 0) {
-        const latest = gardens[0] // Most recent
-        const result = await load(latest.id)
-
-        if (result.success && result.garden) {
-          setGardenBeds(result.garden.beds as any) // Type conversion handled by persistence layer
-          setZoom(result.garden.canvas.zoom)
-          setShowGrid(result.garden.canvas.showGrid)
-          setShowLabels(result.garden.canvas.showLabels)
-          setShowSpacing(result.garden.canvas.showSpacing)
-          setShowSunRequirements(result.garden.canvas.showSunRequirements)
-          setShowWaterRequirements(result.garden.canvas.showWaterRequirements)
-          feedback.success(`Loaded: ${result.garden.plan.name}`)
-        }
-      } else {
-        feedback.info('No saved gardens found')
-      }
-    } catch (error) {
-      console.error('Load error:', error)
-      feedback.error('Failed to load garden')
-    }
+    // Persistence is temporarily disabled
+    feedback.info('Garden loading is temporarily disabled')
   }, [user, listGardens, load, feedback, setGardenBeds])
 
   // Handle command palette actions
@@ -567,7 +533,7 @@ function DemoPageContent() {
               <Button
                 variant="outline"
                 onClick={loadDesign}
-                disabled={!user || saveState.status === 'saving'}
+                disabled={!user}
               >
                 <Download className="h-4 w-4 mr-2" />
                 {user ? 'Load' : 'Sign in to Load'}
@@ -601,9 +567,9 @@ function DemoPageContent() {
                   className={user ? "gradient-understory rounded-lg hover-lift" : ""}
                   variant={user ? "default" : "outline"}
                   onClick={saveDesign}
-                  disabled={saveState.status === 'saving'}
+                  disabled={false}
                 >
-                  {saveState.status === 'saving' ? (
+                  {false ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                       <span className="hidden sm:inline">Saving...</span>
@@ -677,7 +643,7 @@ function DemoPageContent() {
                 variant={hasUnsavedChanges ? "destructive" : "default"}
                 className="text-xs md:text-sm"
               >
-                {saveState.status === 'saving' ? (
+                {false ? (
                   <>
                     <div className="animate-spin rounded-full h-3 w-3 border border-white mr-1" />
                     Saving...
@@ -1221,7 +1187,7 @@ function DemoPageContent() {
         selectedTool={selectedTool}
         gridEnabled={showGrid}
         layersCount={1}
-        saved={saveState.status === 'saved'}
+        saved={false}
         online={true}
         coordinates={mousePosition}
         itemsCount={{ beds: stats.beds, plants: stats.plants }}

@@ -145,7 +145,7 @@ class IndexedDBManager {
       const request = store.add({
         ...change,
         timestamp: Date.now(),
-        synced: false
+        synced: 0
       })
 
       request.onsuccess = () => resolve(request.result as number)
@@ -160,7 +160,7 @@ class IndexedDBManager {
       const transaction = this.db!.transaction(['pendingChanges'], 'readonly')
       const store = transaction.objectStore('pendingChanges')
       const index = store.index('synced')
-      const request = index.getAll(IDBKeyRange.only(false))
+      const request = index.getAll(IDBKeyRange.only(0))
 
       request.onsuccess = () => resolve(request.result || [])
       request.onerror = () => reject(request.error)
@@ -178,7 +178,7 @@ class IndexedDBManager {
       getRequest.onsuccess = () => {
         const change = getRequest.result
         if (change) {
-          change.synced = true
+          change.synced = 1
           const putRequest = store.put(change)
           putRequest.onsuccess = () => resolve()
           putRequest.onerror = () => reject(putRequest.error)

@@ -1,0 +1,235 @@
+
+> permaculture-planner@1.0.0 test:e2e
+> playwright test
+
+
+Running 44 tests using 5 workers
+
+[1A[2K[1/44] [chromium] › e2e/tests/01-homepage.spec.ts:4:7 › Homepage › should load homepage with correct title
+[1A[2K[2/44] [chromium] › e2e/animations.spec.ts:31:7 › Animation Tests › demo page animations work
+[1A[2K[3/44] [chromium] › e2e/animations.spec.ts:4:7 › Animation Tests › home page animations are visible and working
+[1A[2K[4/44] [chromium] › e2e/garden-canvas.spec.ts:4:7 › Garden Designer Canvas Features › demo page loads without errors
+[1A[2K[5/44] [chromium] › e2e/garden-canvas.spec.ts:24:7 › Garden Designer Canvas Features › navigation scrolls to top
+[1A[2K[6/44] [chromium] › e2e/tests/01-homepage.spec.ts:9:7 › Homepage › should display hero section with key elements
+[1A[2K[chromium] › e2e/garden-canvas.spec.ts:4:7 › Garden Designer Canvas Features › demo page loads without errors
+⚠️ Demo page is showing an error - this needs investigation
+
+[1A[2K[chromium] › e2e/animations.spec.ts:31:7 › Animation Tests › demo page animations work
+Demo page loaded successfully without animations
+
+[1A[2K[7/44] [chromium] › e2e/tests/01-homepage.spec.ts:24:7 › Homepage › should display feature cards
+[1A[2K[8/44] [chromium] › e2e/tests/01-homepage.spec.ts:41:7 › Homepage › should navigate to wizard from CTA button
+[1A[2K[chromium] › e2e/garden-canvas.spec.ts:4:7 › Garden Designer Canvas Features › demo page loads without errors
+✅ Demo page loads successfully!
+
+[1A[2K[9/44] [chromium] › e2e/tests/01-homepage.spec.ts:47:7 › Homepage › should display space examples
+[1A[2K[10/44] [chromium] › e2e/tests/02-auth.spec.ts:4:7 › Authentication › should display signup page with all fields
+[1A[2K[11/44] [chromium] › e2e/tests/02-auth.spec.ts:22:7 › Authentication › should display login page with all fields
+[1A[2K[chromium] › e2e/animations.spec.ts:4:7 › Animation Tests › home page animations are visible and working
+Found 16 animated elements on home page
+
+[1A[2K[12/44] [chromium] › e2e/tests/02-auth.spec.ts:36:7 › Authentication › should validate email format on signup
+[1A[2K[13/44] [chromium] › e2e/tests/02-auth.spec.ts:53:7 › Authentication › should enforce minimum password length
+[1A[2K[14/44] [chromium] › e2e/tests/02-auth.spec.ts:65:7 › Authentication › should navigate between login and signup
+[1A[2K[15/44] [chromium] › e2e/tests/02-auth.spec.ts:77:7 › Authentication › should redirect to login when accessing protected route
+[1A[2K[16/44] [chromium] › e2e/tests/02-auth.spec.ts:82:7 › Authentication › should show terms and privacy links on signup
+[1A[2K[17/44] [chromium] › e2e/tests/03-wizard.spec.ts:4:7 › Garden Setup Wizard › should display wizard step 1 - Location
+[1A[2K[18/44] [chromium] › e2e/tests/03-wizard.spec.ts:22:7 › Garden Setup Wizard › should navigate through wizard steps
+[1A[2K[19/44] [chromium] › e2e/tests/03-wizard.spec.ts:40:7 › Garden Setup Wizard › should show progress bar
+[1A[2K[20/44] [chromium] › e2e/tests/03-wizard.spec.ts:52:7 › Garden Setup Wizard › should validate required fields before proceeding
+[1A[2K[21/44] [chromium] › e2e/tests/03-wizard.spec.ts:63:7 › Garden Setup Wizard › should link to USDA zone finder
+[1A[2K[22/44] [chromium] › e2e/tests/03-wizard.spec.ts:73:7 › Garden Setup Wizard › should handle wizard completion
+[1A[2K[23/44] [chromium] › e2e/tests/04-visual-editor.spec.ts:4:8 › Visual Editor › requires authentication
+[1A[2K[24/44] [chromium] › e2e/tests/04-visual-editor.spec.ts:9:7 › Visual Editor › should redirect to login if not authenticated
+[1A[2K[25/44] [chromium] › e2e/tests/04-visual-editor.spec.ts:16:10 › Visual Editor › Visual Editor (with mocked auth) › should display editor interface
+[1A[2K[26/44] [chromium] › e2e/tests/04-visual-editor.spec.ts:33:10 › Visual Editor › Visual Editor (with mocked auth) › should have tool buttons
+[1A[2K[27/44] [chromium] › e2e/tests/04-visual-editor.spec.ts:44:10 › Visual Editor › Visual Editor (with mocked auth) › should allow bed creation
+[1A[2K[28/44] [chromium] › e2e/tests/04-visual-editor.spec.ts:60:10 › Visual Editor › Visual Editor (with mocked auth) › should display grid
+[1A[2K[29/44] [chromium] › e2e/tests/04-visual-editor.spec.ts:75:10 › Visual Editor › Visual Editor (with mocked auth) › should allow zoom controls
+[1A[2K[30/44] [chromium] › e2e/tests/04-visual-editor.spec.ts:90:10 › Visual Editor › Visual Editor (with mocked auth) › should save and load plans
+[1A[2K[31/44] [chromium] › e2e/tests/05-responsive.spec.ts:4:7 › Responsive Design › should be responsive on mobile
+[1A[2K[32/44] [chromium] › e2e/tests/05-responsive.spec.ts:14:7 › Responsive Design › should be responsive on tablet
+[1A[2K[33/44] [chromium] › e2e/tests/05-responsive.spec.ts:27:7 › Responsive Design › should handle mobile navigation
+[1A[2K[34/44] [chromium] › e2e/tests/06-database.spec.ts:4:7 › Database Connectivity › should load without database errors on homepage
+[1A[2K[35/44] [chromium] › e2e/tests/06-database.spec.ts:28:7 › Database Connectivity › should handle API routes
+[1A[2K[36/44] [chromium] › e2e/tests/06-database.spec.ts:38:8 › Database Connectivity › should load crops from database
+[1A[2K[37/44] [chromium] › e2e/tests/07-critical-paths.spec.ts:4:7 › Critical User Journey Paths › complete onboarding flow for new users
+[1A[2K[38/44] [chromium] › e2e/tests/07-critical-paths.spec.ts:35:7 › Critical User Journey Paths › ActionFeedback system shows success and error messages
+[1A[2K[39/44] [chromium] › e2e/tests/07-critical-paths.spec.ts:72:7 › Critical User Journey Paths › permaculture elements are available and functional in demo
+[1A[2K[40/44] [chromium] › e2e/tests/07-critical-paths.spec.ts:117:7 › Critical User Journey Paths › responsive design works across all breakpoints
+[1A[2K[41/44] [chromium] › e2e/tests/07-critical-paths.spec.ts:164:7 › Critical User Journey Paths › end-to-end user journey: Homepage → Wizard → Demo → Save
+[1A[2K[42/44] [chromium] › e2e/tests/07-critical-paths.spec.ts:263:7 › Critical User Journey Paths › accessibility and keyboard navigation work correctly
+[1A[2K[43/44] [chromium] › e2e/tests/07-critical-paths.spec.ts:294:7 › Critical User Journey Paths › error handling and edge cases work properly
+[1A[2K[44/44] [chromium] › e2e/tests/07-critical-paths.spec.ts:326:7 › Critical User Journey Paths › performance: page loads and interactions are responsive
+[1A[2K  1) [chromium] › e2e/tests/07-critical-paths.spec.ts:72:7 › Critical User Journey Paths › permaculture elements are available and functional in demo 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('[role="tab"]:has-text("Water"), button:has-text("Water")').first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('[role="tab"]:has-text("Water"), button:has-text("Water")').first()[22m
+
+
+      79 |     // Check for element categories in tabs or buttons
+      80 |     const waterTab = page.locator('[role="tab"]:has-text("Water"), button:has-text("Water")').first();
+    > 81 |     await expect(waterTab).toBeVisible({ timeout: 5000 });
+         |                            ^
+      82 |
+      83 |     // Verify different element categories exist as tabs
+      84 |     const elementCategories = [
+        at /Users/johnconnor/Documents/GitHub/Permaculture-plan/permaculture-planner/e2e/tests/07-critical-paths.spec.ts:81:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/tests-07-critical-paths-Cr-7868a-able-and-functional-in-demo-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/tests-07-critical-paths-Cr-7868a-able-and-functional-in-demo-chromium/error-context.md
+
+
+[1A[2K  2) [chromium] › e2e/tests/07-critical-paths.spec.ts:117:7 › Critical User Journey Paths › responsive design works across all breakpoints 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m failed
+
+    Locator:  locator('[role="complementary"], aside, .sidebar').first()
+    Expected: visible
+    Received: <element(s) not found>
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('[role="complementary"], aside, .sidebar').first()[22m
+
+
+      148 |       // Check for sidebar or main content
+      149 |       const sidebar = page.locator('[role="complementary"], aside, .sidebar').first();
+    > 150 |       await expect(sidebar).toBeVisible({ timeout: 5000 });
+          |                             ^
+      151 |
+      152 |       if (breakpoint.width >= 768) {
+      153 |         // Desktop should show sidebar
+        at /Users/johnconnor/Documents/GitHub/Permaculture-plan/permaculture-planner/e2e/tests/07-critical-paths.spec.ts:150:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/tests-07-critical-paths-Cr-0235e-orks-across-all-breakpoints-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/tests-07-critical-paths-Cr-0235e-orks-across-all-breakpoints-chromium/error-context.md
+
+
+[1A[2K  3) [chromium] › e2e/tests/07-critical-paths.spec.ts:164:7 › Critical User Journey Paths › end-to-end user journey: Homepage → Wizard → Demo → Save 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('select')[22m
+
+
+      175 |     // Step 1: Location
+      176 |     await page.fill('input[id="city"]', 'Portland, OR');
+    > 177 |     await page.selectOption('select', '9a'); // USDA Zone
+          |                ^
+      178 |     await page.click('button:has-text("Next Step")');
+      179 |
+      180 |     // Step 2: Area (assuming form fields exist)
+        at /Users/johnconnor/Documents/GitHub/Permaculture-plan/permaculture-planner/e2e/tests/07-critical-paths.spec.ts:177:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/tests-07-critical-paths-Cr-53eee-page-→-Wizard-→-Demo-→-Save-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/tests-07-critical-paths-Cr-53eee-page-→-Wizard-→-Demo-→-Save-chromium/error-context.md
+
+
+[1A[2K  4) [chromium] › e2e/tests/07-critical-paths.spec.ts:294:7 › Critical User Journey Paths › error handling and edge cases work properly 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('svg[viewBox]').first()[22m
+    [2m    - locator resolved to <svg width="24" height="24" fill="none" stroke-width="2" aria-hidden="true" viewBox="0 0 24 24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" class="lucide lucide-triangle-alert h-6 w-6 text-red-500">…</svg>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is visible, enabled and stable[22m
+    [2m      - scrolling into view if needed[22m
+    [2m      - done scrolling[22m
+    [2m      - <p class="text-sm text-red-800 font-mono mb-2">Error: Maximum update depth exceeded. This can ha…</p> from <div class="p-6 pt-0 space-y-4">…</div> subtree intercepts pointer events[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is visible, enabled and stable[22m
+    [2m      - scrolling into view if needed[22m
+    [2m      - done scrolling[22m
+    [2m      - <p class="text-sm text-red-800 font-mono mb-2">Error: Maximum update depth exceeded. This can ha…</p> from <div class="p-6 pt-0 space-y-4">…</div> subtree intercepts pointer events[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    53 × waiting for element to be visible, enabled and stable[22m
+    [2m       - element is visible, enabled and stable[22m
+    [2m       - scrolling into view if needed[22m
+    [2m       - done scrolling[22m
+    [2m       - <p class="text-sm text-red-800 font-mono mb-2">Error: Maximum update depth exceeded. This can ha…</p> from <div class="p-6 pt-0 space-y-4">…</div> subtree intercepts pointer events[22m
+    [2m     - retrying click action[22m
+    [2m       - waiting 500ms[22m
+
+
+      302 |
+      303 |     // Test clicking on canvas (should not crash)
+    > 304 |     await canvas.click({ position: { x: 200, y: 200 } });
+          |                  ^
+      305 |     await page.waitForTimeout(300);
+      306 |
+      307 |     // Test basic tool availability (without clicking to avoid detachment)
+        at /Users/johnconnor/Documents/GitHub/Permaculture-plan/permaculture-planner/e2e/tests/07-critical-paths.spec.ts:304:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/tests-07-critical-paths-Cr-005dc-nd-edge-cases-work-properly-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/tests-07-critical-paths-Cr-005dc-nd-edge-cases-work-properly-chromium/error-context.md
+
+
+[1A[2K  5) [chromium] › e2e/tests/07-critical-paths.spec.ts:326:7 › Critical User Journey Paths › performance: page loads and interactions are responsive 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("Rectangle")')[22m
+    [2m    - locator resolved to <button data-state="closed" class="inline-flex items-center whitespace-nowrap text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 justify-start rounded-lg hover-nature transition-all duration-200 hover:scale-105 active:scale-95">…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m  - element was detached from the DOM, retrying[22m
+
+
+      348 |       const toolButton = page.locator(`button:has-text("${tool}")`);
+      349 |       if (await toolButton.count() > 0) {
+    > 350 |         await toolButton.click();
+          |                          ^
+      351 |         const switchTime = Date.now() - switchStart;
+      352 |         expect(switchTime).toBeLessThan(500); // Tool switch should be instant
+      353 |       }
+        at /Users/johnconnor/Documents/GitHub/Permaculture-plan/permaculture-planner/e2e/tests/07-critical-paths.spec.ts:350:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/tests-07-critical-paths-Cr-9026b-interactions-are-responsive-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/tests-07-critical-paths-Cr-9026b-interactions-are-responsive-chromium/error-context.md
+
+
+[1A[2K  5 failed
+    [chromium] › e2e/tests/07-critical-paths.spec.ts:72:7 › Critical User Journey Paths › permaculture elements are available and functional in demo 
+    [chromium] › e2e/tests/07-critical-paths.spec.ts:117:7 › Critical User Journey Paths › responsive design works across all breakpoints 
+    [chromium] › e2e/tests/07-critical-paths.spec.ts:164:7 › Critical User Journey Paths › end-to-end user journey: Homepage → Wizard → Demo → Save 
+    [chromium] › e2e/tests/07-critical-paths.spec.ts:294:7 › Critical User Journey Paths › error handling and edge cases work properly 
+    [chromium] › e2e/tests/07-critical-paths.spec.ts:326:7 › Critical User Journey Paths › performance: page loads and interactions are responsive 
+  8 skipped
+  31 passed (43.5s)
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m

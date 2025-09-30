@@ -1,5 +1,9 @@
 // Jest setup file
 import '@testing-library/jest-dom'
+import 'fake-indexeddb/auto'
+
+// Polyfill structuredClone for Jest environment
+global.structuredClone = global.structuredClone || ((obj) => JSON.parse(JSON.stringify(obj)))
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

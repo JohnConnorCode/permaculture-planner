@@ -112,7 +112,7 @@ export default function WizardPage() {
       }))
       feedback.info('Restored your previous wizard progress')
     }
-  }, [feedback])
+  }, [])
 
   const updateData = (section: keyof WizardData, updates: any) => {
     const newData = {

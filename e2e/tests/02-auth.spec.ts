@@ -15,8 +15,8 @@ test.describe('Authentication', () => {
     // Check Google OAuth button
     await expect(page.locator('text=Google')).toBeVisible();
 
-    // Check login link
-    await expect(page.locator('text=Sign in')).toBeVisible();
+    // Check login link (use first occurrence to avoid strict mode)
+    await expect(page.locator('a[href="/auth/login"]:has-text("Sign in")').first()).toBeVisible();
   });
 
   test('should display login page with all fields', async ({ page }) => {
@@ -29,8 +29,8 @@ test.describe('Authentication', () => {
     await expect(page.locator('input[id="email"]')).toBeVisible();
     await expect(page.locator('input[id="password"]')).toBeVisible();
 
-    // Check signup link
-    await expect(page.locator('text=Sign up')).toBeVisible();
+    // Check signup link (use first occurrence to avoid strict mode)
+    await expect(page.locator('a[href="/auth/signup"]:has-text("Sign up")').first()).toBeVisible();
   });
 
   test('should validate email format on signup', async ({ page }) => {
@@ -66,11 +66,11 @@ test.describe('Authentication', () => {
     await page.goto('/auth/login');
 
     // Click create account link
-    await page.click('text=Sign up');
+    await page.locator('a[href="/auth/signup"]:has-text("Sign up")').first().click();
     await expect(page).toHaveURL(/\/auth\/signup/);
 
     // Click sign in link
-    await page.click('text=Sign in');
+    await page.locator('a[href="/auth/login"]:has-text("Sign in")').first().click();
     await expect(page).toHaveURL(/\/auth\/login/);
   });
 
@@ -82,7 +82,8 @@ test.describe('Authentication', () => {
   test('should show terms and privacy links on signup', async ({ page }) => {
     await page.goto('/auth/signup');
 
-    await expect(page.locator('text=Terms of Service')).toBeVisible();
-    await expect(page.locator('text=Privacy Policy')).toBeVisible();
+    // Use first occurrence to avoid strict mode violations with footer links
+    await expect(page.locator('text=Terms of Service').first()).toBeVisible();
+    await expect(page.locator('text=Privacy Policy').first()).toBeVisible();
   });
 });

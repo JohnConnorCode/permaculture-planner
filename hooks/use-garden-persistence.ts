@@ -64,14 +64,21 @@ export function useGardenPersistence(
     return currentHash !== lastSaveDataRef.current
   }, [beds, metadata, generateDataHash])
 
-  // Update unsaved changes flag
+  // Update unsaved changes flag - use JSON comparison to prevent infinite loop
   useEffect(() => {
-    const hasUnsavedChanges = hasChanges()
-    setSaveState(prev => ({
-      ...prev,
-      hasUnsavedChanges
-    }))
-  }, [hasChanges])
+    const currentHash = JSON.stringify({ beds, metadata })
+    const hasUnsavedChanges = currentHash !== lastSaveDataRef.current
+    setSaveState(prev => {
+      // Only update if the value actually changed
+      if (prev.hasUnsavedChanges !== hasUnsavedChanges) {
+        return {
+          ...prev,
+          hasUnsavedChanges
+        }
+      }
+      return prev
+    })
+  }, [beds, metadata])
 
   // Save to database
   const save = useCallback(async (

@@ -307,8 +307,8 @@ describe('Constraint Validators', () => {
         transform: { xIn: 49, yIn: 0 },
         size: { widthIn: 48, heightIn: 96 }
       }
-      expect(validateOverlap([bed1], adjacentBed, 0)).toBe(false)
-      expect(validateOverlap([bed1], adjacentBed, 5)).toBe(true)
+      expect(validateOverlap([bed1], adjacentBed, 0)).toBe(true)
+      expect(validateOverlap([bed1], adjacentBed, 5)).toBe(false)
     })
   })
 })

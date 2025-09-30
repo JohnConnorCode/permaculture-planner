@@ -280,13 +280,16 @@ export function validateOverlap(
     if (node.id === newNode.id) continue
     if (node.type !== 'Bed' || newNode.type !== 'Bed') continue
 
+    // Calculate the center-to-center distance
     const dx = Math.abs(node.transform.xIn - newNode.transform.xIn)
     const dy = Math.abs(node.transform.yIn - newNode.transform.yIn)
 
-    const minX = (node.size.widthIn + newNode.size.widthIn) / 2 + tolerance
-    const minY = (node.size.heightIn + newNode.size.heightIn) / 2 + tolerance
+    // Calculate the minimum center-to-center distance needed for the required tolerance
+    const minDistanceX = (node.size.widthIn + newNode.size.widthIn) / 2 + tolerance
+    const minDistanceY = (node.size.heightIn + newNode.size.heightIn) / 2 + tolerance
 
-    if (dx < minX && dy < minY) {
+    // Check if beds are too close (within the tolerance distance)
+    if (dx < minDistanceX && dy < minDistanceY) {
       return false // Too close - validation fails
     }
   }

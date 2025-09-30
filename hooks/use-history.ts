@@ -27,11 +27,15 @@ export function useHistory<T>(
       // Limit history size
       if (newHistory.length > maxHistory) {
         newHistory.shift()
-      } else {
-        setCurrentIndex(newHistory.length - 1)
       }
 
       return newHistory
+    })
+
+    // Update index separately to avoid dependency issues
+    setCurrentIndex(prev => {
+      const newLength = Math.min(prev + 2, maxHistory)
+      return newLength > maxHistory ? maxHistory - 1 : newLength - 1
     })
   }, [currentIndex, maxHistory])
 
