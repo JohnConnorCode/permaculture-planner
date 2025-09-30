@@ -10,6 +10,8 @@ import { Card } from '@/components/ui/card'
 import { SiteIntelligenceService } from '@/lib/services/site-intelligence'
 import { MapPin, Loader2, Info, CheckCircle, AlertCircle } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
+import { HelpIcon, InlineHelp, HelpPanel, permacultureHelpTips } from '@/components/ui/contextual-help'
+import { CardSkeleton } from '@/components/ui/progress-indicator'
 
 interface LocationStepProps {
   data: WizardData
@@ -108,7 +110,25 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Where is your garden?</h2>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <h2 className="text-lg sm:text-xl font-semibold">Where is your garden?</h2>
+          <HelpPanel
+            title="Location Help"
+            tips={[
+              permacultureHelpTips.usdaZone,
+              {
+                title: 'Why Location Matters',
+                description: 'Your location determines climate, soil type, native plants, and seasonal patterns that affect your garden design.',
+                type: 'info'
+              },
+              {
+                title: 'Microclimates',
+                description: 'Even within the same zone, your specific site may have unique conditions like wind patterns, elevation, or nearby structures.',
+                type: 'tip'
+              }
+            ]}
+          />
+        </div>
         <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
           We'll use your location to automatically determine your growing zone, climate, and soil conditions.
         </p>
@@ -228,7 +248,10 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
         </div>
 
         <div>
-          <Label htmlFor="zone" className="text-sm">USDA Hardiness Zone</Label>
+          <div className="flex items-center space-x-2 mb-2">
+            <Label htmlFor="zone" className="text-sm">USDA Hardiness Zone</Label>
+            <HelpIcon tip={permacultureHelpTips.usdaZone} />
+          </div>
           <Select
             value={data.location.usda_zone || ''}
             onValueChange={(value) => updateData('location', { usda_zone: value })}
@@ -249,33 +272,49 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="last_frost" className="text-sm">Average Last Frost</Label>
-            <Input
-              id="last_frost"
-              type="date"
-              value={data.location.last_frost || ''}
-              onChange={(e) => updateData('location', { last_frost: e.target.value })}
-              className="mt-2 h-10"
-            />
-          </div>
-          <div>
-            <Label htmlFor="first_frost" className="text-sm">Average First Frost</Label>
-            <Input
-              id="first_frost"
-              type="date"
-              value={data.location.first_frost || ''}
-              onChange={(e) => updateData('location', { first_frost: e.target.value })}
-              className="mt-2 h-10"
-            />
+        <div className="space-y-4">
+          <InlineHelp
+            tip={{
+              title: 'Growing Season Dates',
+              description: 'These dates help determine when to start seeds indoors, transplant outdoors, and when to expect your harvest season to end.',
+              type: 'tip'
+            }}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="last_frost" className="text-sm">Average Last Frost</Label>
+              <Input
+                id="last_frost"
+                type="date"
+                value={data.location.last_frost || ''}
+                onChange={(e) => updateData('location', { last_frost: e.target.value })}
+                className="mt-2 h-10"
+              />
+            </div>
+            <div>
+              <Label htmlFor="first_frost" className="text-sm">Average First Frost</Label>
+              <Input
+                id="first_frost"
+                type="date"
+                value={data.location.first_frost || ''}
+                onChange={(e) => updateData('location', { first_frost: e.target.value })}
+                className="mt-2 h-10"
+              />
+            </div>
           </div>
         </div>
 
         {isLoadingSiteData && (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-green-600" />
-            <span className="ml-3 text-gray-600">Fetching climate and soil data...</span>
+          <div className="space-y-4">
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+              <span className="ml-3 text-sm text-gray-600">Fetching climate and soil data...</span>
+            </div>
+            <CardSkeleton className="h-32" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <CardSkeleton className="h-20" />
+              <CardSkeleton className="h-20" />
+            </div>
           </div>
         )}
       </div>
