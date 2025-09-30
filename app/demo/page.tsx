@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { X } from 'lucide-react'
 import { GardenDesignerCanvas, GardenBed } from '@/components/garden-designer-canvas'
 import { PLANT_LIBRARY, PlantInfo, getPlantsByCategory } from '@/lib/data/plant-library'
 import { GardenTutorial } from '@/components/garden-tutorial'
@@ -25,6 +24,10 @@ import { PremiumTooltip, RichTooltip } from '@/components/premium-tooltip'
 import { MobileMenu } from '@/components/mobile-menu'
 import { PlantGroupPanel } from '@/components/plant-group-panel'
 import { PlantGroup } from '@/lib/plant-management'
+import { OnboardingFlow } from '@/components/onboarding/onboarding-flow'
+import { useFeedback } from '@/components/ui/action-feedback'
+import { useAuth } from '@/lib/auth/auth-context'
+import { useGardenPersistence } from '@/hooks/use-garden-persistence'
 import {
   Layers, Save, Share2, Download, Settings, Info,
   ZoomIn, ZoomOut, Grid, Eye, EyeOff, Ruler,
@@ -32,7 +35,7 @@ import {
   Sun, Droplets, TreePine, Flower, Sprout, Cherry,
   HelpCircle, CheckCircle, AlertCircle, Play,
   Undo, Redo, FileJson, Upload, BookOpen, Bot,
-  Circle, Hexagon, Triangle
+  Circle, Hexagon, Triangle, UserPlus, LogIn, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -121,11 +124,38 @@ export default function DemoPage() {
   const [showTemplates, setShowTemplates] = useState(false)
   const [showAIAssistant, setShowAIAssistant] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [showElements, setShowElements] = useState(false)
   const [plantGroups, setPlantGroups] = useState<PlantGroup[]>([])
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(undefined)
   const [showGroupPanel, setShowGroupPanel] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const feedback = useFeedback()
+  const { user, loading: authLoading } = useAuth()
+
+  // Garden persistence with auto-save
+  const {
+    saveState,
+    save,
+    load,
+    listGardens,
+    deleteGarden,
+    canSave,
+    hasUnsavedChanges,
+    lastSaved,
+    planId
+  } = useGardenPersistence(gardenBeds, {
+    zoom,
+    viewBox: { x: 0, y: 0, width: 800, height: 600 },
+    showGrid,
+    showLabels,
+    showSpacing,
+    showSunRequirements,
+    showWaterRequirements
+  }, {
+    autoSaveInterval: 30000, // 30 seconds
+    enableAutoSave: true
+  })
 
   // Track mouse position for status bar - only within canvas
   useEffect(() => {
@@ -149,13 +179,17 @@ export default function DemoPage() {
     return () => canvasElement?.removeEventListener('mousemove', handleMouseMove as EventListener)
   }, [])
 
-  // Check if user has seen tutorial before
+  // Check if user has seen tutorial/onboarding before
   useEffect(() => {
-    const seen = localStorage.getItem('gardenTutorialSeen')
-    if (!seen && gardenBeds.length === 0) {
+    const seenOnboarding = localStorage.getItem('onboarding_completed')
+    const seenTutorial = localStorage.getItem('gardenTutorialSeen')
+
+    if (!seenOnboarding && !seenTutorial) {
+      setShowOnboarding(true)
+    } else if (!seenTutorial && gardenBeds.length === 0) {
       setShowTutorial(true)
     }
-    setHasSeenTutorial(!!seen)
+    setHasSeenTutorial(!!seenTutorial)
   }, [])
 
   // Calculate garden statistics
@@ -228,12 +262,14 @@ export default function DemoPage() {
   const clearGarden = () => {
     if (confirm('Clear all garden beds? This cannot be undone.')) {
       setGardenBeds([])
+      feedback.success('Garden cleared successfully')
     }
   }
 
   const loadExample = () => {
     setGardenBeds(STARTER_GARDEN)
     setIsFirstVisit(false)
+    feedback.success('Example garden loaded')
   }
 
   const handleTutorialComplete = () => {
@@ -242,31 +278,58 @@ export default function DemoPage() {
     setHasSeenTutorial(true)
   }
 
-  // Save design to localStorage
-  const saveDesign = useCallback(() => {
-    setSaveStatus('saving')
-    const design = {
-      name: `Garden Design ${new Date().toLocaleDateString()}`,
-      beds: gardenBeds,
-      timestamp: Date.now()
+  // Save design to database or show login prompt
+  const saveDesign = useCallback(async () => {
+    if (!user) {
+      setShowLoginPrompt(true)
+      return
     }
-    const saved = JSON.parse(localStorage.getItem('gardenDesigns') || '[]')
-    saved.push(design)
-    localStorage.setItem('gardenDesigns', JSON.stringify(saved))
-    setTimeout(() => setSaveStatus('saved'), 1000)
-  }, [gardenBeds])
 
-  // Load design from localStorage
-  const loadDesign = () => {
-    const saved = JSON.parse(localStorage.getItem('gardenDesigns') || '[]')
-    if (saved.length > 0) {
-      const latest = saved[saved.length - 1]
-      setGardenBeds(latest.beds || [])
-      alert(`Loaded: ${latest.name}`)
-    } else {
-      alert('No saved designs found')
+    try {
+      const result = await save(false, {
+        name: `Garden Design ${new Date().toLocaleDateString()}`
+      })
+
+      if (result.success) {
+        feedback.success('Garden saved successfully!')
+      }
+    } catch (error) {
+      console.error('Save error:', error)
+      feedback.error('Failed to save garden')
     }
-  }
+  }, [user, save, feedback])
+
+  // Load design from database
+  const loadDesign = useCallback(async () => {
+    if (!user) {
+      setShowLoginPrompt(true)
+      return
+    }
+
+    try {
+      const gardens = await listGardens()
+      if (gardens.length > 0) {
+        const latest = gardens[0] // Most recent
+        const result = await load(latest.id)
+
+        if (result.success && result.garden) {
+          setGardenBeds(result.garden.beds as any) // Type conversion handled by persistence layer
+          setZoom(result.garden.canvas.zoom)
+          setShowGrid(result.garden.canvas.showGrid)
+          setShowLabels(result.garden.canvas.showLabels)
+          setShowSpacing(result.garden.canvas.showSpacing)
+          setShowSunRequirements(result.garden.canvas.showSunRequirements)
+          setShowWaterRequirements(result.garden.canvas.showWaterRequirements)
+          feedback.success(`Loaded: ${result.garden.plan.name}`)
+        }
+      } else {
+        feedback.info('No saved gardens found')
+      }
+    } catch (error) {
+      console.error('Load error:', error)
+      feedback.error('Failed to load garden')
+    }
+  }, [user, listGardens, load, feedback, setGardenBeds])
 
   // Handle command palette actions
   const handleCommand = useCallback((actionId: string) => {
@@ -275,7 +338,11 @@ export default function DemoPage() {
         setSelectedTool('rect')
         break
       case 'save':
-        saveDesign()
+        if (user) {
+          saveDesign()
+        } else {
+          setShowLoginPrompt(true)
+        }
         break
       case 'export':
         exportDesign()
@@ -409,6 +476,16 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white pb-8">
+      {/* Onboarding Flow */}
+      {showOnboarding && (
+        <OnboardingFlow
+          onComplete={() => {
+            setShowOnboarding(false)
+            feedback.success('Welcome! Start by drawing a garden bed or loading an example.')
+          }}
+        />
+      )}
+
       {/* Command Palette */}
       <CommandPalette onAction={handleCommand} />
       {/* Header */}
@@ -460,9 +537,13 @@ export default function DemoPage() {
                   <span className="hidden sm:inline">Templates</span>
                 </Button>
               </PremiumTooltip>
-              <Button variant="outline" onClick={loadDesign}>
+              <Button
+                variant="outline"
+                onClick={loadDesign}
+                disabled={!user || saveState.status === 'saving'}
+              >
                 <Download className="h-4 w-4 mr-2" />
-                Load
+                {user ? 'Load' : 'Sign in to Load'}
               </Button>
               <Button variant="outline" onClick={clearGarden}>
                 <Trash2 className="h-4 w-4 mr-2" />
@@ -487,14 +568,25 @@ export default function DemoPage() {
                 <HelpCircle className="h-4 w-4 mr-2" />
                 Help
               </Button>
-              <PremiumTooltip content="Save to browser" shortcut="⌘S">
+              <PremiumTooltip content={user ? 'Save to cloud' : 'Sign in to save'} shortcut="⌘S">
                 <Button
                   id="save-button"
-                  className="gradient-understory rounded-lg hover-lift"
+                  className={user ? "gradient-understory rounded-lg hover-lift" : ""}
+                  variant={user ? "default" : "outline"}
                   onClick={saveDesign}
+                  disabled={saveState.status === 'saving'}
                 >
-                  <Save className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Save</span>
+                  {saveState.status === 'saving' ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      <span className="hidden sm:inline">Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      {user ? <Save className="h-4 w-4 mr-2" /> : <LogIn className="h-4 w-4 mr-2" />}
+                      <span className="hidden sm:inline">{user ? 'Save' : 'Sign in'}</span>
+                    </>
+                  )}
                 </Button>
               </PremiumTooltip>
               <Button
@@ -529,7 +621,7 @@ export default function DemoPage() {
 
             {/* Mobile Menu */}
             <MobileMenu
-              onSave={saveDesign}
+              onSave={user ? saveDesign : () => setShowLoginPrompt(true)}
               onExport={exportDesign}
               onImport={() => document.querySelector<HTMLInputElement>('#import-input')?.click()}
               onUndo={undo}
@@ -551,6 +643,27 @@ export default function DemoPage() {
             <Badge variant="secondary" className="text-xs md:text-sm">{stats.plants} Plants</Badge>
             <Badge variant="secondary" className="text-xs md:text-sm">{stats.varieties} Varieties</Badge>
             <Badge variant="secondary" className="text-xs md:text-sm">{stats.area} sq ft</Badge>
+
+            {/* Auto-save status */}
+            {user && (
+              <Badge
+                variant={hasUnsavedChanges ? "destructive" : "default"}
+                className="text-xs md:text-sm"
+              >
+                {saveState.status === 'saving' ? (
+                  <>
+                    <div className="animate-spin rounded-full h-3 w-3 border border-white mr-1" />
+                    Saving...
+                  </>
+                ) : hasUnsavedChanges ? (
+                  'Unsaved'
+                ) : lastSaved ? (
+                  `Saved ${lastSaved.toLocaleTimeString()}`
+                ) : (
+                  'Auto-save enabled'
+                )}
+              </Badge>
+            )}
           </div>
         </div>
       </section>
@@ -949,6 +1062,62 @@ export default function DemoPage() {
         onClose={() => setShowPlantModal(null)}
       />
 
+      {/* Login Prompt Modal */}
+      {showLoginPrompt && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowLoginPrompt(false)} />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+            <div className="bg-white rounded-lg shadow-xl p-6 m-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Sign In Required</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-gray-600">
+                  Sign in to save your garden designs to the cloud, access them from any device, and enable auto-save.
+                </p>
+
+                <div className="space-y-2">
+                  <Button
+                    className="w-full gradient-understory"
+                    onClick={() => {
+                      setShowLoginPrompt(false)
+                      window.location.href = '/auth/login'
+                    }}
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setShowLoginPrompt(false)
+                      window.location.href = '/auth/signup'
+                    }}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Create Account
+                  </Button>
+                </div>
+
+                <div className="text-sm text-gray-500 text-center">
+                  Continue without signing in to use local storage only
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Templates Drawer - Responsive width */}
       {showTemplates && (
         <div className="fixed inset-0 z-40">
@@ -1025,7 +1194,7 @@ export default function DemoPage() {
         selectedTool={selectedTool}
         gridEnabled={showGrid}
         layersCount={1}
-        saved={saveStatus === 'saved'}
+        saved={saveState.status === 'saved'}
         online={true}
         coordinates={mousePosition}
         itemsCount={{ beds: stats.beds, plants: stats.plants }}

@@ -62,6 +62,31 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-1000px 0' },
+          '100%': { backgroundPosition: '1000px 0' },
+        },
+        fadeIn: {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        fadeOut: {
+          from: { opacity: '1' },
+          to: { opacity: '0' },
+        },
+        slideIn: {
+          from: { transform: 'translateY(-10px)', opacity: '0' },
+          to: { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideOut: {
+          from: { transform: 'translateY(0)', opacity: '1' },
+          to: { transform: 'translateY(-10px)', opacity: '0' },
+        },
+        bounceIn: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '60%': { transform: 'scale(1.05)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -112,9 +137,14 @@ const config: Config = {
         },
       },
       animation: {
+        shimmer: 'shimmer 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'fade-in': 'fade-in 0.5s ease-out forwards',
+        'fade-out': 'fadeOut 0.3s ease-in-out',
+        'slide-in': 'slideIn 0.3s ease-out',
+        'slide-out': 'slideOut 0.3s ease-out',
+        'bounce-in': 'bounceIn 0.5s ease-out',
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.5s ease-out forwards",
         "slide-in-left": "slide-in-left 0.3s ease-out forwards",
         "slide-in-right": "slide-in-right 0.3s ease-out forwards",
         "scale-in": "scale-in 0.3s ease-out forwards",

@@ -148,37 +148,49 @@ export function generateSuccessionSchedule(
   return sowingDates
 }
 
-// Calculate water requirements for a group
+// Import real calculation functions
+import {
+  calculateWaterRequirements,
+  WaterCalculationInput
+} from '@/lib/calculations/garden-calculations'
+
+// Calculate water requirements for a group with accurate calculations
 export function calculateGroupWaterNeeds(plants: PlantedItem[], plantLibrary: PlantInfo[]): {
   totalWaterNeeds: 'low' | 'moderate' | 'high'
   weeklyGallons: number
+  dailyGallons?: number
+  irrigationSchedule?: any
 } {
-  let waterScore = 0
-  let plantCount = 0
-
-  plants.forEach(plant => {
+  // Map plants to calculation input format
+  const plantsInput: WaterCalculationInput['plants'] = plants.map(plant => {
     const info = plantLibrary.find(p => p.id === plant.plantId)
-    if (info) {
-      plantCount++
-      switch (info.requirements.water) {
-        case 'low':
-          waterScore += 1
-          break
-        case 'medium':
-          waterScore += 2
-          break
-        case 'high':
-          waterScore += 3
-          break
-      }
+    return {
+      type: info?.name || 'unknown',
+      quantity: 1, // PlantedItem doesn't have quantity, default to 1
+      squareFeet: (info?.size?.spacing || 12) * (info?.size?.spacing || 12) / 144, // Convert spacing to sq ft
+      waterNeeds: (info?.requirements.water || 'medium') as 'low' | 'medium' | 'high'
     }
   })
 
-  const avgScore = waterScore / plantCount
-  const totalWaterNeeds = avgScore <= 1.5 ? 'low' : avgScore <= 2.5 ? 'moderate' : 'high'
-  const weeklyGallons = plantCount * (avgScore * 2) // Rough estimate
+  // Use the comprehensive calculation
+  const result = calculateWaterRequirements({
+    plants: plantsInput,
+    climate: 'temperate', // Could be made dynamic based on location
+    season: 'summer',
+    soilType: 'loamy'
+  })
 
-  return { totalWaterNeeds, weeklyGallons }
+  // Determine overall water needs category
+  const avgWaterPerPlant = result.weeklyGallons / plants.length
+  const totalWaterNeeds = avgWaterPerPlant < 5 ? 'low' :
+                         avgWaterPerPlant < 10 ? 'moderate' : 'high'
+
+  return {
+    totalWaterNeeds,
+    weeklyGallons: result.weeklyGallons,
+    dailyGallons: result.dailyGallons,
+    irrigationSchedule: result.irrigationSchedule
+  }
 }
 
 // Generate rotation plan based on plant families

@@ -14,8 +14,11 @@ import { Button } from '@/components/ui/button'
 import {
   ChevronLeft, ChevronRight, MapPin, Ruler,
   TreePine, Droplets, Carrot, CheckCircle,
-  Sparkles, ArrowRight
+  Sparkles, ArrowRight, LogIn, UserPlus, X
 } from 'lucide-react'
+import { useAuth } from '@/lib/auth/auth-context'
+import { wizardService } from '@/lib/wizard/wizard-service'
+import { useFeedback } from '@/components/ui/action-feedback'
 
 export interface WizardData {
   location: {
@@ -66,9 +69,13 @@ const steps = [
 
 export default function WizardPage() {
   const router = useRouter()
+  const { user, loading: authLoading } = useAuth()
+  const feedback = useFeedback()
   const [currentStep, setCurrentStep] = useState(1)
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
   const [isAnimating, setIsAnimating] = useState(false)
+  const [isCompleting, setIsCompleting] = useState(false)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [data, setData] = useState<WizardData>({
     location: {},
     area: {
@@ -95,11 +102,27 @@ export default function WizardPage() {
     template: null
   })
 
+  // Load saved wizard progress on mount
+  useEffect(() => {
+    const savedProgress = wizardService.getSavedWizardData()
+    if (savedProgress) {
+      setData(prev => ({
+        ...prev,
+        ...savedProgress
+      }))
+      feedback.info('Restored your previous wizard progress')
+    }
+  }, [feedback])
+
   const updateData = (section: keyof WizardData, updates: any) => {
-    setData(prev => ({
-      ...prev,
-      [section]: { ...prev[section], ...updates }
-    }))
+    const newData = {
+      ...data,
+      [section]: { ...data[section], ...updates }
+    }
+    setData(newData)
+
+    // Auto-save progress
+    wizardService.saveWizardProgress(newData)
   }
 
   const handleNext = () => {
@@ -125,41 +148,37 @@ export default function WizardPage() {
   }
 
   const handleComplete = async () => {
+    if (!user) {
+      setShowLoginPrompt(true)
+      return
+    }
+
+    setIsCompleting(true)
+
     try {
-      // Transform wizard data to match API format
-      const planData = {
-        name: `Garden Plan - ${new Date().toLocaleDateString()}`,
-        location: data.location,
-        dimensions: {
-          width: Math.sqrt(data.area.total_sqft * data.area.usable_fraction),
-          length: Math.sqrt(data.area.total_sqft * data.area.usable_fraction)
-        },
-        surface: data.surface,
-        water: data.water,
-        crops: data.crops,
-        materials: data.materials,
-        template: data.template
+      // Add a name to the wizard data
+      const wizardDataWithName = {
+        ...data,
+        name: `Garden Plan - ${new Date().toLocaleDateString()}`
       }
 
-      // Save to database via API
-      const response = await fetch('/api/plans', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(planData)
-      })
+      // Save wizard data and create garden plan
+      const result = await wizardService.saveWizardData(wizardDataWithName)
 
-      if (!response.ok) {
-        throw new Error('Failed to save plan')
+      if (result.success && result.planId) {
+        // Clear wizard progress
+        wizardService.clearWizardProgress()
+
+        // Navigate to the demo page with the new plan
+        router.push(`/demo?planId=${result.planId}`)
+      } else {
+        feedback.error(result.error || 'Failed to create garden plan')
       }
-
-      const result = await response.json()
-
-      // Navigate to the created plan
-      router.push(`/plans/${result.id}`)
     } catch (error) {
-      console.error('Error saving plan:', error)
-      // Fallback to dashboard if save fails
-      router.push('/dashboard')
+      console.error('Error creating garden plan:', error)
+      feedback.error('Failed to create garden plan')
+    } finally {
+      setIsCompleting(false)
     }
   }
 
@@ -319,12 +338,22 @@ export default function WizardPage() {
           {currentStep === steps.length ? (
             <Button
               onClick={handleComplete}
+              disabled={isCompleting}
               className="gradient-understory text-white hover-lift group rounded-lg shadow-lg hover:shadow-xl h-12 sm:h-10 text-sm sm:text-base min-w-[180px] order-1 sm:order-2"
               size="lg"
             >
-              <Sparkles className="mr-2 h-4 w-4" />
-              Generate My Garden Plan
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              {isCompleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Creating Plan...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Generate My Garden Plan
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </>
+              )}
             </Button>
           ) : (
             <Button
@@ -346,6 +375,62 @@ export default function WizardPage() {
           </p>
         </div>
       </div>
+
+      {/* Login Prompt Modal */}
+      {showLoginPrompt && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowLoginPrompt(false)} />
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+            <div className="bg-white rounded-lg shadow-xl p-6 m-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Sign In Required</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowLoginPrompt(false)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-gray-600">
+                  Sign in to create and save your personalized garden plan. Your wizard progress will be preserved!
+                </p>
+
+                <div className="space-y-2">
+                  <Button
+                    className="w-full gradient-understory"
+                    onClick={() => {
+                      setShowLoginPrompt(false)
+                      window.location.href = '/auth/login'
+                    }}
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setShowLoginPrompt(false)
+                      window.location.href = '/auth/signup'
+                    }}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Create Account
+                  </Button>
+                </div>
+
+                <div className="text-sm text-gray-500 text-center">
+                  Your wizard progress is saved locally and will be available after signing in
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

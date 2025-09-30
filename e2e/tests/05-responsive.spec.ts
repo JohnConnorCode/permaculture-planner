@@ -8,7 +8,7 @@ test.describe('Responsive Design', () => {
 
     // Check that content is visible
     await expect(page.locator('h1')).toBeVisible();
-    await expect(page.locator('text=Start Planning')).toBeVisible();
+    await expect(page.locator('text=Begin Your Design')).toBeVisible();
   });
 
   test('should be responsive on tablet', async ({ page }) => {

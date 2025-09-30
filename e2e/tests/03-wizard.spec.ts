@@ -5,8 +5,8 @@ test.describe('Garden Setup Wizard', () => {
     await page.goto('/wizard');
 
     // Check heading and step indicator
-    await expect(page.locator('text=Create Your Garden Plan')).toBeVisible();
-    await expect(page.locator('text=Step 1 of 6: Location')).toBeVisible();
+    await expect(page.locator('text=Create Your Permaculture Garden')).toBeVisible();
+    await expect(page.locator('text=Step 1 of 7')).toBeVisible();
 
     // Check form fields
     await expect(page.locator('input[id="city"]')).toBeVisible();
@@ -15,8 +15,8 @@ test.describe('Garden Setup Wizard', () => {
     await expect(page.locator('input[id="first_frost"]')).toBeVisible();
 
     // Check navigation buttons
-    await expect(page.locator('button:has-text("Back")')).toBeDisabled();
-    await expect(page.locator('button:has-text("Next")')).toBeVisible();
+    await expect(page.locator('button:has-text("Previous")')).toBeDisabled();
+    await expect(page.locator('button:has-text("Next Step")')).toBeVisible();
   });
 
   test('should navigate through wizard steps', async ({ page }) => {
@@ -24,17 +24,17 @@ test.describe('Garden Setup Wizard', () => {
 
     // Step 1: Fill location data
     await page.fill('input[id="city"]', 'Portland, OR');
-    await page.click('button:has-text("Next")');
+    await page.click('button:has-text("Next Step")');
 
     // Should advance to Step 2
-    await expect(page.locator('text=Step 2 of 6')).toBeVisible();
+    await expect(page.locator('text=Step 2 of 7')).toBeVisible();
 
     // Back button should now be enabled
-    await expect(page.locator('button:has-text("Back")')).toBeEnabled();
+    await expect(page.locator('button:has-text("Previous")')).toBeEnabled();
 
     // Go back to step 1
-    await page.click('button:has-text("Back")');
-    await expect(page.locator('text=Step 1 of 6')).toBeVisible();
+    await page.click('button:has-text("Previous")');
+    await expect(page.locator('text=Step 1 of 7')).toBeVisible();
   });
 
   test('should show progress bar', async ({ page }) => {
@@ -44,20 +44,20 @@ test.describe('Garden Setup Wizard', () => {
     const progressBar = page.locator('[role="progressbar"]');
     await expect(progressBar).toBeVisible();
 
-    // Initial progress should be ~16% (1/6)
+    // Initial progress should be ~14% (1/7)
     const progressValue = await progressBar.locator('div').first().getAttribute('style');
-    expect(progressValue).toContain('translateX(-83');
+    expect(progressValue).toContain('width');
   });
 
   test('should validate required fields before proceeding', async ({ page }) => {
     await page.goto('/wizard');
 
     // Try to proceed without filling required fields
-    const nextButton = page.locator('button:has-text("Next")');
+    const nextButton = page.locator('button:has-text("Next Step")');
     await nextButton.click();
 
     // Should still be on step 1 (validation prevents advancement)
-    await expect(page.locator('text=Step 1 of 6')).toBeVisible();
+    await expect(page.locator('text=Step 1 of 7')).toBeVisible();
   });
 
   test('should link to USDA zone finder', async ({ page }) => {
@@ -75,18 +75,18 @@ test.describe('Garden Setup Wizard', () => {
 
     // Fill step 1
     await page.fill('input[id="city"]', 'Portland, OR');
-    await page.click('button:has-text("Next")');
+    await page.click('button:has-text("Next Step")');
 
     // Continue through remaining steps (simplified)
-    for (let i = 2; i <= 6; i++) {
-      await expect(page.locator(`text=Step ${i} of 6`)).toBeVisible();
+    for (let i = 2; i <= 7; i++) {
+      await expect(page.locator(`text=Step ${i} of 7`)).toBeVisible();
 
-      if (i < 6) {
-        await page.click('button:has-text("Next")');
+      if (i < 7) {
+        await page.click('button:has-text("Next Step")');
       } else {
-        // Last step should have "Complete" or "Create Garden" button
+        // Last step should have "Generate My Garden Plan" button
         const completeButton = page.locator('button').filter({
-          hasText: /Complete|Create|Finish/i
+          hasText: /Generate My Garden Plan/i
         });
 
         if (await completeButton.count() > 0) {

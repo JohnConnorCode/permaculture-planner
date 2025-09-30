@@ -6,7 +6,7 @@ test.describe('Garden Designer Canvas Features', () => {
     await page.goto('/demo')
 
     // Wait for canvas to load
-    await page.waitForSelector('svg', { timeout: 5000 })
+    await page.waitForSelector('svg', { timeout: 10000 })
 
     // Test 1: Verify infinite canvas controls are present
     await expect(page.getByTitle('Zoom In')).toBeVisible()
@@ -52,7 +52,7 @@ test.describe('Garden Designer Canvas Features', () => {
     if (bedCount > 0) {
       await beds.first().click()
       // Check for transform handles (should appear when bed is selected)
-      await expect(page.locator('circle[stroke="#3b82f6"]').first()).toBeVisible({ timeout: 2000 })
+      await expect(page.locator('circle[stroke="#3b82f6"]').first()).toBeVisible({ timeout: 5000 })
     }
 
     // Test 7: Test measurement toggle

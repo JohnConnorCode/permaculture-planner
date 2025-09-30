@@ -30,7 +30,7 @@ test.describe('Authentication', () => {
     await expect(page.locator('input[id="password"]')).toBeVisible();
 
     // Check signup link
-    await expect(page.locator('text=Create account')).toBeVisible();
+    await expect(page.locator('text=Sign up')).toBeVisible();
   });
 
   test('should validate email format on signup', async ({ page }) => {
@@ -66,7 +66,7 @@ test.describe('Authentication', () => {
     await page.goto('/auth/login');
 
     // Click create account link
-    await page.click('text=Create account');
+    await page.click('text=Sign up');
     await expect(page).toHaveURL(/\/auth\/signup/);
 
     // Click sign in link

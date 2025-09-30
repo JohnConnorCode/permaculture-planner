@@ -6,6 +6,7 @@ import { Navigation } from '@/components/navigation'
 import { Footer } from '@/components/footer'
 import { Toaster } from '@/components/ui/toaster'
 import { ScrollToTop } from '@/components/scroll-to-top'
+import { ActionFeedback } from '@/components/ui/action-feedback'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -45,6 +46,7 @@ export default function RootLayout({
             <Footer />
           </div>
           <Toaster />
+          <ActionFeedback />
         </Providers>
       </body>
     </html>

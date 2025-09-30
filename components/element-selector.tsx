@@ -1,15 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Card } from '@/components/ui/card'
 import {
   Droplets, Home, TreePine, Route, Zap, Bird, Recycle,
   Droplet, Waves, Filter, Trees, Package, Grid3x3,
-  Sun, Wind, Battery, Egg, Hexagon, Fish, Bug
+  Sun, Wind, Battery, Egg, Hexagon, Fish, Bug, Hand, Move
 } from 'lucide-react'
 import { ElementSubtype, ELEMENT_STYLES } from '@/lib/canvas-elements'
+import { isTouchDevice, getDeviceType } from '@/lib/utils/responsive-utils'
+import { cn } from '@/lib/utils'
 
 interface ElementSelectorProps {
   selectedElement: ElementSubtype | null
@@ -83,55 +86,178 @@ const ELEMENT_CATEGORIES = {
 
 export function ElementSelector({ selectedElement, onElementSelect }: ElementSelectorProps) {
   const [activeCategory, setActiveCategory] = useState('water_management')
+  const [isTouch, setIsTouch] = useState(false)
+  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop')
+  const [draggedElement, setDraggedElement] = useState<ElementSubtype | null>(null)
+
+  useEffect(() => {
+    setIsTouch(isTouchDevice())
+    setDeviceType(getDeviceType())
+
+    const handleResize = () => {
+      setDeviceType(getDeviceType())
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const handleDragStart = (element: ElementSubtype) => (e: React.DragEvent) => {
+    setDraggedElement(element)
+    onElementSelect(element)
+    e.dataTransfer.effectAllowed = 'copy'
+    e.dataTransfer.setData('elementType', element)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedElement(null)
+  }
+
+  const handleTouchSelect = (element: ElementSubtype) => {
+    onElementSelect(element)
+  }
+
+  const getGridColumns = () => {
+    if (deviceType === 'mobile') return 'grid-cols-2'
+    if (deviceType === 'tablet') return 'grid-cols-3'
+    return 'grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'
+  }
+
+  const getElementGridColumns = () => {
+    if (deviceType === 'mobile') return 'grid-cols-2'
+    if (deviceType === 'tablet') return 'grid-cols-3'
+    return 'grid-cols-3 lg:grid-cols-4'
+  }
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden">
+    <div className="w-full h-full flex flex-col overflow-hidden bg-white rounded-lg shadow-sm">
+      {isTouch && (
+        <div className="px-3 py-2 bg-blue-50 border-b border-blue-200 flex items-center gap-2">
+          <Hand className="h-3 w-3 text-blue-600" />
+          <span className="text-xs text-blue-700">Tap to select, then tap canvas to place</span>
+        </div>
+      )}
+      {!isTouch && deviceType === 'desktop' && (
+        <div className="px-3 py-2 bg-gray-50 border-b flex items-center gap-2">
+          <Move className="h-3 w-3 text-gray-600" />
+          <span className="text-xs text-gray-600">Drag elements onto the canvas</span>
+        </div>
+      )}
+
       <Tabs value={activeCategory} onValueChange={setActiveCategory} className="flex flex-col h-full">
-        <TabsList className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-1 h-auto p-1 shrink-0">
+        <TabsList className={cn(
+          "grid gap-1 h-auto p-1 shrink-0 bg-gray-100",
+          getGridColumns()
+        )}>
           {Object.entries(ELEMENT_CATEGORIES).map(([key, category]) => {
             const Icon = category.icon
             return (
               <TabsTrigger
                 key={key}
                 value={key}
-                className="flex flex-col gap-1 h-auto py-1.5 px-1 text-center data-[state=active]:bg-green-50 min-w-0"
+                className={cn(
+                  "flex flex-col gap-1 h-auto text-center",
+                  "data-[state=active]:bg-green-100 data-[state=active]:text-green-700",
+                  "data-[state=active]:border-green-300",
+                  "hover:bg-gray-50 transition-all min-w-0 rounded-md",
+                  deviceType === 'mobile' ? 'py-1.5 px-1' : 'py-2 px-2'
+                )}
               >
-                <Icon className="h-3 w-3 mx-auto" />
-                <span className="text-[10px] leading-tight truncate w-full">{category.label}</span>
+                <Icon className={cn(
+                  "mx-auto",
+                  deviceType === 'mobile' ? "h-4 w-4" : "h-5 w-5"
+                )} />
+                <span className={cn(
+                  "leading-tight truncate w-full font-medium",
+                  deviceType === 'mobile' ? "text-[10px]" : "text-xs"
+                )}>{category.label}</span>
               </TabsTrigger>
             )
           })}
         </TabsList>
 
-        <ScrollArea className="flex-1 mt-2">
+        <ScrollArea className="flex-1 mt-2 px-2">
           {Object.entries(ELEMENT_CATEGORIES).map(([categoryKey, category]) => (
-            <TabsContent key={categoryKey} value={categoryKey} className="mt-0 px-1">
-              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-1.5">
+            <TabsContent key={categoryKey} value={categoryKey} className="mt-0">
+              <div className={cn(
+                "grid gap-2 pb-2",
+                getElementGridColumns()
+              )}>
                 {category.elements.map((element) => {
                   const Icon = element.icon
                   const style = ELEMENT_STYLES[element.type]
                   const isSelected = selectedElement === element.type
 
+                  if (isTouch) {
+                    return (
+                      <Card
+                        key={element.type}
+                        className={cn(
+                          "cursor-pointer transition-all",
+                          "flex flex-col gap-2 p-3 min-w-0",
+                          "hover:shadow-md active:scale-95",
+                          isSelected && 'ring-2 ring-green-500 bg-green-50 shadow-lg'
+                        )}
+                        onClick={() => handleTouchSelect(element.type)}
+                      >
+                        <div
+                          className={cn(
+                            "rounded-md flex items-center justify-center mx-auto",
+                            deviceType === 'mobile' ? 'w-12 h-12' : 'w-14 h-14'
+                          )}
+                          style={{
+                            backgroundColor: style.defaultFill === 'none' ? 'transparent' : style.defaultFill,
+                            border: `2px solid ${style.defaultStroke}`,
+                          }}
+                        >
+                          <Icon className={cn(
+                            deviceType === 'mobile' ? 'h-5 w-5' : 'h-6 w-6',
+                            'text-gray-700'
+                          )} />
+                        </div>
+                        <span className={cn(
+                          "text-center leading-tight break-words font-medium",
+                          deviceType === 'mobile' ? 'text-xs' : 'text-sm'
+                        )}>{element.label}</span>
+                      </Card>
+                    )
+                  }
+
                   return (
-                    <Button
+                    <Card
                       key={element.type}
-                      variant={isSelected ? 'default' : 'outline'}
-                      className={`h-auto flex flex-col gap-1 p-2 min-w-0 ${
-                        isSelected ? 'ring-2 ring-green-500' : ''
-                      }`}
+                      className={cn(
+                        "cursor-move transition-all",
+                        "flex flex-col gap-2 p-3 min-w-0",
+                        "hover:shadow-md hover:scale-105",
+                        isSelected && 'ring-2 ring-green-500 bg-green-50 shadow-lg',
+                        draggedElement === element.type && 'opacity-50 scale-95'
+                      )}
+                      draggable
+                      onDragStart={handleDragStart(element.type)}
+                      onDragEnd={handleDragEnd}
                       onClick={() => onElementSelect(element.type)}
                     >
                       <div
-                        className="w-10 h-10 rounded-md flex items-center justify-center mx-auto"
+                        className={cn(
+                          "rounded-md flex items-center justify-center mx-auto",
+                          deviceType === 'mobile' ? 'w-12 h-12' : 'w-14 h-14'
+                        )}
                         style={{
                           backgroundColor: style.defaultFill === 'none' ? 'transparent' : style.defaultFill,
-                          border: `1px solid ${style.defaultStroke}`,
+                          border: `2px solid ${style.defaultStroke}`,
                         }}
                       >
-                        <Icon className="h-5 w-5" />
+                        <Icon className={cn(
+                          deviceType === 'mobile' ? 'h-5 w-5' : 'h-6 w-6',
+                          'text-gray-700'
+                        )} />
                       </div>
-                      <span className="text-[10px] text-center leading-tight break-words hyphens-auto">{element.label}</span>
-                    </Button>
+                      <span className={cn(
+                        "text-center leading-tight break-words font-medium",
+                        deviceType === 'mobile' ? 'text-xs' : 'text-sm'
+                      )}>{element.label}</span>
+                    </Card>
                   )
                 })}
               </div>
