@@ -568,6 +568,15 @@ function DemoPageContent() {
             <Button
               variant="ghost"
               size="sm"
+              onClick={loadDesign}
+              disabled={!user}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              {user ? 'Load' : 'Sign in to Load'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={exportDesign}
             >
               <FileJson className="h-4 w-4 mr-2" />
@@ -580,6 +589,14 @@ function DemoPageContent() {
             >
               <Upload className="h-4 w-4 mr-2" />
               Import
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearGarden}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Clear
             </Button>
           </div>
           <div className="flex items-center gap-2">
