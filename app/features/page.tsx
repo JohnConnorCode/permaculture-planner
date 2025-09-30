@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { SkipToMain } from '@/components/ui/accessibility'
+import { HelpIcon, HelpPanel, permacultureHelpTips } from '@/components/ui/contextual-help'
+import { MobileOptimizedButton, useIsMobile } from '@/components/ui/mobile-touch'
 import {
   CheckCircle, Star, Zap, Shield, Users,
   Cpu, Cloud, Smartphone, Globe, BarChart3, BookOpen,
@@ -649,6 +652,7 @@ export default function FeaturesPage() {
   const [selectedCategory, setSelectedCategory] = useState('intelligent-design')
   const [expandedFeature, setExpandedFeature] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     setMounted(true)
@@ -675,8 +679,10 @@ export default function FeaturesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white">
+      <SkipToMain />
+
       {/* Header */}
-      <section className="py-12 px-4 border-b bg-white/80 backdrop-blur">
+      <section id="main-content" className="py-12 px-4 border-b bg-white/80 backdrop-blur">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center">
             <Badge className="mb-4 opacity-0 animate-fade-in bg-green-100 text-green-800" variant="secondary"
@@ -744,16 +750,42 @@ export default function FeaturesPage() {
                 ))}
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <HelpPanel
+                tips={[
+                  permacultureHelpTips.companionPlanting,
+                  permacultureHelpTips.soilHealth,
+                  permacultureHelpTips.waterRetention,
+                  {
+                    title: "Feature Status Guide",
+                    description: "Available features are ready to use now. Beta features are functional but may receive updates. Coming Soon features are in development.",
+                    type: "info" as const
+                  }
+                ]}
+                title="Feature Guide"
+                className="mr-2"
+              />
               <Link href="/demo">
-                <Button variant="outline" size="sm">
-                  Try Demo
-                </Button>
+                {isMobile ? (
+                  <MobileOptimizedButton variant="outline" size="sm">
+                    Try Demo
+                  </MobileOptimizedButton>
+                ) : (
+                  <Button variant="outline" size="sm">
+                    Try Demo
+                  </Button>
+                )}
               </Link>
               <Link href="/wizard">
-                <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                  Start Free
-                </Button>
+                {isMobile ? (
+                  <MobileOptimizedButton size="sm" className="bg-green-600 hover:bg-green-700" hapticFeedback>
+                    Start Free
+                  </MobileOptimizedButton>
+                ) : (
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                    Start Free
+                  </Button>
+                )}
               </Link>
             </div>
           </div>
@@ -908,15 +940,28 @@ export default function FeaturesPage() {
           </p>
           <div className="flex gap-4 justify-center">
             <Link href="/wizard">
-              <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100">
-                <Sparkles className="mr-2 h-5 w-5" />
-                Create Your Garden Plan
-              </Button>
+              {isMobile ? (
+                <MobileOptimizedButton size="lg" className="bg-white text-green-600 hover:bg-gray-100" hapticFeedback>
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Create Your Garden Plan
+                </MobileOptimizedButton>
+              ) : (
+                <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100">
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Create Your Garden Plan
+                </Button>
+              )}
             </Link>
             <Link href="/demo">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                Explore Interactive Demo
-              </Button>
+              {isMobile ? (
+                <MobileOptimizedButton size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  Explore Interactive Demo
+                </MobileOptimizedButton>
+              ) : (
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  Explore Interactive Demo
+                </Button>
+              )}
             </Link>
           </div>
           <p className="text-sm text-green-100 mt-6">
