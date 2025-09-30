@@ -1,7 +1,7 @@
 {
-  "name": "Permaculture Planner",
-  "short_name": "Garden Plan",
-  "description": "AI-powered permaculture garden design and planning tool",
+  "name": "Permaculture Design Studio",
+  "short_name": "Permaculture",
+  "description": "Complete permaculture design system: zones, sectors, water, guilds, and regenerative ecosystems",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -73,14 +73,14 @@
   ],
   "shortcuts": [
     {
-      "name": "Start Planning",
+      "name": "Design Wizard",
       "url": "/wizard",
-      "description": "Create a new garden plan"
+      "description": "Create a new permaculture design"
     },
     {
-      "name": "View Demo",
+      "name": "Design Studio",
       "url": "/demo",
-      "description": "See the garden planner in action"
+      "description": "Open the interactive design studio"
     }
   ]
 }

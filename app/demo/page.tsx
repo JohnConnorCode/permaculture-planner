@@ -25,7 +25,6 @@ import { PremiumTooltip, RichTooltip } from '@/components/premium-tooltip'
 import { MobileMenu } from '@/components/mobile-menu'
 import { PlantGroupPanel } from '@/components/plant-group-panel'
 import { PlantGroup } from '@/lib/plant-management'
-import { OnboardingFlow } from '@/components/onboarding/onboarding-flow'
 import { useFeedback } from '@/components/ui/action-feedback'
 import { useAuth } from '@/lib/auth/auth-context'
 import { useGardenPersistence } from '@/hooks/use-garden-persistence'
@@ -131,7 +130,6 @@ function DemoPageContent() {
   const [plantGroups, setPlantGroups] = useState<PlantGroup[]>([])
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(undefined)
   const [showGroupPanel, setShowGroupPanel] = useState(false)
-  const [showOnboarding, setShowOnboarding] = useState(false)
   const [loadingPlan, setLoadingPlan] = useState(false)
   const feedback = useFeedback()
   const { user, loading: authLoading } = useAuth()
@@ -170,16 +168,9 @@ function DemoPageContent() {
     return () => canvasElement?.removeEventListener('mousemove', handleMouseMove as EventListener)
   }, [])
 
-  // Check if user has seen tutorial/onboarding before
+  // Check if user has seen tutorial before
   useEffect(() => {
-    const seenOnboarding = localStorage.getItem('onboarding_completed')
     const seenTutorial = localStorage.getItem('gardenTutorialSeen')
-
-    if (!seenOnboarding && !seenTutorial) {
-      setShowOnboarding(true)
-    } else if (!seenTutorial && gardenBeds.length === 0) {
-      setShowTutorial(true)
-    }
     setHasSeenTutorial(!!seenTutorial)
   }, [])
 
@@ -276,16 +267,16 @@ function DemoPageContent() {
   }
 
   const clearGarden = () => {
-    if (confirm('Clear all garden beds? This cannot be undone.')) {
+    if (confirm('Clear all beds? This cannot be undone.')) {
       setGardenBeds([])
-      feedback.success('Garden cleared successfully')
+      feedback.success('Design cleared successfully')
     }
   }
 
   const loadExample = () => {
     setGardenBeds(STARTER_GARDEN)
     setIsFirstVisit(false)
-    feedback.success('Example garden loaded')
+    feedback.success('Example design loaded')
   }
 
   const handleTutorialComplete = () => {
@@ -305,11 +296,11 @@ function DemoPageContent() {
       const result = await save()
 
       if (result.success) {
-        feedback.success('Garden saved successfully!')
+        feedback.success('Design saved successfully!')
       }
     } catch (error) {
       console.error('Save error:', error)
-      feedback.error('Failed to save garden')
+      feedback.error('Failed to save design')
     }
   }, [user, save, feedback])
 
@@ -321,7 +312,7 @@ function DemoPageContent() {
     }
 
     // Persistence is temporarily disabled
-    feedback.info('Garden loading is temporarily disabled')
+    feedback.info('Design loading is temporarily disabled')
   }, [user, listGardens, load, feedback, setGardenBeds])
 
   // Handle command palette actions
@@ -469,148 +460,56 @@ function DemoPageContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white pb-8">
-      {/* Onboarding Flow */}
-      {showOnboarding && (
-        <OnboardingFlow
-          onComplete={() => {
-            setShowOnboarding(false)
-            feedback.success('Welcome! Start by drawing a garden bed or loading an example.')
-          }}
-        />
-      )}
-
       {/* Command Palette */}
       <CommandPalette onAction={handleCommand} />
       {/* Header */}
-      <section className="py-4 md:py-8 px-4 border-b glass">
+      <section className="py-6 px-4 border-b bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto max-w-7xl">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
-                Real Garden Designer
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
+                Permaculture Design Studio
               </h1>
-              <p className="text-sm md:text-base text-gray-600 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-                <span className="hidden sm:inline">Draw custom beds • Plant real vegetables • Check companion compatibility</span>
-                <span className="sm:hidden">Design your perfect garden</span>
-              </p>
+              <div className="flex items-center gap-3 mt-2">
+                <Badge variant="secondary" className="text-xs">{stats.beds} Beds</Badge>
+                <Badge variant="secondary" className="text-xs">{stats.plants} Plants</Badge>
+                <Badge variant="secondary" className="text-xs">{stats.varieties} Varieties</Badge>
+              </div>
             </div>
 
-            {/* Desktop Controls */}
-            <div className="hidden md:flex gap-2 opacity-0 animate-slide-in-right" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-              {/* Undo/Redo */}
-              <div className="flex gap-1 border-r pr-2">
-                <PremiumTooltip content="Undo last action" shortcut="⌘Z">
-                  <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={undo}
-                  disabled={!canUndo}
-                  >
-                    <Undo className="h-4 w-4" />
-                  </Button>
-                </PremiumTooltip>
-                <PremiumTooltip content="Redo last action" shortcut="⌘⇧Z">
-                  <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={redo}
-                  disabled={!canRedo}
-                  >
-                    <Redo className="h-4 w-4" />
-                  </Button>
-                </PremiumTooltip>
-              </div>
-
-              <PremiumTooltip content="Browse garden templates">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowTemplates(!showTemplates)}
-                >
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Templates</span>
-                </Button>
-              </PremiumTooltip>
-              <Button
-                variant="outline"
-                onClick={loadDesign}
-                disabled={!user}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                {user ? 'Load' : 'Sign in to Load'}
-              </Button>
-              <Button variant="outline" onClick={clearGarden}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Clear
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowAIAssistant(!showAIAssistant)}
-                className={cn(
-                  "border-purple-500 text-purple-600 hover:bg-purple-50",
-                  showAIAssistant && "bg-purple-50"
-                )}
-              >
-                <Bot className="h-4 w-4 mr-2" />
-                AI Assistant
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowTutorial(true)}
-                className="border-green-500 text-green-600 hover:bg-green-50"
-              >
-                <HelpCircle className="h-4 w-4 mr-2" />
-                Help
-              </Button>
+            {/* Desktop Primary Action */}
+            <div className="hidden md:flex items-center">
               <PremiumTooltip content={user ? 'Save to cloud' : 'Sign in to save'} shortcut="⌘S">
                 <Button
                   id="save-button"
                   className={user ? "gradient-understory rounded-lg hover-lift" : ""}
                   variant={user ? "default" : "outline"}
                   onClick={saveDesign}
-                  disabled={false}
+                  size="lg"
                 >
                   {false ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      <span className="hidden sm:inline">Saving...</span>
+                      Saving...
                     </>
                   ) : (
                     <>
-                      {user ? <Save className="h-4 w-4 mr-2" /> : <LogIn className="h-4 w-4 mr-2" />}
-                      <span className="hidden sm:inline">{user ? 'Save' : 'Sign in'}</span>
+                      {user ? <Save className="h-5 w-5 mr-2" /> : <LogIn className="h-5 w-5 mr-2" />}
+                      {user ? 'Save Design' : 'Sign In'}
                     </>
                   )}
                 </Button>
               </PremiumTooltip>
-              <Button
-                variant="outline"
-                onClick={exportDesign}
-                title="Export as JSON file"
-              >
-                <FileJson className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <label>
-                <input
-                  id="import-input"
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={importDesign}
-                />
-                <Button
-                  variant="outline"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.currentTarget.parentElement?.click()
-                  }}
-                  title="Import JSON file"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Import
-                </Button>
-              </label>
             </div>
+
+            {/* Hidden file input for import */}
+            <input
+              id="import-input"
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={importDesign}
+            />
 
             {/* Mobile Menu */}
             <MobileMenu
@@ -626,37 +525,81 @@ function DemoPageContent() {
               canUndo={canUndo}
               canRedo={canRedo}
               showAI={showAIAssistant}
-              className="absolute top-4 right-4 md:hidden"
+              className="md:hidden"
             />
           </div>
+        </div>
+      </section>
 
-          {/* Quick Stats */}
-          <div className="flex flex-wrap gap-2 md:gap-6 mt-4 opacity-0 animate-slide-in-left" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-            <Badge variant="secondary" className="text-xs md:text-sm">{stats.beds} Beds</Badge>
-            <Badge variant="secondary" className="text-xs md:text-sm">{stats.plants} Plants</Badge>
-            <Badge variant="secondary" className="text-xs md:text-sm">{stats.varieties} Varieties</Badge>
-            <Badge variant="secondary" className="text-xs md:text-sm">{stats.area} sq ft</Badge>
-
-            {/* Auto-save status */}
-            {user && (
-              <Badge
-                variant={hasUnsavedChanges ? "destructive" : "default"}
-                className="text-xs md:text-sm"
+      {/* Secondary Toolbar */}
+      <section className="container mx-auto max-w-7xl px-4 pt-4 hidden md:block">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            {/* Undo/Redo */}
+            <PremiumTooltip content="Undo" shortcut="⌘Z">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={undo}
+                disabled={!canUndo}
               >
-                {false ? (
-                  <>
-                    <div className="animate-spin rounded-full h-3 w-3 border border-white mr-1" />
-                    Saving...
-                  </>
-                ) : hasUnsavedChanges ? (
-                  'Unsaved'
-                ) : lastSaved ? (
-                  `Saved ${lastSaved.toLocaleTimeString()}`
-                ) : (
-                  'Auto-save enabled'
-                )}
-              </Badge>
-            )}
+                <Undo className="h-4 w-4" />
+              </Button>
+            </PremiumTooltip>
+            <PremiumTooltip content="Redo" shortcut="⌘⇧Z">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={redo}
+                disabled={!canRedo}
+              >
+                <Redo className="h-4 w-4" />
+              </Button>
+            </PremiumTooltip>
+            <Separator orientation="vertical" className="h-6 mx-1" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowTemplates(!showTemplates)}
+            >
+              <BookOpen className="h-4 w-4 mr-2" />
+              Templates
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={exportDesign}
+            >
+              <FileJson className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => document.querySelector<HTMLInputElement>('#import-input')?.click()}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Import
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAIAssistant(!showAIAssistant)}
+              className={cn(showAIAssistant && "bg-purple-50 text-purple-600")}
+            >
+              <Bot className="h-4 w-4 mr-2" />
+              AI Assistant
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowTutorial(true)}
+            >
+              <HelpCircle className="h-4 w-4 mr-2" />
+              Help
+            </Button>
           </div>
         </div>
       </section>
@@ -876,7 +819,7 @@ function DemoPageContent() {
           <Card className="overflow-hidden card-nature rounded-lg opacity-0 animate-scale-in md:col-span-1" id="canvas" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
             <CardHeader className="py-2 md:py-3 gradient-canopy text-white">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <CardTitle className="text-base md:text-lg">Garden Canvas</CardTitle>
+                <CardTitle className="text-base md:text-lg">Design Canvas</CardTitle>
                 <div className="flex gap-1 md:gap-2" id="view-controls">
                   {/* View Controls */}
                   <Button
@@ -953,9 +896,9 @@ function DemoPageContent() {
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-50/50 to-emerald-50/50">
                     <div className="text-center space-y-6 max-w-lg p-8 glass rounded-lg shadow-xl">
                       <div className="text-6xl">🌱</div>
-                      <h3 className="text-2xl font-bold text-gray-800">Welcome to Your Garden Designer!</h3>
+                      <h3 className="text-2xl font-bold text-gray-800">Design Regenerative Systems</h3>
                       <p className="text-gray-600 text-lg">
-                        Create your perfect garden layout with real plants, companion planting advice, and seasonal planning.
+                        Create complete permaculture designs with plant guilds, water harvesting, zones, sectors, and polycultures.
                       </p>
                       <div className="grid gap-3">
                         <Button
@@ -973,7 +916,7 @@ function DemoPageContent() {
                           className="text-lg py-6 rounded-lg hover-nature"
                         >
                           <Layers className="h-5 w-5 mr-2" />
-                          Load Example Garden
+                          Load Example Design
                         </Button>
                         <Button
                           variant="ghost"
@@ -987,7 +930,7 @@ function DemoPageContent() {
                   </div>
                 )}
 
-                {/* Garden Designer Canvas */}
+                {/* Design Canvas */}
                 <div id="canvas-svg" className="relative h-full">
                   <GardenDesignerCanvas
                     beds={gardenBeds}
@@ -1074,7 +1017,7 @@ function DemoPageContent() {
 
               <div className="space-y-4">
                 <p className="text-gray-600">
-                  Sign in to save your garden designs to the cloud, access them from any device, and enable auto-save.
+                  Sign in to save your designs to the cloud, access them from any device, and enable auto-save.
                 </p>
 
                 <div className="space-y-2">
@@ -1118,7 +1061,7 @@ function DemoPageContent() {
           <div className="absolute right-0 top-0 bottom-0 w-full sm:w-96 glass shadow-xl overflow-y-auto">
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Garden Templates</h2>
+                <h2 className="text-xl font-bold">Design Templates</h2>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -1203,7 +1146,7 @@ export default function DemoPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Leaf className="h-12 w-12 text-green-600 animate-pulse mx-auto mb-4" />
-          <p className="text-gray-600">Loading garden designer...</p>
+          <p className="text-gray-600">Loading design studio...</p>
         </div>
       </div>
     }>

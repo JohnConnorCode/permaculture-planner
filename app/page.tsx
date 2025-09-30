@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AnimateOnScroll } from '@/components/animate-on-scroll'
 import { ParallaxScroll } from '@/components/parallax-scroll'
-import { OnboardingTour, WelcomeBanner, useOnboarding } from '@/components/ui/onboarding'
 import { SkipToMain } from '@/components/ui/accessibility'
 import { HelpIcon, QuickTooltip, permacultureHelpTips } from '@/components/ui/contextual-help'
 import { MobileOptimizedButton } from '@/components/ui/mobile-touch'
@@ -21,7 +20,6 @@ import {
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
-  const onboarding = useOnboarding()
 
   useEffect(() => {
     setMounted(true)
@@ -34,17 +32,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen overflow-x-hidden">
       <SkipToMain />
-
-      {/* Welcome Banner for New Users */}
-      {onboarding.showWelcome && (
-        <div className="relative z-20">
-          <WelcomeBanner
-            onStartTour={onboarding.startTour}
-            onDismiss={onboarding.dismissWelcome}
-            className="m-4 mb-0"
-          />
-        </div>
-      )}
 
       {/* Hero Section with Sequential Animations */}
       <section id="main-content" className="gradient-hero relative overflow-hidden py-24 px-4">
@@ -468,12 +455,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Onboarding Tour */}
-      <OnboardingTour
-        isVisible={onboarding.showTour}
-        onClose={() => onboarding.completeTour()}
-        onComplete={() => onboarding.completeTour()}
-      />
     </div>
   )
 }
