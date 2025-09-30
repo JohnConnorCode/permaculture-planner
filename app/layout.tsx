@@ -7,6 +7,7 @@ import { Footer } from '@/components/footer'
 import { Toaster } from '@/components/ui/toaster'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { ActionFeedback } from '@/components/ui/action-feedback'
+import { ErrorBoundary } from '@/components/error-boundary'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -36,18 +37,20 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          <ScrollToTop />
-          <div className="min-h-screen flex flex-col">
-            <Navigation />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
-          </div>
-          <Toaster />
-          <ActionFeedback />
-        </Providers>
+        <ErrorBoundary>
+          <Providers>
+            <ScrollToTop />
+            <div className="min-h-screen flex flex-col">
+              <Navigation />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </div>
+            <Toaster />
+            <ActionFeedback />
+          </Providers>
+        </ErrorBoundary>
       </body>
     </html>
   )

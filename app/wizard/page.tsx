@@ -197,7 +197,8 @@ export default function WizardPage() {
               </p>
             </div>
             <div className="text-xs sm:text-sm text-gray-500 opacity-0 animate-fade-in self-start sm:self-auto"
-                 style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                 style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}
+                 data-testid="wizard-step-indicator">
               Step {currentStep} of {steps.length}
             </div>
           </div>
@@ -205,7 +206,7 @@ export default function WizardPage() {
           {/* Progress Bar */}
           <div className="mb-4 opacity-0 animate-slide-in-left"
                style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-            <Progress value={progressValue} className="h-2 bg-green-100 rounded-lg">
+            <Progress value={progressValue} className="h-2 bg-green-100 rounded-lg" role="progressbar" data-testid="wizard-progress">
               <div
                 className="h-full gradient-understory rounded-full transition-all duration-500 shadow-md"
                 style={{ width: `${progressValue}%` }}
@@ -330,6 +331,7 @@ export default function WizardPage() {
             disabled={currentStep === 1}
             className="hover-lift rounded-lg hover-nature border-green-300 h-12 sm:h-10 text-sm sm:text-base min-w-[120px] order-2 sm:order-1"
             size="lg"
+            data-testid="wizard-previous-button"
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
             Previous
@@ -341,6 +343,7 @@ export default function WizardPage() {
               disabled={isCompleting}
               className="gradient-understory text-white hover-lift group rounded-lg shadow-lg hover:shadow-xl h-12 sm:h-10 text-sm sm:text-base min-w-[180px] order-1 sm:order-2"
               size="lg"
+              data-testid="wizard-complete-button"
             >
               {isCompleting ? (
                 <>
@@ -360,6 +363,7 @@ export default function WizardPage() {
               onClick={handleNext}
               className="gradient-understory hover:opacity-90 hover-lift group rounded-lg shadow-md h-12 sm:h-10 text-sm sm:text-base min-w-[120px] order-1 sm:order-2"
               size="lg"
+              data-testid="wizard-next-button"
             >
               Next Step
               <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

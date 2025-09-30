@@ -233,7 +233,7 @@ export function LocationStep({ data, updateData }: LocationStepProps) {
             value={data.location.usda_zone || ''}
             onValueChange={(value) => updateData('location', { usda_zone: value })}
           >
-            <SelectTrigger className="mt-2 h-10">
+            <SelectTrigger className="mt-2 h-10" data-testid="usda-zone-select">
               <SelectValue placeholder="Select your zone" />
             </SelectTrigger>
             <SelectContent>

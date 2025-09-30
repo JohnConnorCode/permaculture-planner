@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -102,7 +103,8 @@ const STARTER_GARDEN: GardenBed[] = [
   }
 ]
 
-export default function DemoPage() {
+function DemoPageContent() {
+  const searchParams = useSearchParams()
   const [selectedTool, setSelectedTool] = useState('select')
   const [isFirstVisit, setIsFirstVisit] = useState(true)
   const [selectedPlant, setSelectedPlant] = useState<PlantInfo | null>(null)
@@ -130,6 +132,7 @@ export default function DemoPage() {
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(undefined)
   const [showGroupPanel, setShowGroupPanel] = useState(false)
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [loadingPlan, setLoadingPlan] = useState(false)
   const feedback = useFeedback()
   const { user, loading: authLoading } = useAuth()
 
@@ -191,6 +194,30 @@ export default function DemoPage() {
     }
     setHasSeenTutorial(!!seenTutorial)
   }, [])
+
+  // Load plan from URL parameter (from wizard completion)
+  useEffect(() => {
+    const planIdFromUrl = searchParams?.get('planId')
+    if (planIdFromUrl && load && !loadingPlan) {
+      setLoadingPlan(true)
+      load(planIdFromUrl)
+        .then((result) => {
+          if (result.success && result.garden && result.garden.beds) {
+            setGardenBeds(result.garden.beds as any)
+            feedback.success('Garden plan loaded successfully!')
+          } else {
+            feedback.error('Failed to load garden plan')
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading plan:', error)
+          feedback.error('Failed to load garden plan')
+        })
+        .finally(() => {
+          setLoadingPlan(false)
+        })
+    }
+  }, [searchParams, load, loadingPlan, setGardenBeds, feedback])
 
   // Calculate garden statistics
   const calculateStats = () => {
@@ -1201,5 +1228,20 @@ export default function DemoPage() {
         className="hidden md:flex"
       />
     </div>
+  )
+}
+
+export default function DemoPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Leaf className="h-12 w-12 text-green-600 animate-pulse mx-auto mb-4" />
+          <p className="text-gray-600">Loading garden designer...</p>
+        </div>
+      </div>
+    }>
+      <DemoPageContent />
+    </Suspense>
   )
 }
