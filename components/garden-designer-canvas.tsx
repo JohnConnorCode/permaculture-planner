@@ -133,6 +133,11 @@ export function GardenDesignerCanvas({
   const [dragOffset, setDragOffset] = useState<{ x: number; y: number } | null>(null)
   const [originalBedPosition, setOriginalBedPosition] = useState<GardenBed | null>(null)
 
+  // Drag state for moving plants
+  const [isDraggingPlant, setIsDraggingPlant] = useState(false)
+  const [draggingPlantId, setDraggingPlantId] = useState<string | null>(null)
+  const [draggingPlantBedId, setDraggingPlantBedId] = useState<string | null>(null)
+
   // Copy/paste state
   const [clipboard, setClipboard] = useState<GardenBed | null>(null)
 
@@ -455,6 +460,29 @@ export function GardenDesignerCanvas({
 
     const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
 
+    // Handle plant dragging
+    if (isDraggingPlant && draggingPlantId && draggingPlantBedId) {
+      const updatedBeds = beds.map(bed => {
+        if (bed.id === draggingPlantBedId) {
+          return {
+            ...bed,
+            plants: bed.plants.map(plant => {
+              if (plant.id === draggingPlantId) {
+                // Keep plant within bed bounds
+                if (isPointInPolygon(point, bed.points)) {
+                  return { ...plant, x: point.x, y: point.y }
+                }
+              }
+              return plant
+            })
+          }
+        }
+        return bed
+      })
+      onBedsChange(updatedBeds)
+      return
+    }
+
     // Handle bed dragging
     if (isDragging && selectedBed && dragOffset && transformMode === 'move') {
       const newCenter = {
@@ -567,6 +595,14 @@ export function GardenDesignerCanvas({
   const handleMouseUp = (e: React.MouseEvent) => {
     if (isPanning) {
       handlePanEnd()
+      return
+    }
+
+    // Reset plant drag state
+    if (isDraggingPlant) {
+      setIsDraggingPlant(false)
+      setDraggingPlantId(null)
+      setDraggingPlantBedId(null)
       return
     }
 
@@ -1392,8 +1428,15 @@ export function GardenDesignerCanvas({
                         strokeDasharray={
                           selectionState.selectedPlants.includes(plant.id) ? '5,5' : 'none'
                         }
+                        style={{ cursor: isDraggingPlant && draggingPlantId === plant.id ? 'grabbing' : 'grab' }}
                         onMouseEnter={() => setHoveredPlant(plant.id)}
                         onMouseLeave={() => setHoveredPlant(null)}
+                        onMouseDown={(e) => {
+                          e.stopPropagation()
+                          setIsDraggingPlant(true)
+                          setDraggingPlantId(plant.id)
+                          setDraggingPlantBedId(bed.id)
+                        }}
                       />
                       <text
                         x={plant.x}
