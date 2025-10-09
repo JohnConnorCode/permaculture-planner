@@ -29,7 +29,7 @@ import { useAuth } from '@/lib/auth/auth-context'
 import { useGardenPersistence } from '@/hooks/use-garden-persistence'
 import {
   Layers, Save, Share2, Download, Settings, Info,
-  ZoomIn, ZoomOut, Grid, Eye, EyeOff, Ruler,
+  Grid, Eye, EyeOff, Ruler,
   MousePointer, Square, Pencil, Leaf, Trash2,
   Sun, Droplets, TreePine, Flower, Sprout, Cherry,
   HelpCircle, CheckCircle, AlertCircle, Play,
@@ -108,7 +108,6 @@ function DemoPageContent() {
   const [selectedPlant, setSelectedPlant] = useState<PlantInfo | null>(null)
   const [selectedElement, setSelectedElement] = useState<ElementSubtype | null>(null)
   const { state: gardenBeds, setState: setGardenBeds, undo, redo, canUndo, canRedo } = useHistory<GardenBed[]>(STARTER_GARDEN)
-  const [zoom, setZoom] = useState(100)
   const [showGrid, setShowGrid] = useState(true)
   const [showLabels, setShowLabels] = useState(true)
   const [showSpacing, setShowSpacing] = useState(false)
@@ -360,20 +359,11 @@ function DemoPageContent() {
       case 'toggle-grid':
         setShowGrid(!showGrid)
         break
-      case 'zoom-in':
-        setZoom(Math.min(200, zoom + 10))
-        break
-      case 'zoom-out':
-        setZoom(Math.max(50, zoom - 10))
-        break
-      case 'fit-to-screen':
-        setZoom(100)
-        break
       case 'help':
         setShowTutorial(true)
         break
     }
-  }, [canUndo, canRedo, undo, redo, showGrid, zoom, saveDesign, user, setShowLoginPrompt, setSelectedTool, exportDesign, setShowGrid, setZoom, setShowTutorial])
+  }, [canUndo, canRedo, undo, redo, showGrid, saveDesign, user, exportDesign])
 
   // Import design from JSON file
   const importDesign = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -871,25 +861,6 @@ function DemoPageContent() {
                   >
                     <Droplets className="h-4 w-4" />
                   </Button>
-                  <Separator orientation="vertical" className="h-6 bg-white/20" />
-                  {/* Zoom Controls */}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setZoom(Math.min(200, zoom + 10))}
-                    className="text-white hover:bg-white/20"
-                  >
-                    <ZoomIn className="h-4 w-4" />
-                  </Button>
-                  <span className="text-sm px-2 text-white">{zoom}%</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => setZoom(Math.max(50, zoom - 10))}
-                    className="text-white hover:bg-white/20"
-                  >
-                    <ZoomOut className="h-4 w-4" />
-                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -942,7 +913,6 @@ function DemoPageContent() {
                     selectedPlant={selectedPlant}
                     selectedTool={selectedTool}
                     selectedElement={selectedElement}
-                    zoom={zoom}
                     showGrid={showGrid}
                     showLabels={showLabels}
                     showSpacing={showSpacing}
@@ -1114,7 +1084,6 @@ function DemoPageContent() {
 
       {/* Status Bar */}
       <StatusBar
-        zoom={zoom}
         selectedTool={selectedTool}
         gridEnabled={showGrid}
         layersCount={1}
