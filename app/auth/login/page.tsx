@@ -115,7 +115,7 @@ export default function LoginPage() {
         <Card className="shadow-xl opacity-0 animate-scale-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
           <CardHeader className="opacity-0 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
             <CardTitle className="text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Sign in to access your garden designs</CardDescription>
+            <CardDescription>Sign in to access your permaculture plans</CardDescription>
           </CardHeader>
         <CardContent className="opacity-0 animate-slide-in-left" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
           <form onSubmit={handleLogin} className="space-y-4">

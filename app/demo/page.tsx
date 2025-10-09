@@ -304,7 +304,7 @@ function DemoPageContent() {
   // Export design as JSON
   const exportDesign = useCallback(() => {
     const design = {
-      name: `Garden Design ${new Date().toLocaleDateString()}`,
+      name: `Permaculture Plan ${new Date().toLocaleDateString()}`,
       beds: gardenBeds,
       timestamp: Date.now(),
       version: '1.0'
@@ -312,7 +312,7 @@ function DemoPageContent() {
     const dataStr = JSON.stringify(design, null, 2)
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr)
 
-    const exportFileDefaultName = `garden-design-${Date.now()}.json`
+    const exportFileDefaultName = `permaculture-plan-${Date.now()}.json`
 
     const linkElement = document.createElement('a')
     linkElement.setAttribute('href', dataUri)
@@ -376,9 +376,9 @@ function DemoPageContent() {
         const design = JSON.parse(e.target?.result as string)
         if (design.beds && Array.isArray(design.beds)) {
           setGardenBeds(design.beds)
-          alert(`Imported: ${design.name || 'Garden Design'}`)
+          alert(`Imported: ${design.name || 'Permaculture Plan'}`)
         } else {
-          alert('Invalid garden design file')
+          alert('Invalid permaculture plan file')
         }
       } catch (error) {
         alert('Error importing design file')
@@ -456,12 +456,12 @@ function DemoPageContent() {
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
-                Permaculture Design Studio
+                Permaculture Planning Studio
               </h1>
               <div className="flex items-center gap-3 mt-2">
-                <Badge variant="secondary" className="text-xs">{stats.beds} Beds</Badge>
+                <Badge variant="secondary" className="text-xs">{stats.beds} Elements</Badge>
                 <Badge variant="secondary" className="text-xs">{stats.plants} Plants</Badge>
-                <Badge variant="secondary" className="text-xs">{stats.varieties} Varieties</Badge>
+                <Badge variant="secondary" className="text-xs">{stats.varieties} Species</Badge>
               </div>
             </div>
 
@@ -483,7 +483,7 @@ function DemoPageContent() {
                   ) : (
                     <>
                       {user ? <Save className="h-5 w-5 mr-2" /> : <LogIn className="h-5 w-5 mr-2" />}
-                      {user ? 'Save Design' : 'Sign In'}
+                      {user ? 'Save Plan' : 'Sign In'}
                     </>
                   )}
                 </Button>
@@ -813,7 +813,7 @@ function DemoPageContent() {
           <Card className="overflow-hidden card-nature rounded-lg opacity-0 animate-scale-in md:col-span-1" id="canvas" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
             <CardHeader className="py-2 md:py-3 gradient-canopy text-white">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <CardTitle className="text-base md:text-lg">Design Canvas</CardTitle>
+                <CardTitle className="text-base md:text-lg">Planning Canvas</CardTitle>
                 <div className="flex gap-1 md:gap-2" id="view-controls">
                   {/* View Controls */}
                   <Button
@@ -871,9 +871,9 @@ function DemoPageContent() {
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-green-50/50 to-emerald-50/50">
                     <div className="text-center space-y-6 max-w-lg p-8 glass rounded-lg shadow-xl">
                       <div className="text-6xl">🌱</div>
-                      <h3 className="text-2xl font-bold text-gray-800">Design Regenerative Systems</h3>
+                      <h3 className="text-2xl font-bold text-gray-800">Plan Regenerative Systems</h3>
                       <p className="text-gray-600 text-lg">
-                        Create complete permaculture designs with plant guilds, water harvesting, zones, sectors, and polycultures.
+                        Create complete permaculture plans with plant guilds, water harvesting, zones, sectors, and polycultures.
                       </p>
                       <div className="grid gap-3">
                         <Button
@@ -891,7 +891,7 @@ function DemoPageContent() {
                           className="text-lg py-6 rounded-lg hover-nature"
                         >
                           <Layers className="h-5 w-5 mr-2" />
-                          Load Example Design
+                          Load Example Plan
                         </Button>
                         <Button
                           variant="ghost"
@@ -1103,7 +1103,7 @@ export default function DemoPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Leaf className="h-12 w-12 text-green-600 animate-pulse mx-auto mb-4" />
-          <p className="text-gray-600">Loading design studio...</p>
+          <p className="text-gray-600">Loading planning studio...</p>
         </div>
       </div>
     }>

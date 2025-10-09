@@ -72,7 +72,7 @@ export function StatusBar({
         {/* Logo/Branding */}
         <div className="flex items-center gap-1.5">
           <Sparkles className="h-3 w-3 text-green-500" />
-          <span className="font-medium text-gray-300">Garden Designer Pro</span>
+          <span className="font-medium text-gray-300">Permaculture Planner Pro</span>
         </div>
 
         <div className="h-4 w-px bg-gray-700" />

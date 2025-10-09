@@ -111,7 +111,7 @@ export function BedPropertiesPanel({
     return (
       <Card className="w-full">
         <CardContent className="p-6 text-center text-gray-500">
-          Select a garden bed to edit its properties
+          Select an element to edit its properties
         </CardContent>
       </Card>
     )
@@ -158,7 +158,7 @@ export function BedPropertiesPanel({
                 id="bed-name"
                 value={bedName}
                 onChange={(e) => setBedName(e.target.value)}
-                placeholder="e.g., Herb Garden, Tomato Bed"
+                placeholder="e.g., Herb Guild, Tomato Zone"
                 className="mt-1"
               />
             </div>
