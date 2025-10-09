@@ -8,6 +8,12 @@ import { Toaster } from '@/components/ui/toaster'
 import { ScrollToTop } from '@/components/scroll-to-top'
 import { ActionFeedback } from '@/components/ui/action-feedback'
 import { ErrorBoundary } from '@/components/error-boundary'
+import { validateEnv } from '@/lib/env'
+
+// Validate environment variables on startup
+if (typeof window === 'undefined') {
+  validateEnv()
+}
 
 const inter = Inter({ subsets: ['latin'] })
 

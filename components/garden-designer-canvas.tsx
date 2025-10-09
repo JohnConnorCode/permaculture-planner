@@ -276,7 +276,7 @@ export function GardenDesignerCanvas({
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [])
+  }, [beds, onBedsChange, selectedBed, selectedTool, clipboard])
 
   // Handle mouse wheel for zoom
   const handleWheel = (e: React.WheelEvent) => {

@@ -122,6 +122,26 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
+  // Admin routes protection
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    if (!session) {
+      const redirectUrl = new URL('/auth/login', request.url)
+      redirectUrl.searchParams.set('redirectTo', pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    // Check if user is admin
+    const { data: profile } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!profile?.is_admin) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
   // Redirect authenticated users away from auth pages
   if (session && (
     request.nextUrl.pathname === '/auth/login' ||

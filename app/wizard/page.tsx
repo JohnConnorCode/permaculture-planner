@@ -407,7 +407,7 @@ export default function WizardPage() {
                     className="w-full gradient-understory"
                     onClick={() => {
                       setShowLoginPrompt(false)
-                      window.location.href = '/auth/login'
+                      router.push('/auth/login?redirect_to=/wizard')
                     }}
                   >
                     <LogIn className="h-4 w-4 mr-2" />
@@ -419,7 +419,7 @@ export default function WizardPage() {
                     className="w-full"
                     onClick={() => {
                       setShowLoginPrompt(false)
-                      window.location.href = '/auth/signup'
+                      router.push('/auth/signup?redirect_to=/wizard')
                     }}
                   >
                     <UserPlus className="h-4 w-4 mr-2" />

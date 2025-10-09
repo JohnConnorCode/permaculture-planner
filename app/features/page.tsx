@@ -44,13 +44,13 @@ interface FeatureCategory {
 const FEATURE_CATEGORIES: FeatureCategory[] = [
   {
     id: 'intelligent-design',
-    name: 'AI-Powered Garden Design',
-    description: 'Leverage OpenAI GPT-5 nano to create optimized permaculture designs',
-    icon: Brain,
+    name: 'Garden Design Tools',
+    description: 'Create optimized permaculture designs with smart planning features',
+    icon: Palette,
     features: [
       {
-        title: 'Smart Garden Wizard',
-        description: 'Step-by-step guided garden creation with intelligent defaults',
+        title: 'Garden Wizard',
+        description: 'Step-by-step guided garden creation',
         icon: Sparkles,
         status: 'available',
         details: [
@@ -62,22 +62,6 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
           'Water source planning',
           'Accessibility-focused designs',
           'Time commitment matching'
-        ]
-      },
-      {
-        title: 'AI Garden Assistant',
-        description: 'GPT-5 nano-powered assistant for real-time garden advice',
-        icon: Brain,
-        status: 'available',
-        details: [
-          'Context-aware recommendations',
-          'Plant pairing suggestions',
-          'Problem diagnosis and solutions',
-          'Seasonal task reminders',
-          'Pest and disease identification',
-          'Harvest timing optimization',
-          'Recipe suggestions for your crops',
-          'Natural language queries'
         ]
       },
       {
@@ -94,22 +78,6 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
           'Zoom and pan controls',
           'Grid snapping for precision',
           'Undo/redo functionality'
-        ]
-      },
-      {
-        title: 'Automated Layout Generation',
-        description: 'AI generates optimal bed layouts based on your space',
-        icon: Layout,
-        status: 'available',
-        details: [
-          'Space-efficient bed arrangements',
-          'Path width optimization',
-          'Accessibility compliance',
-          'Sun exposure maximization',
-          'Water access optimization',
-          'Companion planting zones',
-          'Crop rotation planning',
-          'Microclimate considerations'
         ]
       }
     ]
@@ -695,13 +663,13 @@ export default function FeaturesPage() {
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto opacity-0 animate-fade-in"
                style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-              AI-powered design tools, comprehensive plant database, water management,
+              Design tools, comprehensive plant database, water management,
               crop rotation, and professional reporting - all completely free.
             </p>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+          <div className="grid grid-cols-3 gap-4 mt-8 max-w-2xl mx-auto">
             <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
                 <div className="text-3xl font-bold text-green-600">{featureStats.available}</div>
@@ -717,13 +685,7 @@ export default function FeaturesPage() {
             <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
               <CardContent className="p-4 text-center">
                 <div className="text-3xl font-bold text-emerald-600">50+</div>
-                <div className="text-sm text-gray-600">Plant Species</div>
-              </CardContent>
-            </Card>
-            <Card className="opacity-0 animate-scale-in" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
-              <CardContent className="p-4 text-center">
-                <div className="text-3xl font-bold text-blue-600">GPT-5 nano</div>
-                <div className="text-sm text-gray-600">AI Assistant</div>
+                <div className="text-sm text-gray-600">Plants</div>
               </CardContent>
             </Card>
           </div>
@@ -896,12 +858,12 @@ export default function FeaturesPage() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Brain className="h-8 w-8 text-green-600" />
+                <TreePine className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">AI-Powered Intelligence</h3>
+              <h3 className="font-bold text-lg mb-2">True Permaculture Focus</h3>
               <p className="text-gray-600">
-                GPT-5 nano integration provides fast, personalized advice, plant recommendations,
-                and problem-solving assistance tailored to your specific garden.
+                Beyond simple gardening - design complete food systems with water
+                harvesting, livestock integration, and regenerative practices.
               </p>
             </div>
             <div className="text-center">
@@ -911,17 +873,17 @@ export default function FeaturesPage() {
               <h3 className="font-bold text-lg mb-2">100% Free & Open Source</h3>
               <p className="text-gray-600">
                 No subscriptions, no hidden fees, no premium tiers. Every feature is
-                available to everyone, forever. Community-driven development.
+                available to everyone, forever.
               </p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TreePine className="h-8 w-8 text-green-600" />
+                <Palette className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="font-bold text-lg mb-2">True Permaculture Focus</h3>
+              <h3 className="font-bold text-lg mb-2">Visual Design Tools</h3>
               <p className="text-gray-600">
-                Beyond simple gardening - design complete food systems with water
-                harvesting, livestock integration, and regenerative practices.
+                Intuitive drag-and-drop canvas for designing your garden with real-time
+                visualization and smart planning features.
               </p>
             </div>
           </div>
@@ -935,8 +897,7 @@ export default function FeaturesPage() {
             Start Your Permaculture Journey Today
           </h2>
           <p className="text-xl mb-8 text-green-100">
-            Join thousands of gardeners creating sustainable food systems with our free,
-            AI-powered permaculture planning tools.
+            Create sustainable food systems with free, comprehensive permaculture planning tools.
           </p>
           <div className="flex gap-4 justify-center">
             <Link href="/wizard">

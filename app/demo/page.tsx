@@ -18,7 +18,6 @@ import { GARDEN_TEMPLATES } from '@/lib/data/garden-templates'
 import { useHistory } from '@/hooks/use-history'
 import { ElementSelector } from '@/components/element-selector'
 import { ElementSubtype } from '@/lib/canvas-elements'
-import { AIAssistant } from '@/components/ai-assistant'
 import { CommandPalette } from '@/components/command-palette'
 import { StatusBar } from '@/components/status-bar'
 import { PremiumTooltip, RichTooltip } from '@/components/premium-tooltip'
@@ -34,7 +33,7 @@ import {
   MousePointer, Square, Pencil, Leaf, Trash2,
   Sun, Droplets, TreePine, Flower, Sprout, Cherry,
   HelpCircle, CheckCircle, AlertCircle, Play,
-  Undo, Redo, FileJson, Upload, BookOpen, Bot,
+  Undo, Redo, FileJson, Upload, BookOpen,
   Circle, Hexagon, Triangle, UserPlus, LogIn, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -123,7 +122,6 @@ function DemoPageContent() {
   const [showOnlyCompanions, setShowOnlyCompanions] = useState(false)
   const [showPlantModal, setShowPlantModal] = useState<string | null>(null)
   const [showTemplates, setShowTemplates] = useState(false)
-  const [showAIAssistant, setShowAIAssistant] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [showElements, setShowElements] = useState(false)
@@ -304,6 +302,25 @@ function DemoPageContent() {
     }
   }, [user, save, feedback])
 
+  // Export design as JSON
+  const exportDesign = useCallback(() => {
+    const design = {
+      name: `Garden Design ${new Date().toLocaleDateString()}`,
+      beds: gardenBeds,
+      timestamp: Date.now(),
+      version: '1.0'
+    }
+    const dataStr = JSON.stringify(design, null, 2)
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr)
+
+    const exportFileDefaultName = `garden-design-${Date.now()}.json`
+
+    const linkElement = document.createElement('a')
+    linkElement.setAttribute('href', dataUri)
+    linkElement.setAttribute('download', exportFileDefaultName)
+    linkElement.click()
+  }, [gardenBeds])
+
   // Load design from database
   const loadDesign = useCallback(async () => {
     if (!user) {
@@ -356,26 +373,7 @@ function DemoPageContent() {
         setShowTutorial(true)
         break
     }
-  }, [canUndo, canRedo, undo, redo, showGrid, zoom, saveDesign])
-
-  // Export design as JSON
-  const exportDesign = useCallback(() => {
-    const design = {
-      name: `Garden Design ${new Date().toLocaleDateString()}`,
-      beds: gardenBeds,
-      timestamp: Date.now(),
-      version: '1.0'
-    }
-    const dataStr = JSON.stringify(design, null, 2)
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr)
-
-    const exportFileDefaultName = `garden-design-${Date.now()}.json`
-
-    const linkElement = document.createElement('a')
-    linkElement.setAttribute('href', dataUri)
-    linkElement.setAttribute('download', exportFileDefaultName)
-    linkElement.click()
-  }, [gardenBeds])
+  }, [canUndo, canRedo, undo, redo, showGrid, zoom, saveDesign, user, setShowLoginPrompt, setSelectedTool, exportDesign, setShowGrid, setZoom, setShowTutorial])
 
   // Import design from JSON file
   const importDesign = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -456,7 +454,7 @@ function DemoPageContent() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [canUndo, canRedo, undo, redo, selectedTool])
+  }, [canUndo, canRedo, undo, redo, selectedTool, saveDesign, setSelectedTool, setSelectedPlant, setShowTutorial])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white pb-8">
@@ -521,10 +519,8 @@ function DemoPageContent() {
               onClear={clearGarden}
               onTemplates={() => setShowTemplates(true)}
               onHelp={() => setShowTutorial(true)}
-              onAI={() => setShowAIAssistant(!showAIAssistant)}
               canUndo={canUndo}
               canRedo={canRedo}
-              showAI={showAIAssistant}
               className="md:hidden"
             />
           </div>
@@ -600,15 +596,6 @@ function DemoPageContent() {
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAIAssistant(!showAIAssistant)}
-              className={cn(showAIAssistant && "bg-purple-50 text-purple-600")}
-            >
-              <Bot className="h-4 w-4 mr-2" />
-              AI Assistant
-            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -1042,7 +1029,8 @@ function DemoPageContent() {
                     className="w-full gradient-understory"
                     onClick={() => {
                       setShowLoginPrompt(false)
-                      window.location.href = '/auth/login'
+                      // router.push is available from next/navigation
+                      window.location.href = '/auth/login?redirect_to=/demo'
                     }}
                   >
                     <LogIn className="h-4 w-4 mr-2" />
@@ -1054,7 +1042,7 @@ function DemoPageContent() {
                     className="w-full"
                     onClick={() => {
                       setShowLoginPrompt(false)
-                      window.location.href = '/auth/signup'
+                      window.location.href = '/auth/signup?redirect_to=/demo'
                     }}
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
@@ -1123,23 +1111,6 @@ function DemoPageContent() {
         </div>
       )}
 
-      {/* AI Assistant Panel - Responsive positioning */}
-      {showAIAssistant && (
-        <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 z-40 md:w-96">
-          <AIAssistant
-            context={{
-              beds: gardenBeds,
-              plants: gardenBeds.flatMap(bed => bed.plants),
-              stats: stats,
-              selectedPlant: selectedPlant
-            }}
-            onSuggestion={(suggestion) => {
-              // Handle AI suggestions
-              console.log('AI Suggestion:', suggestion)
-            }}
-          />
-        </div>
-      )}
 
       {/* Status Bar */}
       <StatusBar
