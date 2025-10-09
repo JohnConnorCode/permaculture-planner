@@ -125,8 +125,8 @@ export function ElementSelector({ selectedElement, onElementSelect }: ElementSel
 
   const getElementGridColumns = () => {
     if (deviceType === 'mobile') return 'grid-cols-2'
-    if (deviceType === 'tablet') return 'grid-cols-3'
-    return 'grid-cols-3 lg:grid-cols-4'
+    if (deviceType === 'tablet') return 'grid-cols-2'
+    return 'grid-cols-2' // Compact for sidebar
   }
 
   return (
@@ -228,7 +228,7 @@ export function ElementSelector({ selectedElement, onElementSelect }: ElementSel
                       key={element.type}
                       className={cn(
                         "cursor-move transition-all",
-                        "flex flex-col gap-2 p-3 min-w-0",
+                        "flex flex-col gap-1.5 p-2 min-w-0",
                         "hover:shadow-md hover:scale-105",
                         isSelected && 'ring-2 ring-green-500 bg-green-50 shadow-lg',
                         draggedElement === element.type && 'opacity-50 scale-95'
@@ -239,24 +239,15 @@ export function ElementSelector({ selectedElement, onElementSelect }: ElementSel
                       onClick={() => onElementSelect(element.type)}
                     >
                       <div
-                        className={cn(
-                          "rounded-md flex items-center justify-center mx-auto",
-                          deviceType === 'mobile' ? 'w-12 h-12' : 'w-14 h-14'
-                        )}
+                        className="rounded-md flex items-center justify-center mx-auto w-10 h-10"
                         style={{
                           backgroundColor: style.defaultFill === 'none' ? 'transparent' : style.defaultFill,
                           border: `2px solid ${style.defaultStroke}`,
                         }}
                       >
-                        <Icon className={cn(
-                          deviceType === 'mobile' ? 'h-5 w-5' : 'h-6 w-6',
-                          'text-gray-700'
-                        )} />
+                        <Icon className="h-5 w-5 text-gray-700" />
                       </div>
-                      <span className={cn(
-                        "text-center leading-tight break-words font-medium",
-                        deviceType === 'mobile' ? 'text-xs' : 'text-sm'
-                      )}>{element.label}</span>
+                      <span className="text-center leading-tight break-words font-medium text-[11px]">{element.label}</span>
                     </Card>
                   )
                 })}
