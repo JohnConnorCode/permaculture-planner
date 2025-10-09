@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,21 +12,25 @@ import { Separator } from '@/components/ui/separator'
 import { Loader2, Leaf, Mail, Lock, LogIn, ArrowRight, Github } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const searchParams = useSearchParams()
 
-  // Check for error from auth callback
+  // Check for error from auth callback URL on mount
   useEffect(() => {
-    const errorFromCallback = searchParams?.get('error')
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const errorFromCallback = params.get('error')
     if (errorFromCallback) {
       setError(decodeURIComponent(errorFromCallback))
     }
-  }, [searchParams])
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()

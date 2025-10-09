@@ -65,11 +65,11 @@ export default function PlanViewPage() {
         // Fetch plan with site and beds
         const { data: planData, error: planError } = await supabase
           .from('plans')
-          .select(\`
+          .select(`
             *,
             site:sites(*),
             beds(*)
-          \`)
+          `)
           .eq('id', planId)
           .single()
 
@@ -129,7 +129,7 @@ export default function PlanViewPage() {
 
     const dataStr = JSON.stringify(exportData, null, 2)
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr)
-    const exportFileDefaultName = \`\${plan.name.replace(/\\s+/g, '-')}-\${Date.now()}.json\`
+    const exportFileDefaultName = `${plan.name.replace(/\s+/g, '-')}-${Date.now()}.json`
 
     const linkElement = document.createElement('a')
     linkElement.setAttribute('href', dataUri)
@@ -197,7 +197,7 @@ export default function PlanViewPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Link href={\`/demo?planId=\${plan.id}\`}>
+              <Link href={`/demo?planId=${plan.id}`}>
                 <Button variant="outline" size="sm">
                   <Edit className="h-4 w-4 mr-2" />
                   Edit

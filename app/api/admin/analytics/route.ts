@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
   // Check if user is admin
   const { data: profile, error: profileError } = await supabase
-    .from('profiles')
+    .from('users')
     .select('is_admin')
     .eq('id', session.user.id)
     .single()
@@ -57,26 +57,16 @@ export async function GET(request: NextRequest) {
 
     if (activityError) throw activityError
 
-    // Fetch top users by content creation
+    // Fetch top users by content creation (optional - will gracefully fail if RPC doesn't exist)
     const { data: topUsers, error: topUsersError } = await supabase.rpc(
       'get_top_users_by_content',
       {},
       { count: 'exact' }
-    ).catch(() => {
-      // If RPC doesn't exist yet, fetch manually
-      return supabase
-        .from('sites')
-        .select(`
-          user_id,
-          profiles!inner(email, full_name),
-          count
-        `)
-        .limit(10)
-    })
+    )
 
     // Fetch user growth data for the last 30 days
     const { data: userGrowth, error: growthError } = await supabase
-      .from('profiles')
+      .from('users')
       .select('created_at')
       .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
       .order('created_at', { ascending: true })

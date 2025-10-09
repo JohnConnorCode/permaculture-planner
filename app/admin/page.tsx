@@ -6,6 +6,10 @@ import { MetricCard } from '@/components/ui/metric-card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
+import {
+  Users, UserPlus, MapPin, FileText, Grid, Sprout,
+  CheckSquare, BookOpen, Package
+} from 'lucide-react'
 
 interface UserStats {
   total_users: number
@@ -128,16 +132,19 @@ export default function AdminDashboard() {
           <MetricCard
             label="Total Users"
             value={analytics.userStats.total_users}
-            trend="neutral"
+            icon={Users}
+            trend="stable"
           />
           <MetricCard
             label="New Users (7 days)"
             value={analytics.userStats.users_last_7_days}
+            icon={UserPlus}
             trend="up"
           />
           <MetricCard
             label="New Users (30 days)"
             value={analytics.userStats.users_last_30_days}
+            icon={UserPlus}
             trend="up"
           />
         </div>
@@ -150,37 +157,44 @@ export default function AdminDashboard() {
           <MetricCard
             label="Sites"
             value={analytics.contentStats.total_sites}
-            trend="neutral"
+            icon={MapPin}
+            trend="stable"
           />
           <MetricCard
             label="Plans"
             value={analytics.contentStats.total_plans}
-            trend="neutral"
+            icon={FileText}
+            trend="stable"
           />
           <MetricCard
             label="Beds"
             value={analytics.contentStats.total_beds}
-            trend="neutral"
+            icon={Grid}
+            trend="stable"
           />
           <MetricCard
             label="Plantings"
             value={analytics.contentStats.total_plantings}
-            trend="neutral"
+            icon={Sprout}
+            trend="stable"
           />
           <MetricCard
             label="Tasks"
             value={analytics.contentStats.total_tasks}
-            trend="neutral"
+            icon={CheckSquare}
+            trend="stable"
           />
           <MetricCard
             label="Journal Entries"
             value={analytics.contentStats.total_journal_entries}
-            trend="neutral"
+            icon={BookOpen}
+            trend="stable"
           />
           <MetricCard
             label="Harvests"
             value={analytics.contentStats.total_harvests}
-            trend="neutral"
+            icon={Package}
+            trend="stable"
           />
         </div>
       </div>

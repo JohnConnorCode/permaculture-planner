@@ -14,7 +14,6 @@ import {
   Trash2,
   BookOpen,
   FileJson,
-  Bot,
   HelpCircle
 } from 'lucide-react'
 
@@ -27,10 +26,8 @@ interface MobileMenuProps {
   onClear: () => void
   onTemplates: () => void
   onHelp: () => void
-  onAI: () => void
   canUndo: boolean
   canRedo: boolean
-  showAI: boolean
   className?: string
 }
 
@@ -43,10 +40,8 @@ export function MobileMenu({
   onClear,
   onTemplates,
   onHelp,
-  onAI,
   canUndo,
   canRedo,
-  showAI,
   className
 }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -139,18 +134,6 @@ export function MobileMenu({
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear Garden
-              </Button>
-
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full border-purple-500 text-purple-600",
-                  showAI && "bg-purple-50"
-                )}
-                onClick={() => { onAI(); setIsOpen(false) }}
-              >
-                <Bot className="h-4 w-4 mr-2" />
-                AI Assistant
               </Button>
 
               <Button
