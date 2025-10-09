@@ -39,10 +39,12 @@ export function StatusBar({
   itemsCount = { beds: 0, plants: 0 },
   className
 }: StatusBarProps) {
+  const [mounted, setMounted] = useState(false)
   const [time, setTime] = useState(new Date())
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
 
   useEffect(() => {
+    setMounted(true)
     const timer = setInterval(() => {
       setTime(new Date())
     }, 1000)
@@ -185,7 +187,7 @@ export function StatusBar({
 
         {/* Time */}
         <div className="font-mono text-gray-400">
-          {time.toLocaleTimeString('en-US', { hour12: false })}
+          {mounted ? time.toLocaleTimeString('en-US', { hour12: false }) : '--:--:--'}
         </div>
       </div>
     </div>

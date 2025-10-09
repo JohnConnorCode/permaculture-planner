@@ -97,12 +97,12 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50/30 to-white">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <Link href="/dashboard">
-          <Button variant="ghost" className="mb-4">
+        <Button variant="ghost" className="mb-4" asChild>
+          <Link href="/dashboard">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
-          </Button>
-        </Link>
+          </Link>
+        </Button>
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Account Settings</h1>
@@ -174,11 +174,11 @@ export default function SettingsPage() {
               <CardDescription>Change your password</CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/auth/reset-password">
-                <Button variant="outline">
+              <Button variant="outline" asChild>
+                <Link href="/auth/reset-password">
                   Request Password Reset
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </CardContent>
           </Card>
 

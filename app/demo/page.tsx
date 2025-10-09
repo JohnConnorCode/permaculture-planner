@@ -726,17 +726,24 @@ function DemoPageContent() {
                               {plant.requirements.sun} sun • {plant.size.spacing}" spacing
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="p-0 h-6 w-6"
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            className="p-0 h-6 w-6 inline-flex items-center justify-center hover:bg-gray-100 rounded transition-colors cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation()
                               setShowPlantModal(plant.id)
                             }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setShowPlantModal(plant.id)
+                              }
+                            }}
                           >
                             <Info className="h-3 w-3" />
-                          </Button>
+                          </div>
                         </Button>
                       })}
                     </div>
@@ -810,7 +817,7 @@ function DemoPageContent() {
           </div>
 
           {/* Canvas Area - Full width on mobile */}
-          <Card className="overflow-hidden card-nature rounded-lg opacity-0 animate-scale-in md:col-span-1" id="canvas" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+          <Card className="overflow-visible card-nature rounded-lg opacity-0 animate-scale-in md:col-span-1" id="canvas" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
             <CardHeader className="py-2 md:py-3 gradient-canopy text-white">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <CardTitle className="text-base md:text-lg">Planning Canvas</CardTitle>

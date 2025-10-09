@@ -251,12 +251,12 @@ export default function DashboardPage() {
               </Link>
             </div>
             <div className="flex items-center gap-4">
-              <Link href="/settings">
-                <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/settings">
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
@@ -291,12 +291,12 @@ export default function DashboardPage() {
                 </Badge>
               </div>
             </div>
-            <Link href="/demo">
-              <Button className="bg-green-600 hover:bg-green-700">
+            <Button className="bg-green-600 hover:bg-green-700" asChild>
+              <Link href="/demo">
                 <Plus className="h-4 w-4 mr-2" />
                 New Design
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
 
@@ -366,12 +366,12 @@ export default function DashboardPage() {
                   <Trees className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">No designs yet</h3>
                   <p className="text-gray-600 mb-6">Start creating your first permaculture system</p>
-                  <Link href="/demo">
-                    <Button className="bg-green-600 hover:bg-green-700">
+                  <Button className="bg-green-600 hover:bg-green-700" asChild>
+                    <Link href="/demo">
                       <Plus className="h-4 w-4 mr-2" />
                       Create Your First Design
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
             ) : (
@@ -413,12 +413,12 @@ export default function DashboardPage() {
                       </div>
                     </CardContent>
                     <CardFooter className="flex gap-2">
-                      <Link href={`/plans/${plan.id}`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full">
+                      <Button variant="outline" size="sm" className="w-full flex-1" asChild>
+                        <Link href={`/plans/${plan.id}`}>
                           <Eye className="h-4 w-4 mr-1" />
                           View
-                        </Button>
-                      </Link>
+                        </Link>
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"

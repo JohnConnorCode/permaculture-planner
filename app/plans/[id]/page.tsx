@@ -162,12 +162,12 @@ export default function PlanViewPage() {
             <Alert variant="destructive" className="mb-4">
               <AlertDescription>{error || 'Plan not found'}</AlertDescription>
             </Alert>
-            <Link href="/dashboard">
-              <Button className="w-full bg-green-600 hover:bg-green-700">
+            <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
+              <Link href="/dashboard">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Dashboard
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -183,12 +183,12 @@ export default function PlanViewPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/dashboard">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">{plan.name}</h1>
                 <p className="text-sm text-gray-600">
@@ -197,12 +197,12 @@ export default function PlanViewPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Link href={`/demo?planId=${plan.id}`}>
-                <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/demo?planId=${plan.id}`}>
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
-                </Button>
-              </Link>
+                </Link>
+              </Button>
               <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="h-4 w-4 mr-2" />
                 Export

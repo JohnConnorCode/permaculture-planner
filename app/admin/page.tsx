@@ -226,11 +226,11 @@ export default function AdminDashboard() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Recent Activity</h2>
-          <Link href="/admin/users">
-            <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/admin/users">
               View All Users
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
@@ -274,9 +274,9 @@ export default function AdminDashboard() {
       <div>
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
         <div className="flex gap-4">
-          <Link href="/admin/users">
-            <Button>View All Users</Button>
-          </Link>
+          <Button asChild>
+            <Link href="/admin/users">View All Users</Link>
+          </Button>
           <Button variant="outline" onClick={fetchAnalytics}>
             Refresh Data
           </Button>

@@ -65,11 +65,11 @@ function VerifyEmailContent() {
                 <p className="text-sm text-gray-600 text-center mb-4">
                   Redirecting you to your dashboard...
                 </p>
-                <Link href="/dashboard">
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
+                <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
+                  <Link href="/dashboard">
                     Go to Dashboard
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </>
             )}
 
@@ -79,16 +79,16 @@ function VerifyEmailContent() {
                   Please try signing up again or contact support if the problem persists.
                 </p>
                 <div className="space-y-2">
-                  <Link href="/auth/signup">
-                    <Button className="w-full bg-green-600 hover:bg-green-700">
+                  <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
+                    <Link href="/auth/signup">
                       Sign Up Again
-                    </Button>
-                  </Link>
-                  <Link href="/auth/login">
-                    <Button variant="outline" className="w-full">
+                    </Link>
+                  </Button>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/auth/login">
                       Back to Login
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </div>
               </>
             )}

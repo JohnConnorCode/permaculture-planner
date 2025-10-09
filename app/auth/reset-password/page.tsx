@@ -88,12 +88,12 @@ function ResetPasswordContent() {
             <p className="text-sm text-gray-600 mb-4">
               Please request a new password reset link from the login page.
             </p>
-            <Link href="/auth/login">
-              <Button className="w-full bg-green-600 hover:bg-green-700">
+            <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
+              <Link href="/auth/login">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Login
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -115,11 +115,11 @@ function ResetPasswordContent() {
             <p className="text-sm text-gray-600 text-center mb-4">
               Redirecting you to the login page...
             </p>
-            <Link href="/auth/login">
-              <Button className="w-full bg-green-600 hover:bg-green-700">
+            <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
+              <Link href="/auth/login">
                 Go to Login
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

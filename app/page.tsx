@@ -78,33 +78,34 @@ export default function HomePage() {
             <div className="opacity-0 animate-slide-in-left"
                  style={{ animationDelay: '0.9s', animationFillMode: 'forwards' }}>
               <QuickTooltip content="Start our guided wizard to create your personalized permaculture design" side="bottom">
-                <Link href="/wizard">
-                  <MobileOptimizedButton
-                    size="lg"
-                    className="gradient-understory text-white font-semibold px-8 py-6 text-lg group w-full sm:w-auto rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
-                    hapticFeedback
-                  >
+                <Button
+                  size="lg"
+                  className="gradient-understory text-white font-semibold px-8 py-6 text-lg group w-full sm:w-auto rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 relative overflow-hidden min-h-[44px] active:scale-95"
+                  asChild
+                >
+                  <Link href="/wizard">
                     <Leaf className="mr-2 h-5 w-5 relative z-10" />
                     <span className="relative z-10">Begin Your Design</span>
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 relative z-10" />
                     <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </MobileOptimizedButton>
-                </Link>
+                  </Link>
+                </Button>
               </QuickTooltip>
             </div>
             <div className="opacity-0 animate-slide-in-right"
                  style={{ animationDelay: '1.1s', animationFillMode: 'forwards' }}>
               <QuickTooltip content="Explore our complete platform with interactive examples" side="bottom">
-                <Link href="/demo">
-                  <MobileOptimizedButton
-                    size="lg"
-                    variant="outline"
-                    className="px-8 py-6 text-lg border-green-300 w-full sm:w-auto rounded-xl hover:bg-green-50 transition-all duration-300 group hover:border-green-400"
-                  >
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="px-8 py-6 text-lg border-green-300 w-full sm:w-auto rounded-xl hover:bg-green-50 transition-all duration-300 group hover:border-green-400 min-h-[44px] active:scale-95"
+                  asChild
+                >
+                  <Link href="/demo">
                     <TreePine className="mr-2 h-5 w-5 group-hover:text-green-600 transition-colors duration-300" />
                     <span className="group-hover:text-green-700 transition-colors duration-300">Explore Platform</span>
-                  </MobileOptimizedButton>
-                </Link>
+                  </Link>
+                </Button>
               </QuickTooltip>
             </div>
           </div>
@@ -386,26 +387,26 @@ export default function HomePage() {
           </AnimateOnScroll>
           <AnimateOnScroll animation="animate-fade-in" delay="0.5s">
             <div className="flex flex-wrap justify-center gap-4">
-            <a href="https://github.com/JohnConnorCode/permaculture-planner" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="lg" className="hover-lift rounded-lg hover-nature">
+            <Button variant="outline" size="lg" className="hover-lift rounded-lg hover-nature" asChild>
+              <a href="https://github.com/JohnConnorCode/permaculture-planner" target="_blank" rel="noopener noreferrer">
                 <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.30.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
                 </svg>
                 View on GitHub
-              </Button>
-            </a>
-            <Link href="/docs">
-              <Button variant="outline" size="lg" className="hover-lift rounded-lg hover-nature">
+              </a>
+            </Button>
+            <Button variant="outline" size="lg" className="hover-lift rounded-lg hover-nature" asChild>
+              <Link href="/docs">
                 <Sparkles className="h-5 w-5 mr-2" />
                 Contribute
-              </Button>
-            </Link>
-            <Link href="/community">
-              <Button variant="outline" size="lg" className="hover-lift rounded-lg hover-nature">
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" className="hover-lift rounded-lg hover-nature" asChild>
+              <Link href="/community">
                 <Globe className="h-5 w-5 mr-2" />
                 Join Community
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             </div>
           </AnimateOnScroll>
         </div>
@@ -426,30 +427,31 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <div className="opacity-0 animate-scale-in"
                  style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
-              <Link href="/wizard">
-                <MobileOptimizedButton
-                  size="lg"
-                  className="bg-white text-green-700 hover:bg-green-50 px-8 py-6 text-lg rounded-lg shadow-lg"
-                  hapticFeedback
-                >
+              <Button
+                size="lg"
+                className="bg-white text-green-700 hover:bg-green-50 px-8 py-6 text-lg rounded-lg shadow-lg min-h-[44px] active:scale-95"
+                asChild
+              >
+                <Link href="/wizard">
                   <Leaf className="mr-2 h-5 w-5" />
                   Design Your Garden
                   <ArrowRight className="ml-2 h-5 w-5" />
-                </MobileOptimizedButton>
-              </Link>
+                </Link>
+              </Button>
             </div>
             <div className="opacity-0 animate-scale-in"
                  style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
-              <Link href="/demo">
-                <MobileOptimizedButton
-                  size="lg"
-                  variant="outline"
-                  className="border-2 border-white/80 text-white bg-white/10 hover:bg-white/20 px-8 py-6 text-lg rounded-lg backdrop-blur-sm"
-                >
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-white/80 text-white bg-white/10 hover:bg-white/20 px-8 py-6 text-lg rounded-lg backdrop-blur-sm min-h-[44px] active:scale-95"
+                asChild
+              >
+                <Link href="/demo">
                   <TreePine className="mr-2 h-5 w-5" />
                   See Full Platform
-                </MobileOptimizedButton>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

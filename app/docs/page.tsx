@@ -349,12 +349,12 @@ export default function DocsPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </a>
-            <Link href="/community">
-              <Button size="lg" variant="outline" className="hover-lift">
+            <Button size="lg" variant="outline" className="hover-lift" asChild>
+              <Link href="/community">
                 <MessageSquare className="h-5 w-5 mr-2" />
                 Join Community
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

@@ -87,18 +87,22 @@ export default function SupportPage() {
           </p>
 
           <div className="flex gap-4 justify-center">
-            <Link href="/auth/signup" className="opacity-0 animate-slide-in-left" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-              <Button size="lg" className="bg-green-600 hover:bg-green-700">
-                <Rocket className="h-5 w-5 mr-2" />
-                Get Started Free
+            <div className="opacity-0 animate-slide-in-left" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+              <Button size="lg" className="bg-green-600 hover:bg-green-700" asChild>
+                <Link href="/auth/signup">
+                  <Rocket className="h-5 w-5 mr-2" />
+                  Get Started Free
+                </Link>
               </Button>
-            </Link>
-            <Link href="/demo" className="opacity-0 animate-slide-in-right" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
-              <Button size="lg" variant="outline">
-                <Leaf className="h-5 w-5 mr-2" />
-                Try the Demo
+            </div>
+            <div className="opacity-0 animate-slide-in-right" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
+              <Button size="lg" variant="outline" asChild>
+                <Link href="/demo">
+                  <Leaf className="h-5 w-5 mr-2" />
+                  Try the Demo
+                </Link>
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -279,18 +283,18 @@ export default function SupportPage() {
                 help shape the future of permaculture design tools.
               </p>
               <div className="flex gap-4 justify-center">
-                <Link href="/demo">
-                  <Button className="bg-green-600 hover:bg-green-700">
+                <Button className="bg-green-600 hover:bg-green-700" asChild>
+                  <Link href="/demo">
                     <Leaf className="h-4 w-4 mr-2" />
                     Explore the Demo
-                  </Button>
-                </Link>
-                <Link href="/community">
-                  <Button variant="outline">
+                  </Link>
+                </Button>
+                <Button variant="outline" asChild>
+                  <Link href="/community">
                     <Users className="h-4 w-4 mr-2" />
                     Join Community
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -307,16 +311,16 @@ export default function SupportPage() {
             Start planning your sustainable garden today. No credit card, no account required to explore.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/demo">
-              <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100">
+            <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100" asChild>
+              <Link href="/demo">
                 Try the Demo
-              </Button>
-            </Link>
-            <Link href="/auth/signup">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+              <Link href="/auth/signup">
                 Create Free Account
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

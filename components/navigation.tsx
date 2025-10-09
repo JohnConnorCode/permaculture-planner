@@ -79,19 +79,19 @@ export function Navigation() {
 
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center gap-2">
-              <Link href="/auth/login">
-                <Button variant="ghost" size="sm" className="gap-2 hover:bg-green-50">
+              <Button variant="ghost" size="sm" className="gap-2 hover:bg-green-50" asChild>
+                <Link href="/auth/login">
                   <LogIn className="h-4 w-4" />
                   Sign In
-                </Button>
-              </Link>
-              <Link href="/auth/signup">
-                <Button size="sm" className="gap-2 bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 relative overflow-hidden group">
+                </Link>
+              </Button>
+              <Button size="sm" className="gap-2 bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 relative overflow-hidden group" asChild>
+                <Link href="/auth/signup">
                   <UserPlus className="h-4 w-4 relative z-10" />
                   <span className="relative z-10">Get Started</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -136,18 +136,18 @@ export function Navigation() {
               )
             })}
             <div className="pt-4 border-t border-green-200/50 space-y-3">
-              <Link href="/auth/login" className="block">
-                <Button variant="outline" className="w-full justify-center gap-2 rounded-lg hover-nature hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 h-12 text-base">
+              <Button variant="outline" className="w-full justify-center gap-2 rounded-lg hover-nature hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 h-12 text-base" asChild>
+                <Link href="/auth/login">
                   <LogIn className="h-4 w-4" />
                   Sign In
-                </Button>
-              </Link>
-              <Link href="/auth/signup" className="block">
-                <Button className="w-full justify-center gap-2 gradient-understory rounded-lg hover-lift h-12 text-base">
+                </Link>
+              </Button>
+              <Button className="w-full justify-center gap-2 gradient-understory rounded-lg hover-lift h-12 text-base" asChild>
+                <Link href="/auth/signup">
                   <UserPlus className="h-4 w-4" />
                   Get Started
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
         </div>

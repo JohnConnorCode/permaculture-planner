@@ -155,12 +155,12 @@ export default function DashboardClient({ user, plans }: DashboardClientProps) {
         {/* Actions Bar */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Your Garden Plans</h2>
-          <Link href="/wizard">
-            <Button className="bg-green-600 hover:bg-green-700">
+          <Button className="bg-green-600 hover:bg-green-700" asChild>
+            <Link href="/wizard">
               <Plus className="mr-2 h-4 w-4" />
               New Plan
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
 
         {/* Plans Grid */}
@@ -174,12 +174,12 @@ export default function DashboardClient({ user, plans }: DashboardClientProps) {
               <p className="text-gray-500 mb-6 max-w-sm">
                 Start planning your permaculture garden by creating your first plan.
               </p>
-              <Link href="/wizard">
-                <Button className="bg-green-600 hover:bg-green-700">
+              <Button className="bg-green-600 hover:bg-green-700" asChild>
+                <Link href="/wizard">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Your First Plan
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </Card>
         ) : (
@@ -217,18 +217,18 @@ export default function DashboardClient({ user, plans }: DashboardClientProps) {
                   </div>
 
                   <div className="flex gap-2">
-                    <Link href={`/plans/${plan.id}`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full flex-1" asChild>
+                      <Link href={`/plans/${plan.id}`}>
                         <Eye className="mr-2 h-3 w-3" />
                         View
-                      </Button>
-                    </Link>
-                    <Link href={`/editor/${plan.id}`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full">
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full flex-1" asChild>
+                      <Link href={`/editor/${plan.id}`}>
                         <Edit className="mr-2 h-3 w-3" />
                         Edit
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"

@@ -196,6 +196,7 @@ interface MobileOptimizedButtonProps {
   className?: string
   disabled?: boolean
   hapticFeedback?: boolean
+  asChild?: boolean
 }
 
 export function MobileOptimizedButton({
@@ -205,7 +206,8 @@ export function MobileOptimizedButton({
   size = 'md',
   className,
   disabled = false,
-  hapticFeedback = true
+  hapticFeedback = true,
+  asChild = false
 }: MobileOptimizedButtonProps) {
   const handleClick = () => {
     if (disabled) return
@@ -221,10 +223,11 @@ export function MobileOptimizedButton({
   return (
     <TouchFeedback haptic={hapticFeedback}>
       <Button
-        onClick={handleClick}
+        onClick={asChild ? undefined : handleClick}
         variant={variant === 'outline' ? 'outline' : variant === 'secondary' ? 'secondary' : 'default'}
         size={size === 'md' ? 'default' : size}
         disabled={disabled}
+        asChild={asChild}
         className={cn(
           // Enhanced touch targets (minimum 44px)
           'min-h-[44px] min-w-[44px] touch-manipulation',

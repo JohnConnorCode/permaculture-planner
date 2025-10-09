@@ -114,9 +114,9 @@ export default function AdminUsersPage() {
               Total: {usersData.pagination.total} users
             </p>
           </div>
-          <Link href="/admin">
-            <Button variant="outline">← Back to Dashboard</Button>
-          </Link>
+          <Button variant="outline" asChild>
+            <Link href="/admin">← Back to Dashboard</Link>
+          </Button>
         </div>
 
         {/* Search */}

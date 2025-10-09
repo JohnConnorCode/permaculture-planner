@@ -147,12 +147,12 @@ export default function CommunityPage() {
         <section className="mb-12 opacity-0 animate-fade-in" style={{ animationDelay: '0.7s', animationFillMode: 'forwards' }}>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Featured Gardens</h2>
-            <Link href="/gallery">
-              <Button variant="outline">
+            <Button variant="outline" asChild>
+              <Link href="/gallery">
                 View Gallery
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {featuredGardens.map((garden, index) => (
@@ -237,12 +237,12 @@ export default function CommunityPage() {
             </CardContent>
           </Card>
           <div className="text-center mt-4">
-            <Link href="/forum">
-              <Button variant="outline">
+            <Button variant="outline" asChild>
+              <Link href="/forum">
                 View All Discussions
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </section>
 
@@ -260,12 +260,12 @@ export default function CommunityPage() {
                   <CardDescription>{resource.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Link href={resource.link}>
-                    <Button variant="ghost" className="w-full">
+                  <Button variant="ghost" className="w-full" asChild>
+                    <Link href={resource.link}>
                       Learn More
                       <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -347,12 +347,12 @@ export default function CommunityPage() {
                 Contribute on GitHub
               </Button>
             </a>
-            <Link href="/docs">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-700">
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-700" asChild>
+              <Link href="/docs">
                 <BookOpen className="h-5 w-5 mr-2" />
                 Developer Docs
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </section>
       </div>

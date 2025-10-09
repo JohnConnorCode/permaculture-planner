@@ -727,28 +727,32 @@ export default function FeaturesPage() {
                 title="Feature Guide"
                 className="mr-2"
               />
-              <Link href="/demo">
-                {isMobile ? (
-                  <MobileOptimizedButton variant="outline" size="sm">
+              {isMobile ? (
+                <MobileOptimizedButton variant="outline" size="sm" asChild>
+                  <Link href="/demo">
                     Try Demo
-                  </MobileOptimizedButton>
-                ) : (
-                  <Button variant="outline" size="sm">
+                  </Link>
+                </MobileOptimizedButton>
+              ) : (
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/demo">
                     Try Demo
-                  </Button>
-                )}
-              </Link>
-              <Link href="/wizard">
-                {isMobile ? (
-                  <MobileOptimizedButton size="sm" className="bg-green-600 hover:bg-green-700" hapticFeedback>
+                  </Link>
+                </Button>
+              )}
+              {isMobile ? (
+                <MobileOptimizedButton size="sm" className="bg-green-600 hover:bg-green-700" hapticFeedback asChild>
+                  <Link href="/wizard">
                     Start Free
-                  </MobileOptimizedButton>
-                ) : (
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                  </Link>
+                </MobileOptimizedButton>
+              ) : (
+                <Button size="sm" className="bg-green-600 hover:bg-green-700" asChild>
+                  <Link href="/wizard">
                     Start Free
-                  </Button>
-                )}
-              </Link>
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -900,30 +904,34 @@ export default function FeaturesPage() {
             Create sustainable food systems with free, comprehensive permaculture planning tools.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/wizard">
-              {isMobile ? (
-                <MobileOptimizedButton size="lg" className="bg-white text-green-600 hover:bg-gray-100" hapticFeedback>
+            {isMobile ? (
+              <MobileOptimizedButton size="lg" className="bg-white text-green-600 hover:bg-gray-100" hapticFeedback asChild>
+                <Link href="/wizard">
                   <Sparkles className="mr-2 h-5 w-5" />
                   Create Your Garden Plan
-                </MobileOptimizedButton>
-              ) : (
-                <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100">
+                </Link>
+              </MobileOptimizedButton>
+            ) : (
+              <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100" asChild>
+                <Link href="/wizard">
                   <Sparkles className="mr-2 h-5 w-5" />
                   Create Your Garden Plan
-                </Button>
-              )}
-            </Link>
-            <Link href="/demo">
-              {isMobile ? (
-                <MobileOptimizedButton size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                </Link>
+              </Button>
+            )}
+            {isMobile ? (
+              <MobileOptimizedButton size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+                <Link href="/demo">
                   Explore Interactive Demo
-                </MobileOptimizedButton>
-              ) : (
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                </Link>
+              </MobileOptimizedButton>
+            ) : (
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
+                <Link href="/demo">
                   Explore Interactive Demo
-                </Button>
-              )}
-            </Link>
+                </Link>
+              </Button>
+            )}
           </div>
           <p className="text-sm text-green-100 mt-6">
             No credit card required • Instant access • Community support
