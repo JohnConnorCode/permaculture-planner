@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { PlantInfo, getPlantById, checkCompatibility } from '@/lib/data/plant-library'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square, Edit2, Palette, Copy, Clipboard, Group, Ungroup, Layers, AlignLeft, AlignRight, AlignTop, AlignBottom, AlignCenterHorizontal, AlignCenterVertical } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square, Edit2, Palette, Copy, Clipboard, Group, Ungroup, Layers, AlignStartVertical, AlignEndVertical, AlignStartHorizontal, AlignEndHorizontal, AlignCenterHorizontal, AlignCenterVertical } from 'lucide-react'
 import { ElementSubtype, ELEMENT_STYLES, createElementShape } from '@/lib/canvas-elements'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -1275,7 +1275,7 @@ export function GardenDesignerCanvas({
             title="Align Left"
             className="p-2"
           >
-            <AlignLeft className="h-4 w-4" />
+            <AlignStartVertical className="h-4 w-4" />
           </Button>
           <Button
             size="sm"
@@ -1293,7 +1293,7 @@ export function GardenDesignerCanvas({
             title="Align Right"
             className="p-2"
           >
-            <AlignRight className="h-4 w-4" />
+            <AlignEndVertical className="h-4 w-4" />
           </Button>
           <div className="h-6 w-px bg-gray-300 mx-1" />
           <Button
@@ -1303,7 +1303,7 @@ export function GardenDesignerCanvas({
             title="Align Top"
             className="p-2"
           >
-            <AlignTop className="h-4 w-4" />
+            <AlignStartHorizontal className="h-4 w-4" />
           </Button>
           <Button
             size="sm"
@@ -1321,7 +1321,7 @@ export function GardenDesignerCanvas({
             title="Align Bottom"
             className="p-2"
           >
-            <AlignBottom className="h-4 w-4" />
+            <AlignEndHorizontal className="h-4 w-4" />
           </Button>
         </div>
       )}
