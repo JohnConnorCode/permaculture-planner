@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { PlantInfo, getPlantById, checkCompatibility } from '@/lib/data/plant-library'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square, Edit2, Palette, Copy, Clipboard, Group, Ungroup, Layers } from 'lucide-react'
+import { AlertCircle, CheckCircle, XCircle, ZoomIn, ZoomOut, Maximize2, Move, Home, Ruler, RotateCw, Circle, Hexagon, Triangle, Square, Edit2, Palette, Copy, Clipboard, Group, Ungroup, Layers, AlignLeft, AlignRight, AlignTop, AlignBottom, AlignCenterHorizontal, AlignCenterVertical } from 'lucide-react'
 import { ElementSubtype, ELEMENT_STYLES, createElementShape } from '@/lib/canvas-elements'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -733,6 +733,158 @@ export function GardenDesignerCanvas({
     setShowContextMenu(true)
   }
 
+  // Handle drag-and-drop for elements
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const elementType = e.dataTransfer.getData('elementType') as ElementSubtype
+    if (elementType) {
+      const point = snapToGrid(screenToWorld(e.clientX, e.clientY))
+      createElementAtPoint(point, elementType)
+    }
+  }
+
+  // Alignment functions
+  const alignLeft = () => {
+    if (!selectedBed) return
+    const selectedBeds = beds.filter(b => b.id === selectedBed)
+    if (selectedBeds.length === 0) return
+
+    const minX = Math.min(...selectedBeds.flatMap(bed => bed.points.map(p => p.x)))
+
+    const updatedBeds = beds.map(bed => {
+      if (bed.id === selectedBed) {
+        const currentMinX = Math.min(...bed.points.map(p => p.x))
+        const dx = minX - currentMinX
+        return {
+          ...bed,
+          points: bed.points.map(p => ({ x: p.x + dx, y: p.y }))
+        }
+      }
+      return bed
+    })
+
+    onBedsChange(updatedBeds)
+  }
+
+  const alignRight = () => {
+    if (!selectedBed) return
+    const selectedBeds = beds.filter(b => b.id === selectedBed)
+    if (selectedBeds.length === 0) return
+
+    const maxX = Math.max(...selectedBeds.flatMap(bed => bed.points.map(p => p.x)))
+
+    const updatedBeds = beds.map(bed => {
+      if (bed.id === selectedBed) {
+        const currentMaxX = Math.max(...bed.points.map(p => p.x))
+        const dx = maxX - currentMaxX
+        return {
+          ...bed,
+          points: bed.points.map(p => ({ x: p.x + dx, y: p.y }))
+        }
+      }
+      return bed
+    })
+
+    onBedsChange(updatedBeds)
+  }
+
+  const alignTop = () => {
+    if (!selectedBed) return
+    const selectedBeds = beds.filter(b => b.id === selectedBed)
+    if (selectedBeds.length === 0) return
+
+    const minY = Math.min(...selectedBeds.flatMap(bed => bed.points.map(p => p.y)))
+
+    const updatedBeds = beds.map(bed => {
+      if (bed.id === selectedBed) {
+        const currentMinY = Math.min(...bed.points.map(p => p.y))
+        const dy = minY - currentMinY
+        return {
+          ...bed,
+          points: bed.points.map(p => ({ x: p.x, y: p.y + dy }))
+        }
+      }
+      return bed
+    })
+
+    onBedsChange(updatedBeds)
+  }
+
+  const alignBottom = () => {
+    if (!selectedBed) return
+    const selectedBeds = beds.filter(b => b.id === selectedBed)
+    if (selectedBeds.length === 0) return
+
+    const maxY = Math.max(...selectedBeds.flatMap(bed => bed.points.map(p => p.y)))
+
+    const updatedBeds = beds.map(bed => {
+      if (bed.id === selectedBed) {
+        const currentMaxY = Math.max(...bed.points.map(p => p.y))
+        const dy = maxY - currentMaxY
+        return {
+          ...bed,
+          points: bed.points.map(p => ({ x: p.x, y: p.y + dy }))
+        }
+      }
+      return bed
+    })
+
+    onBedsChange(updatedBeds)
+  }
+
+  const alignCenterHorizontal = () => {
+    if (!selectedBed) return
+    const selectedBeds = beds.filter(b => b.id === selectedBed)
+    if (selectedBeds.length === 0) return
+
+    const allX = selectedBeds.flatMap(bed => bed.points.map(p => p.x))
+    const centerX = (Math.min(...allX) + Math.max(...allX)) / 2
+
+    const updatedBeds = beds.map(bed => {
+      if (bed.id === selectedBed) {
+        const bedXs = bed.points.map(p => p.x)
+        const bedCenterX = (Math.min(...bedXs) + Math.max(...bedXs)) / 2
+        const dx = centerX - bedCenterX
+        return {
+          ...bed,
+          points: bed.points.map(p => ({ x: p.x + dx, y: p.y }))
+        }
+      }
+      return bed
+    })
+
+    onBedsChange(updatedBeds)
+  }
+
+  const alignCenterVertical = () => {
+    if (!selectedBed) return
+    const selectedBeds = beds.filter(b => b.id === selectedBed)
+    if (selectedBeds.length === 0) return
+
+    const allY = selectedBeds.flatMap(bed => bed.points.map(p => p.y))
+    const centerY = (Math.min(...allY) + Math.max(...allY)) / 2
+
+    const updatedBeds = beds.map(bed => {
+      if (bed.id === selectedBed) {
+        const bedYs = bed.points.map(p => p.y)
+        const bedCenterY = (Math.min(...bedYs) + Math.max(...bedYs)) / 2
+        const dy = centerY - bedCenterY
+        return {
+          ...bed,
+          points: bed.points.map(p => ({ x: p.x, y: p.y + dy }))
+        }
+      }
+      return bed
+    })
+
+    onBedsChange(updatedBeds)
+  }
+
   // Rotate point around center
   const rotatePoint = (point: { x: number; y: number }, center: { x: number; y: number }, angle: number) => {
     const rad = (angle * Math.PI) / 180
@@ -1113,6 +1265,67 @@ export function GardenDesignerCanvas({
         </div>
       )}
 
+      {/* Alignment Controls - Show when bed is selected */}
+      {selectedBed && selectedTool === 'select' && (
+        <div className="absolute top-16 left-4 z-10 flex gap-1 bg-white/90 backdrop-blur rounded-lg p-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={alignLeft}
+            title="Align Left"
+            className="p-2"
+          >
+            <AlignLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={alignCenterHorizontal}
+            title="Align Center (Horizontal)"
+            className="p-2"
+          >
+            <AlignCenterHorizontal className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={alignRight}
+            title="Align Right"
+            className="p-2"
+          >
+            <AlignRight className="h-4 w-4" />
+          </Button>
+          <div className="h-6 w-px bg-gray-300 mx-1" />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={alignTop}
+            title="Align Top"
+            className="p-2"
+          >
+            <AlignTop className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={alignCenterVertical}
+            title="Align Center (Vertical)"
+            className="p-2"
+          >
+            <AlignCenterVertical className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={alignBottom}
+            title="Align Bottom"
+            className="p-2"
+          >
+            <AlignBottom className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
       {/* Canvas Controls */}
       <div className="absolute top-4 right-4 z-10 flex gap-2">
         <Button
@@ -1191,6 +1404,9 @@ export function GardenDesignerCanvas({
           onClick={handleCanvasClick}
           onWheel={handleWheel}
           onContextMenu={handleContextMenu}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragEnter={(e) => e.preventDefault()}
         >
           {/* Grid */}
           {showGrid && (
