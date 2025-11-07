@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
+import { ShowMoreList } from '@/components/ui/paginated-list'
 import {
   Heart,
   AlertTriangle,
@@ -198,14 +199,18 @@ export function CompanionPlantingPanel({
                     <Info className="h-4 w-4 text-blue-500" />
                     Suggested Guilds
                   </h3>
-                  {possible.slice(0, 3).map((guild, idx) => (
-                    <GuildCard
-                      key={idx}
-                      guild={guild}
-                      status="possible"
-                      onImplement={onImplementGuild}
-                    />
-                  ))}
+                  <ShowMoreList
+                    items={possible}
+                    initialCount={3}
+                    increment={3}
+                    renderItem={(guild, idx) => (
+                      <GuildCard
+                        guild={guild}
+                        status="possible"
+                        onImplement={onImplementGuild}
+                      />
+                    )}
+                  />
                 </div>
               )}
 

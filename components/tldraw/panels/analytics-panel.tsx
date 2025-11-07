@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
+import { ShowMoreList } from '@/components/ui/paginated-list'
 import {
   BarChart3,
   TrendingUp,
@@ -207,16 +208,21 @@ export function AnalyticsPanel({
                   <Separator />
                   <div className="space-y-2">
                     <p className="text-xs font-medium">Top Producers:</p>
-                    {analytics.yieldPredictions.topCrops.map((crop, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-xs">
-                        <span className="text-muted-foreground">
-                          {crop.icon} {crop.name}
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {crop.yield.toFixed(0)} lbs
-                        </Badge>
-                      </div>
-                    ))}
+                    <ShowMoreList
+                      items={analytics.yieldPredictions.topCrops}
+                      initialCount={5}
+                      increment={5}
+                      renderItem={(crop, idx) => (
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-muted-foreground">
+                            {crop.icon} {crop.name}
+                          </span>
+                          <Badge variant="outline" className="text-xs">
+                            {crop.yield.toFixed(0)} lbs
+                          </Badge>
+                        </div>
+                      )}
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -499,7 +505,6 @@ function calculateGardenAnalytics(beds: GardenBed[], siteData?: SiteData | null)
       }
     })
     .sort((a, b) => b.yield - a.yield)
-    .slice(0, 5)
 
   const yieldPredictions = {
     totalLbs: totalYield,
