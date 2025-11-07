@@ -4,11 +4,17 @@ import { BedShape } from './shapes/bed-shape'
 import { PlantShape } from './shapes/plant-shape'
 
 /**
- * Data adapter to convert between legacy GardenBed format and tldraw shapes
+ * DataAdapter converts between legacy GardenBed format and tldraw shapes
+ *
+ * This adapter ensures backward compatibility with existing garden data
+ * while leveraging tldraw's high-performance shape system.
  */
 export class DataAdapter {
   /**
    * Convert GardenBed array to tldraw shapes
+   *
+   * @param beds Array of garden beds from legacy format
+   * @returns Array of tldraw shapes (BedShape and PlantShape)
    */
   gardenBedsToShapes(beds: GardenBed[]): TLShape[] {
     const shapes: TLShape[] = []
@@ -28,10 +34,13 @@ export class DataAdapter {
           h: bed.height || this.calculateHeight(bed.points),
           name: bed.name,
           color: bed.stroke,
-          points: bed.points && bed.points.length > 2 ? this.normalizePoints(bed.points) : undefined,
-          elementType: bed.elementType,
-          elementCategory: bed.elementCategory,
-          zone: bed.zone,
+          // Serialize points as JSON string for tldraw compatibility
+          pointsJson: bed.points && bed.points.length > 2
+            ? JSON.stringify(this.normalizePoints(bed.points))
+            : '[]',
+          elementType: bed.elementType || '',
+          elementCategory: bed.elementCategory || 'bed',
+          zone: bed.zone ?? -1, // -1 means no zone
         },
         meta: {
           originalFill: bed.fill,
@@ -58,6 +67,9 @@ export class DataAdapter {
 
   /**
    * Convert tldraw shapes back to GardenBed array
+   *
+   * @param shapes Array of tldraw shapes
+   * @returns Array of garden beds in legacy format
    */
   shapesToGardenBeds(shapes: TLShape[]): GardenBed[] {
     const beds: GardenBed[] = []
@@ -78,25 +90,31 @@ export class DataAdapter {
             plantId: plantShape.props.plantId,
             x: plantShape.x - bedBounds.x,
             y: plantShape.y - bedBounds.y,
-            plantedDate: plantShape.props.plantedDate ? new Date(plantShape.props.plantedDate) : undefined,
+            plantedDate: plantShape.props.plantedDate
+              ? new Date(plantShape.props.plantedDate)
+              : undefined,
           })
         }
       }
+
+      // Parse points from JSON
+      const pointsJson = bedShape.props.pointsJson
+      const points = this.parsePoints(pointsJson)
 
       // Convert back to GardenBed
       const bed: GardenBed = {
         id: bedShape.id,
         name: bedShape.props.name,
-        points: bedShape.props.points || this.rectToPoints(bedShape.props.w, bedShape.props.h),
+        points: points.length > 0 ? points : this.rectToPoints(bedShape.props.w, bedShape.props.h),
         fill: (bedShape.meta as any)?.originalFill || '#e0f2e0',
         stroke: bedShape.props.color,
         plants: bedPlants,
         width: bedShape.props.w,
         height: bedShape.props.h,
         rotation: bedShape.rotation,
-        elementType: bedShape.props.elementType,
-        elementCategory: bedShape.props.elementCategory,
-        zone: bedShape.props.zone,
+        elementType: bedShape.props.elementType || undefined,
+        elementCategory: (bedShape.props.elementCategory as any) || undefined,
+        zone: bedShape.props.zone >= 0 ? (bedShape.props.zone as any) : undefined,
         metadata: (bedShape.meta as any)?.metadata,
       }
 
@@ -108,6 +126,21 @@ export class DataAdapter {
 
   // ========== Helper Methods ==========
 
+  /**
+   * Parse points from JSON string
+   */
+  private parsePoints(pointsJson: string): { x: number; y: number }[] {
+    try {
+      const points = JSON.parse(pointsJson)
+      return Array.isArray(points) ? points : []
+    } catch {
+      return []
+    }
+  }
+
+  /**
+   * Convert plant item to tldraw PlantShape
+   */
   private plantToShape(plant: PlantedItem, bed: GardenBed): PlantShape {
     return {
       id: createShapeId(plant.id),
@@ -120,13 +153,13 @@ export class DataAdapter {
       props: {
         radius: 20,
         plantId: plant.plantId,
-        plantName: plant.plantId, // TODO: Look up actual plant name
+        plantName: this.getPlantName(plant.plantId),
         emoji: this.getPlantEmoji(plant.plantId),
         color: '#22c55e',
-        companions: [],
-        antagonists: [],
+        companionsJson: '[]', // TODO: Look up from plant database
+        antagonistsJson: '[]', // TODO: Look up from plant database
         spacing: 12,
-        plantedDate: plant.plantedDate?.toISOString(),
+        plantedDate: plant.plantedDate?.toISOString() || '',
       },
       meta: {},
       parentId: 'page:page' as any,
@@ -135,22 +168,34 @@ export class DataAdapter {
     }
   }
 
+  /**
+   * Get the minimum X coordinate from points
+   */
   private getBedX(points: { x: number; y: number }[]): number {
     if (!points || points.length === 0) return 0
     return Math.min(...points.map(p => p.x))
   }
 
+  /**
+   * Get the minimum Y coordinate from points
+   */
   private getBedY(points: { x: number; y: number }[]): number {
     if (!points || points.length === 0) return 0
     return Math.min(...points.map(p => p.y))
   }
 
+  /**
+   * Calculate width from points array
+   */
   private calculateWidth(points: { x: number; y: number }[]): number {
     if (!points || points.length === 0) return 200
     const xs = points.map(p => p.x)
     return Math.max(...xs) - Math.min(...xs)
   }
 
+  /**
+   * Calculate height from points array
+   */
   private calculateHeight(points: { x: number; y: number }[]): number {
     if (!points || points.length === 0) return 100
     const ys = points.map(p => p.y)
@@ -159,6 +204,7 @@ export class DataAdapter {
 
   /**
    * Normalize points to be relative to shape's origin (0, 0)
+   * This is required for tldraw's coordinate system
    */
   private normalizePoints(points: { x: number; y: number }[]): { x: number; y: number }[] {
     const minX = Math.min(...points.map(p => p.x))
@@ -182,6 +228,9 @@ export class DataAdapter {
     ]
   }
 
+  /**
+   * Get bounding box of a bed shape
+   */
   private getShapeBounds(shape: BedShape) {
     return {
       x: shape.x,
@@ -207,7 +256,20 @@ export class DataAdapter {
   }
 
   /**
-   * Get emoji for plant (placeholder - should lookup from plant database)
+   * Get human-readable plant name from ID
+   * TODO: Replace with actual plant database lookup
+   */
+  private getPlantName(plantId: string): string {
+    // Capitalize and format plant ID as name
+    return plantId
+      .split(/[-_]/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
+
+  /**
+   * Get emoji for plant based on ID
+   * TODO: Replace with actual plant database lookup
    */
   private getPlantEmoji(plantId: string): string {
     const emojiMap: Record<string, string> = {
@@ -219,6 +281,18 @@ export class DataAdapter {
       basil: '🌿',
       mint: '🌿',
       rosemary: '🌿',
+      strawberry: '🍓',
+      corn: '🌽',
+      pumpkin: '🎃',
+      bean: '🫘',
+      pea: '🫛',
+      onion: '🧅',
+      garlic: '🧄',
+      potato: '🥔',
+      eggplant: '🍆',
+      broccoli: '🥦',
+      cabbage: '🥬',
+      spinach: '🥬',
     }
 
     const lowerPlantId = plantId.toLowerCase()
@@ -228,9 +302,19 @@ export class DataAdapter {
       }
     }
 
-    return '🌱' // Default emoji
+    return '🌱' // Default plant emoji
   }
 }
 
-// Export singleton instance
+/**
+ * Singleton instance for easy importing
+ *
+ * Usage:
+ * ```ts
+ * import { dataAdapter } from '@/components/tldraw/data-adapter'
+ *
+ * const shapes = dataAdapter.gardenBedsToShapes(myBeds)
+ * const beds = dataAdapter.shapesToGardenBeds(myShapes)
+ * ```
+ */
 export const dataAdapter = new DataAdapter()

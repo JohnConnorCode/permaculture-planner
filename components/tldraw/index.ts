@@ -8,6 +8,7 @@
  */
 
 export { PermacultureCanvas } from './permaculture-canvas'
+export { CanvasErrorBoundary } from './canvas-error-boundary'
 export { permacultureShapes, BedShapeUtil, PlantShapeUtil } from './shapes'
 export { permacultureTools } from './tools'
 export { dataAdapter, DataAdapter } from './data-adapter'
