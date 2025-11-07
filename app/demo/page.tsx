@@ -132,64 +132,7 @@ export default function DemoPage() {
         </div>
       )}
 
-      {/* Persistence status bar */}
-      <div className={`border-b px-4 py-2 text-xs flex justify-between items-center transition-colors ${
-        persistence.hasUnsavedChanges
-          ? 'bg-yellow-50 text-yellow-700'
-          : 'bg-gradient-to-r from-green-50 to-emerald-50 text-gray-600'
-      }`}>
-        <div className="flex items-center gap-4">
-          <span>📋 Demo Mode - Full featured, saves locally</span>
-          {persistence.hasUnsavedChanges && (
-            <span className="inline-block w-2 h-2 bg-yellow-600 rounded-full animate-pulse" title="Unsaved changes" />
-          )}
-          {persistence.lastSaved && (
-            <span className="text-gray-500">
-              Last saved: {persistence.lastSaved.toLocaleTimeString()}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleSave}
-            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-medium disabled:opacity-50"
-            title="Save immediately"
-          >
-            💾 Save
-          </button>
-          <button
-            onClick={handleExport}
-            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium"
-            title="Download as JSON file"
-          >
-            📥 Export
-          </button>
-          <button
-            onClick={handleImportClick}
-            className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 text-xs font-medium"
-            title="Upload JSON file"
-          >
-            📤 Import
-          </button>
-          <button
-            onClick={handleClear}
-            className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-medium"
-            title="Delete all beds"
-          >
-            🗑️ Clear
-          </button>
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          onChange={handleImport}
-          className="hidden"
-          aria-label="Import JSON file"
-        />
-      </div>
-
-      {/* Main editor */}
+      {/* Main editor - handles its own header and UI */}
       <div className="flex-1 overflow-hidden">
         <PermacultureEditorIntegrated
           initialData={gardenData}
@@ -197,6 +140,16 @@ export default function DemoPage() {
           showHeader={true}
         />
       </div>
+
+      {/* Hidden file input for future import if needed */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleImport}
+        className="hidden"
+        aria-label="Import JSON file"
+      />
     </div>
   )
 }

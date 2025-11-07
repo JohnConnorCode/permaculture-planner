@@ -44,7 +44,8 @@ export class DataAdapter {
         },
         meta: {
           originalFill: bed.fill,
-          metadata: bed.metadata,
+          // Serialize metadata to ensure JSON-serializable .meta property
+          ...(bed.metadata ? { metadataJson: JSON.stringify(bed.metadata) } : {}),
         },
         parentId: 'page:page' as any,
         index: 'a1' as any,
@@ -132,7 +133,9 @@ export class DataAdapter {
         elementType: bedShape.props.elementType || undefined,
         elementCategory: (bedShape.props.elementCategory as any) || undefined,
         zone: bedShape.props.zone >= 0 ? (bedShape.props.zone as any) : undefined,
-        metadata: (bedShape.meta as any)?.metadata,
+        metadata: (bedShape.meta as any)?.metadataJson
+          ? JSON.parse((bedShape.meta as any).metadataJson)
+          : undefined,
       }
 
       beds.push(bed)
