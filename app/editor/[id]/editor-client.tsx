@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { PermacultureEditorIntegrated } from '@/components/tldraw/permaculture-editor-integrated'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { createClient } from '@/lib/supabase/client'
@@ -24,6 +24,7 @@ export function EditorClient({ plan }: EditorClientProps) {
   const [gardenBeds, setGardenBeds] = useState<GardenBed[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load initial data from Supabase beds
   useEffect(() => {
@@ -33,25 +34,36 @@ export function EditorClient({ plan }: EditorClientProps) {
     }
 
     try {
-      // Convert Supabase beds to GardenBed format
-      const beds: GardenBed[] = plan.beds.map((bed: any) => ({
-        id: bed.id,
-        name: bed.name || 'Garden Bed',
-        points: [
-          { x: 0, y: 0 },
-          { x: (bed.length_ft || 4) * 12, y: 0 },
-          { x: (bed.length_ft || 4) * 12, y: (bed.width_ft || 4) * 12 },
-          { x: 0, y: (bed.width_ft || 4) * 12 },
-        ],
-        fill: '#e0f2e0',
-        stroke: '#22c55e',
-        plants: [],
-        width: (bed.length_ft || 4) * 12,
-        height: (bed.width_ft || 4) * 12,
-        rotation: bed.orientation === 'north-south' ? 0 : 90,
-        elementCategory: 'bed',
-        zone: undefined,
-      }))
+      // Convert Supabase beds to GardenBed format WITH plants
+      const beds: GardenBed[] = plan.beds.map((bed: any) => {
+        // Convert plantings to plants array
+        const plants = bed.plantings?.map((planting: any) => ({
+          id: planting.id,
+          plantId: planting.variety, // variety field stores our plant ID
+          x: 24, // Default position (TODO: store actual position)
+          y: 24,
+          plantedDate: planting.sow_date ? new Date(planting.sow_date) : undefined,
+        })) || []
+
+        return {
+          id: bed.id,
+          name: bed.name || 'Garden Bed',
+          points: [
+            { x: 0, y: 0 },
+            { x: (bed.length_ft || 4) * 12, y: 0 },
+            { x: (bed.length_ft || 4) * 12, y: (bed.width_ft || 4) * 12 },
+            { x: 0, y: (bed.width_ft || 4) * 12 },
+          ],
+          fill: '#e0f2e0',
+          stroke: '#22c55e',
+          plants,
+          width: (bed.length_ft || 4) * 12,
+          height: (bed.width_ft || 4) * 12,
+          rotation: bed.orientation === 'north-south' ? 0 : 90,
+          elementCategory: 'bed',
+          zone: undefined,
+        }
+      })
 
       setGardenBeds(beds)
     } catch (error) {
@@ -82,24 +94,49 @@ export function EditorClient({ plan }: EditorClientProps) {
     }
   }, [plan])
 
-  // Auto-save to Supabase (debounced by canvas)
+  // Auto-save to Supabase (debounced 2 seconds)
   const handleSave = useCallback(async (updatedBeds: GardenBed[]) => {
     try {
       // Update local state immediately for responsiveness
       setGardenBeds(updatedBeds)
 
-      // Save to Supabase in background
-      const result = await syncBedsToSupabase(supabase, plan.id, updatedBeds)
-
-      if (!result.success) {
-        console.error('Auto-save failed:', result.error)
-        // Don't show toast for auto-save failures to avoid spam
+      // Clear any pending save
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
       }
+
+      // Debounce the save operation (2 seconds)
+      saveTimeoutRef.current = setTimeout(async () => {
+        const result = await syncBedsToSupabase(supabase, plan.id, updatedBeds)
+
+        if (!result.success) {
+          console.error('Auto-save failed:', result.error)
+          // Show error toast for failed auto-save
+          toast.error('Auto-save failed', {
+            description: 'Your changes may not be saved. Try manual save.',
+            duration: 3000,
+          })
+        } else {
+          // Subtle success indicator
+          console.log('Auto-saved successfully')
+        }
+      }, 2000) // 2 second debounce
     } catch (error) {
       console.error('Error auto-saving to Supabase:', error)
-      // Silent failure for auto-save
+      toast.error('Auto-save error', {
+        description: 'Please use manual save (Cmd+S)',
+      })
     }
   }, [plan.id, supabase])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // Manual save to Supabase (triggered by user action)
   const handleManualSave = useCallback(async () => {

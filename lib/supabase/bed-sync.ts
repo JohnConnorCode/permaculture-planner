@@ -71,12 +71,13 @@ export function gardenBedToSupabase(bed: GardenBed, planId: string, orderIndex: 
 }
 
 /**
- * Save all garden beds to Supabase
+ * Save all garden beds AND plants to Supabase
  *
  * Strategy:
  * 1. Get existing beds for this plan
  * 2. Upsert (insert/update) all beds from canvas
  * 3. Delete beds that were removed from canvas
+ * 4. Sync plants to plantings table
  */
 export async function syncBedsToSupabase(
   supabase: SupabaseClient,
@@ -135,12 +136,118 @@ export async function syncBedsToSupabase(
       }
     }
 
+    // Step 5: Sync plants to plantings table
+    const plantingSyncResult = await syncPlantsToSupabase(supabase, gardenBeds)
+    if (!plantingSyncResult.success) {
+      return plantingSyncResult
+    }
+
     return { success: true }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('Error syncing beds to Supabase:', error)
     return { success: false, error: errorMessage }
   }
+}
+
+/**
+ * Sync plants to plantings table
+ */
+async function syncPlantsToSupabase(
+  supabase: SupabaseClient,
+  gardenBeds: GardenBed[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Collect all plants from all beds
+    const allPlantings: any[] = []
+    const currentPlantingIds = new Set<string>()
+
+    for (const bed of gardenBeds) {
+      if (bed.plants && bed.plants.length > 0) {
+        for (const plant of bed.plants) {
+          currentPlantingIds.add(plant.id)
+
+          allPlantings.push({
+            id: plant.id,
+            bed_id: bed.id,
+            season: getCurrentSeason(),
+            year: new Date().getFullYear(),
+            crop_id: null, // We use variety field instead
+            variety: plant.plantId, // Store plant ID as variety
+            spacing_in: 12, // Default spacing
+            family: 'Other' as const,
+            target_days_to_maturity: 70,
+            sowing_method: 'direct' as const,
+            sow_date: plant.plantedDate ? new Date(plant.plantedDate).toISOString().split('T')[0] : null,
+            notes: `Planted via canvas editor`,
+          })
+        }
+      }
+    }
+
+    // Get existing plantings for these beds
+    const bedIds = gardenBeds.map(b => b.id)
+    const { data: existingPlantings, error: fetchError } = await (supabase as any)
+      .from('plantings')
+      .select('id, bed_id')
+      .in('bed_id', bedIds)
+
+    if (fetchError && fetchError.code !== 'PGRST116') { // Ignore "no rows" error
+      console.error('Error fetching existing plantings:', fetchError)
+      return { success: false, error: fetchError.message }
+    }
+
+    // Find plantings to delete (ones that were removed from canvas)
+    const existingPlantingIds = new Set(existingPlantings?.map((p: any) => p.id) || [])
+    const plantingsToDelete = Array.from(existingPlantingIds).filter(
+      id => !currentPlantingIds.has(id)
+    )
+
+    // Delete removed plantings
+    if (plantingsToDelete.length > 0) {
+      const { error: deleteError } = await (supabase as any)
+        .from('plantings')
+        .delete()
+        .in('id', plantingsToDelete)
+
+      if (deleteError) {
+        console.error('Error deleting removed plantings:', deleteError)
+        return { success: false, error: deleteError.message }
+      }
+    }
+
+    // Upsert all current plantings
+    if (allPlantings.length > 0) {
+      const { error: upsertError } = await (supabase as any)
+        .from('plantings')
+        .upsert(allPlantings, {
+          onConflict: 'id',
+          ignoreDuplicates: false,
+        })
+
+      if (upsertError) {
+        console.error('Error upserting plantings:', upsertError)
+        return { success: false, error: upsertError.message }
+      }
+    }
+
+    return { success: true }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error syncing plants to Supabase:', error)
+    return { success: false, error: errorMessage }
+  }
+}
+
+/**
+ * Get current season
+ */
+function getCurrentSeason(): 'spring' | 'summer' | 'fall' | 'winter' {
+  const month = new Date().getMonth()
+  if (month >= 2 && month <= 4) return 'spring'
+  if (month >= 5 && month <= 7) return 'summer'
+  if (month >= 8 && month <= 10) return 'fall'
+  return 'winter'
 }
 
 /**
