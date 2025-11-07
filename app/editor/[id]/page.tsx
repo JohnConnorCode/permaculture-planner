@@ -1,6 +1,6 @@
 import { createServerClientReadOnly } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import UnifiedEditor from '../unified-editor'
+import { EditorClient } from './editor-client'
 
 export default async function EditorPage({ params }: { params: { id: string } }) {
   const supabase = await createServerClientReadOnly()
@@ -31,5 +31,5 @@ export default async function EditorPage({ params }: { params: { id: string } })
     redirect('/dashboard')
   }
 
-  return <UnifiedEditor plan={plan} />
+  return <EditorClient plan={plan} />
 }
