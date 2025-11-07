@@ -153,7 +153,7 @@ export function SectorAnalysisPanel({ gardenBeds, siteData, siteContext }: Secto
                     <SectorCard
                       icon={Rabbit}
                       label="Wildlife"
-                      status={analysis.wildlife.status}
+                      status={analysis.wildlife.pollinators}
                       onClick={() => setSelectedSector('wildlife')}
                     />
                   </div>

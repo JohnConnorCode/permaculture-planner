@@ -121,8 +121,8 @@ export async function syncBedsToSupabase(
 
     // Step 4: Delete beds that were removed from canvas
     const bedsToDelete = Array.from(existingBedIds).filter(
-      id => !currentBedIds.has(id)
-    )
+      id => !currentBedIds.has(id as string)
+    ) as string[]
 
     if (bedsToDelete.length > 0) {
       const { error: deleteError } = await (supabase as any)
@@ -203,8 +203,8 @@ async function syncPlantsToSupabase(
     // Find plantings to delete (ones that were removed from canvas)
     const existingPlantingIds = new Set(existingPlantings?.map((p: any) => p.id) || [])
     const plantingsToDelete = Array.from(existingPlantingIds).filter(
-      id => !currentPlantingIds.has(id)
-    )
+      id => !currentPlantingIds.has(id as string)
+    ) as string[]
 
     // Delete removed plantings
     if (plantingsToDelete.length > 0) {

@@ -124,7 +124,7 @@ export function analyzeDesign(beds: GardenBed[]): DesignCritique {
 
   // Check 5: Water Efficiency
   const hasWaterElements = beds.some(bed =>
-    bed.elementCategory === 'water' || bed.elementSubtype === 'pond'
+    bed.elementCategory === 'water_management' || bed.elementType === 'pond'
   )
 
   if (!hasWaterElements && beds.length > 3) {
@@ -140,7 +140,7 @@ export function analyzeDesign(beds: GardenBed[]): DesignCritique {
 
   // Check 6: Edge Effects
   const pathBeds = beds.filter(bed =>
-    bed.elementCategory === 'path' || bed.elementSubtype === 'path'
+    bed.elementCategory === 'access' || bed.elementType === 'path'
   ).length
 
   if (pathBeds === 0 && beds.length > 4) {
@@ -157,7 +157,8 @@ export function analyzeDesign(beds: GardenBed[]): DesignCritique {
   // Check 7: Pollinator Support
   const pollinatorPlants = allPlants.filter(p => {
     const plantInfo = PLANT_LIBRARY.find(lib => lib.id === p.plantId)
-    return plantInfo?.benefits?.some(b => b.toLowerCase().includes('pollinator'))
+    // Consider flowers and herbs as pollinator plants
+    return plantInfo?.category === 'flower' || plantInfo?.category === 'herb'
   }).length
 
   if (pollinatorPlants === 0 && totalPlants > 5) {

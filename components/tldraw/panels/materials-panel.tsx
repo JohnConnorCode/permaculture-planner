@@ -19,7 +19,7 @@ import {
 import { GardenBed } from '@/lib/garden/garden-types'
 import { MaterialsCalculator } from '@/lib/algorithms/materials-calculator'
 import { cn } from '@/lib/utils'
-import { SiteData } from './analytics-panel'
+import { SiteData } from '@/lib/types/site-context'
 
 interface MaterialsPanelProps {
   /** Current garden beds */
@@ -49,7 +49,7 @@ export function MaterialsPanel({
     if (gardenBeds.length === 0) return null
 
     const surface = (siteData?.surfaceType as 'soil' | 'hard') || 'soil'
-    const enableDrip = siteData?.waterSource === 'spigot' || siteData?.waterSource === 'rain'
+    const enableDrip = !!siteData?.waterSource && siteData?.waterSource !== 'rain'
 
     return calculator.calculateFromGardenBeds(gardenBeds, 12, surface, enableDrip)
   }, [gardenBeds, siteData, calculator])

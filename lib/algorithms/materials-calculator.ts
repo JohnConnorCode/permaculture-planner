@@ -243,12 +243,14 @@ export class MaterialsCalculator {
   ): MaterialsEstimate {
     const bedLayouts: BedLayout[] = beds.map(bed => ({
       id: bed.id,
+      name: bed.name || `Bed ${bed.id}`,
       width: (bed.width || 48) / 12, // Convert inches to feet
       length: (bed.height || 48) / 12, // Convert inches to feet
       height: bedDepth, // inches
       x: 0, // Not needed for materials calc
       y: 0,
-      orientation: bed.rotation === 90 ? 'east-west' : 'north-south',
+      orientation: bed.rotation === 90 ? 'EW' : 'NS',
+      hasTrellis: false,
       isWicking: false,
       pathWidth: 24, // Default 24" paths
     }))

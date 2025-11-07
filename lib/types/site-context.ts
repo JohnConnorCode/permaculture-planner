@@ -189,13 +189,13 @@ export interface SiteData {
   location?: {
     lat: number
     lng: number
-  }
+  } | null
   usdaZone?: string
   climate?: ClimateType
   frostDates?: {
     lastFrost: Date
     firstFrost: Date
-  }
+  } | null
   waterSource?: 'municipal' | 'well' | 'rain' | 'pond' | 'stream' | 'greywater' | 'multiple'
   surfaceType?: 'grass' | 'hard' | 'soil' | 'mulch' | 'mixed'
 }

@@ -32,20 +32,7 @@ import {
 } from '@/lib/data/plant-yield-data'
 import { deriveClimateFromLocation } from '@/lib/climate/climate-utils'
 import { cn } from '@/lib/utils'
-
-export interface SiteData {
-  usdaZone?: string
-  frostDates?: {
-    lastFrost: Date
-    firstFrost: Date
-  } | null
-  location?: {
-    lat: number
-    lng: number
-  } | null
-  surfaceType?: string
-  waterSource?: string
-}
+import { SiteData } from '@/lib/types/site-context'
 
 interface AnalyticsPanelProps {
   /** Current garden beds */
@@ -543,7 +530,7 @@ function calculateGardenAnalytics(beds: GardenBed[], siteData?: SiteData | null)
   if (waterNeeds.high > totalPlants * 0.4) {
     if (siteData?.waterSource === 'rain') {
       recommendations.push('High water plants detected - consider adding rain barrels or swales')
-    } else if (siteData?.waterSource === 'none') {
+    } else if (!siteData?.waterSource) {
       recommendations.push('⚠️ Many high-water plants without water source - switch to drought-tolerant varieties')
     } else {
       recommendations.push('Consider drought-tolerant alternatives to reduce water usage')
@@ -587,7 +574,7 @@ function calculateGardenAnalytics(beds: GardenBed[], siteData?: SiteData | null)
   }
 
   // Surface type recommendations
-  if (siteData?.surfaceType === 'hard' || siteData?.surfaceType === 'concrete') {
+  if (siteData?.surfaceType === 'hard') {
     recommendations.push('Hard surface detected - ensure adequate soil depth (12-18") for root crops')
   }
 

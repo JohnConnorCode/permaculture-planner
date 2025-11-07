@@ -8,7 +8,8 @@ import { ElementsLibraryPanel } from './panels/elements-library-panel'
 import { PropertiesPanel } from './panels/properties-panel'
 import { ZoneManagementPanel } from './panels/zone-management-panel'
 import { CompanionPlantingPanel } from './panels/companion-planting-panel'
-import { AnalyticsPanel, SiteData } from './panels/analytics-panel'
+import { AnalyticsPanel } from './panels/analytics-panel'
+import { SiteData } from '@/lib/types/site-context'
 import { SeasonalTimelinePanel } from './panels/seasonal-timeline-panel'
 import { MaterialsPanel } from './panels/materials-panel'
 import { TasksPanel } from './panels/tasks-panel'
@@ -165,7 +166,12 @@ export function PermacultureEditorIntegrated({
       toast.success('Exported as JSON')
     } else if (format === 'png') {
       // Use tldraw's export functionality
-      editor.getSvgString(editor.getCurrentPageShapeIds()).then(({ svg }) => {
+      editor.getSvgString(Array.from(editor.getCurrentPageShapeIds())).then((result) => {
+        if (!result) {
+          toast.error('Failed to export PNG')
+          return
+        }
+        const { svg } = result
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')
         const img = new Image()

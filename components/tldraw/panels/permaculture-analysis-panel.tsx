@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PLANT_LIBRARY } from '@/lib/data/plant-library'
-import { SiteData } from './analytics-panel'
+import { SiteData } from '@/lib/types/site-context'
 import { cn } from '@/lib/utils'
 
 interface PermacultureAnalysisPanelProps {
@@ -413,7 +413,7 @@ function analyzePermacultureDesign(beds: GardenBed[], siteData?: SiteData | null
   const waterInsights: string[] = []
   if (siteData?.waterSource === 'rain') {
     waterInsights.push('Rainwater harvesting - excellent water wisdom!')
-  } else if (siteData?.waterSource === 'spigot') {
+  } else if (siteData?.waterSource === 'municipal') {
     waterInsights.push('Consider adding rain barrels for water independence')
   }
 

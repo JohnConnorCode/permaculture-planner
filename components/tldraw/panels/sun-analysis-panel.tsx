@@ -21,7 +21,7 @@ import {
   Location,
 } from '@/lib/analysis/sun-shade-calculator'
 import { cn } from '@/lib/utils'
-import { SiteData } from './analytics-panel'
+import { SiteData } from '@/lib/types/site-context'
 
 interface SunAnalysisPanelProps {
   /** Current garden beds */

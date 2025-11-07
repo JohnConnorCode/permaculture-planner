@@ -217,9 +217,10 @@ export function matchesShortcut(
   }
 
   // Check modifiers
-  const hasCtrl = shortcut.modifiers?.includes('ctrl') || shortcut.modifiers?.includes('meta')
-  const hasShift = shortcut.modifiers?.includes('shift')
-  const hasAlt = shortcut.modifiers?.includes('alt')
+  const mods = shortcut.modifiers as unknown as string[]
+  const hasCtrl = mods?.includes('ctrl') || mods?.includes('meta')
+  const hasShift = mods?.includes('shift')
+  const hasAlt = mods?.includes('alt')
 
   // On Mac, use metaKey; on Windows/Linux, use ctrlKey
   const ctrlPressed = event.metaKey || event.ctrlKey
@@ -241,15 +242,16 @@ export function formatShortcut(
   shortcut: typeof DefaultShortcuts[keyof typeof DefaultShortcuts]
 ): string {
   const isMac = typeof navigator !== 'undefined' && navigator.platform.toUpperCase().includes('MAC')
+  const mods = shortcut.modifiers as unknown as string[]
 
   const modifiers: string[] = []
-  if (shortcut.modifiers?.includes('meta') || shortcut.modifiers?.includes('ctrl')) {
+  if (mods?.includes('meta') || mods?.includes('ctrl')) {
     modifiers.push(isMac ? '⌘' : 'Ctrl')
   }
-  if (shortcut.modifiers?.includes('shift')) {
+  if (mods?.includes('shift')) {
     modifiers.push(isMac ? '⇧' : 'Shift')
   }
-  if (shortcut.modifiers?.includes('alt')) {
+  if (mods?.includes('alt')) {
     modifiers.push(isMac ? '⌥' : 'Alt')
   }
 

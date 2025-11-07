@@ -19,6 +19,10 @@ export interface PlantInfo {
   antagonists: string[] // plants to avoid nearby
   harvest_time: string
   planting_time: string
+  yield?: {
+    amount: number // annual yield in pounds per plant
+    price?: number // market price per pound
+  }
 }
 
 export const PLANT_LIBRARY: PlantInfo[] = [

@@ -398,10 +398,10 @@ export function GrowthSimulationPanel({ gardenBeds }: GrowthSimulationPanelProps
                         <div
                           className={cn(
                             'w-full rounded-t-full transition-all duration-300',
-                            plant.plantInfo.type === 'tree' && 'bg-green-700',
-                            plant.plantInfo.type === 'shrub' && 'bg-green-600',
-                            plant.plantInfo.type === 'perennial' && 'bg-green-500',
-                            plant.plantInfo.type === 'annual' && 'bg-green-400',
+                            plant.plantInfo.category === 'tree' && 'bg-green-700',
+                            plant.plantInfo.category === 'shrub' && 'bg-green-600',
+                            plant.plantInfo.category === 'groundcover' && 'bg-green-500',
+                            plant.plantInfo.category === 'herb' && 'bg-green-400',
                             plant.health === 'excellent' && 'brightness-110',
                             plant.health === 'good' && 'brightness-100',
                             plant.health === 'fair' && 'brightness-75',

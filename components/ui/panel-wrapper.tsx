@@ -18,7 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 interface PanelWrapperProps {
-  children: React.ReactNode
+  children?: React.ReactNode
   /** Error state */
   error?: Error | string | null
   /** Loading state */

@@ -171,7 +171,7 @@ function simulatePlantGrowth(
   if (!plant.isAlive) return plant
 
   const newAge = plant.ageInMonths + 1
-  const plantType = plant.plantInfo.type
+  const plantType = plant.plantInfo.category
 
   // Calculate maturity time based on plant type
   const maturityMonths = getMaturityMonths(plantType)
@@ -247,19 +247,23 @@ function getMaturityMonths(type: string): number {
  * Get target mature height in inches
  */
 function getTargetHeight(plant: PlantInfo): number {
-  switch (plant.type) {
-    case 'annual':
-      return 24 // 2 feet
-    case 'herb':
-      return 18 // 1.5 feet
-    case 'perennial':
-      return 36 // 3 feet
-    case 'berry':
-      return 48 // 4 feet
-    case 'shrub':
-      return 72 // 6 feet
+  switch (plant.category) {
     case 'tree':
       return 180 // 15 feet
+    case 'shrub':
+      return 72 // 6 feet
+    case 'fruit':
+      return 48 // 4 feet
+    case 'herb':
+      return 18 // 1.5 feet
+    case 'flower':
+      return 24 // 2 feet
+    case 'vegetable':
+      return 24 // 2 feet
+    case 'groundcover':
+      return 12 // 1 foot
+    case 'vine':
+      return 36 // 3 feet
     default:
       return 24
   }
@@ -269,19 +273,23 @@ function getTargetHeight(plant: PlantInfo): number {
  * Get target canopy radius in feet
  */
 function getTargetCanopy(plant: PlantInfo): number {
-  switch (plant.type) {
-    case 'annual':
-      return 1
-    case 'herb':
-      return 0.75
-    case 'perennial':
-      return 1.5
-    case 'berry':
-      return 2
-    case 'shrub':
-      return 3
+  switch (plant.category) {
     case 'tree':
       return 8
+    case 'shrub':
+      return 3
+    case 'fruit':
+      return 2
+    case 'herb':
+      return 0.75
+    case 'flower':
+      return 1
+    case 'vegetable':
+      return 1
+    case 'groundcover':
+      return 0.5
+    case 'vine':
+      return 1.5
     default:
       return 1
   }
@@ -337,27 +345,27 @@ function calculateYield(
     return { currentYield: 0, yieldToDate: plant.yieldToDate }
   }
 
-  // Base yield depends on plant type
+  // Base yield depends on plant category
   let baseYield = 0
-  switch (plant.plantInfo.type) {
-    case 'annual':
-      baseYield = 2 // 2 lbs per month
-      break
-    case 'perennial':
-      baseYield = 1 // 1 lb per month
-      break
-    case 'berry':
-      baseYield = 3 // 3 lbs per month
-      break
+  switch (plant.plantInfo.category) {
     case 'tree':
       baseYield = 10 // 10 lbs per month
+      break
+    case 'fruit':
+      baseYield = 3 // 3 lbs per month
+      break
+    case 'vegetable':
+      baseYield = 2 // 2 lbs per month
+      break
+    case 'herb':
+      baseYield = 1 // 1 lb per month
       break
     default:
       baseYield = 1
   }
 
   // Seasonal modifier
-  const seasonalModifier = getSeasonalYieldModifier(plant.plantInfo.type, season)
+  const seasonalModifier = getSeasonalYieldModifier(plant.plantInfo.category, season)
 
   // Calculate current month's yield
   const currentYield = baseYield * seasonalModifier * growthFactor * (maturityPercent / 100)

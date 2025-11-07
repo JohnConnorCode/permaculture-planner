@@ -39,7 +39,7 @@ import {
   Navigation,
 } from 'lucide-react'
 import { GardenBed } from '@/lib/garden/garden-types'
-import { SiteData } from './analytics-panel'
+import { SiteData } from '@/lib/types/site-context'
 import { deriveClimateFromLocation } from '@/lib/climate/climate-utils'
 import { cn } from '@/lib/utils'
 
