@@ -11,6 +11,7 @@ import { CompanionPlantingPanel } from './panels/companion-planting-panel'
 import { AnalyticsPanel, SiteData } from './panels/analytics-panel'
 import { SeasonalTimelinePanel } from './panels/seasonal-timeline-panel'
 import { MaterialsPanel } from './panels/materials-panel'
+import { TasksPanel } from './panels/tasks-panel'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PlantInfo } from '@/lib/data/plant-library'
 import { ElementSubtype, ElementCategory, ELEMENT_STYLES } from '@/lib/canvas-elements'
@@ -32,6 +33,7 @@ import {
   Pencil,
   Calendar,
   ShoppingCart,
+  ListTodo,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -71,7 +73,7 @@ export function PermacultureEditorIntegrated({
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
   const [leftPanelTab, setLeftPanelTab] = useState<'plants' | 'elements'>('plants')
-  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'analytics'>('properties')
+  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'tasks' | 'analytics'>('properties')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // Handle canvas changes
@@ -335,7 +337,7 @@ export function PermacultureEditorIntegrated({
         >
           {rightPanelOpen && (
             <Tabs value={rightPanelTab} onValueChange={(v: any) => setRightPanelTab(v)} className="flex-1 flex flex-col h-full">
-              <TabsList className="w-full rounded-none border-b grid grid-cols-6">
+              <TabsList className="w-full rounded-none border-b grid grid-cols-7">
                 <TabsTrigger value="properties" title="Properties">
                   <Settings className="h-4 w-4" />
                 </TabsTrigger>
@@ -350,6 +352,9 @@ export function PermacultureEditorIntegrated({
                 </TabsTrigger>
                 <TabsTrigger value="materials" title="Materials">
                   <ShoppingCart className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="tasks" title="Tasks">
+                  <ListTodo className="h-4 w-4" />
                 </TabsTrigger>
                 <TabsTrigger value="analytics" title="Analytics">
                   <BarChart3 className="h-4 w-4" />
@@ -379,6 +384,10 @@ export function PermacultureEditorIntegrated({
 
               <TabsContent value="materials" className="flex-1 m-0">
                 <MaterialsPanel gardenBeds={gardenData} siteData={siteData} />
+              </TabsContent>
+
+              <TabsContent value="tasks" className="flex-1 m-0">
+                <TasksPanel planId={planId} />
               </TabsContent>
 
               <TabsContent value="analytics" className="flex-1 m-0">
