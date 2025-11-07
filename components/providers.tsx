@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { db } from '@/lib/storage/indexed-db'
 import { AuthProvider } from '@/lib/auth/auth-context'
+import { SubscriptionProvider } from '@/lib/subscription/subscription-context'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -124,9 +125,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <SubscriptionProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </SubscriptionProvider>
       </AuthProvider>
     </ErrorBoundary>
   )

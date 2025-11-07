@@ -23,6 +23,7 @@ import { DesignCritiquePanel } from './panels/design-critique-panel'
 import { ProgressTrackingPanel } from './panels/progress-tracking-panel'
 import { KnowledgeBasePanel } from './panels/knowledge-base-panel'
 import { TemplateLibraryPanel } from './panels/template-library-panel'
+import { LockedPanel } from '@/components/subscription/locked-panel'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PlantInfo } from '@/lib/data/plant-library'
 import { ElementSubtype, ElementCategory, ELEMENT_STYLES } from '@/lib/canvas-elements'
@@ -438,43 +439,113 @@ export function PermacultureEditorIntegrated({
               </TabsContent>
 
               <TabsContent value="materials" className="flex-1 m-0">
-                <MaterialsPanel gardenBeds={gardenData} siteData={siteData} />
+                <LockedPanel
+                  panelId="materials"
+                  featureName="Materials Planning"
+                  featureDescription="Calculate materials, costs, and quantities needed for your garden design."
+                  requiredTier="premium"
+                >
+                  <MaterialsPanel gardenBeds={gardenData} siteData={siteData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="tasks" className="flex-1 m-0">
-                <TasksPanel planId={planId} />
+                <LockedPanel
+                  panelId="tasks"
+                  featureName="Task Management"
+                  featureDescription="Track and organize all your gardening tasks with deadlines and priorities."
+                  requiredTier="premium"
+                >
+                  <TasksPanel planId={planId} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="sun" className="flex-1 m-0">
-                <SunAnalysisPanel gardenBeds={gardenData} siteData={siteData} />
+                <LockedPanel
+                  panelId="sun"
+                  featureName="Sun Analysis"
+                  featureDescription="Analyze sun exposure patterns throughout the day and seasons for optimal plant placement."
+                  requiredTier="premium"
+                >
+                  <SunAnalysisPanel gardenBeds={gardenData} siteData={siteData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="sectors" className="flex-1 m-0">
-                <SectorAnalysisPanel gardenBeds={gardenData} siteData={siteData} />
+                <LockedPanel
+                  panelId="sectors"
+                  featureName="Sector Analysis"
+                  featureDescription="Map external energies (wind, sun, wildlife, fire) affecting your garden site."
+                  requiredTier="premium"
+                >
+                  <SectorAnalysisPanel gardenBeds={gardenData} siteData={siteData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="succession" className="flex-1 m-0">
-                <SuccessionPlanningPanel gardenBeds={gardenData} planId={planId} />
+                <LockedPanel
+                  panelId="succession"
+                  featureName="Succession Planning"
+                  featureDescription="Plan multi-year garden evolution with crop rotation and perennial establishment."
+                  requiredTier="premium"
+                >
+                  <SuccessionPlanningPanel gardenBeds={gardenData} planId={planId} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="water" className="flex-1 m-0">
-                <WaterManagementPanel gardenBeds={gardenData} siteData={siteData} />
+                <LockedPanel
+                  panelId="water"
+                  featureName="Water Management"
+                  featureDescription="Design rainwater harvesting, irrigation systems, and water conservation strategies."
+                  requiredTier="premium"
+                >
+                  <WaterManagementPanel gardenBeds={gardenData} siteData={siteData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="evolution" className="flex-1 m-0">
-                <GardenEvolutionPanel gardenBeds={gardenData} />
+                <LockedPanel
+                  panelId="evolution"
+                  featureName="Garden Evolution Timeline"
+                  featureDescription="Visualize how your garden will mature over 1-10 years with yield projections and milestone tracking."
+                  requiredTier="pro"
+                >
+                  <GardenEvolutionPanel gardenBeds={gardenData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="implementation" className="flex-1 m-0">
-                <ImplementationPhasingPanel gardenBeds={gardenData} />
+                <LockedPanel
+                  panelId="implementation"
+                  featureName="Implementation Phasing"
+                  featureDescription="Break your project into budgeted phases with realistic timelines and ROI calculations."
+                  requiredTier="pro"
+                >
+                  <ImplementationPhasingPanel gardenBeds={gardenData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="critique" className="flex-1 m-0">
-                <DesignCritiquePanel gardenBeds={gardenData} />
+                <LockedPanel
+                  panelId="critique"
+                  featureName="AI Design Critique"
+                  featureDescription="Get professional-grade design analysis with automated scoring and actionable recommendations."
+                  requiredTier="pro"
+                >
+                  <DesignCritiquePanel gardenBeds={gardenData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="progress" className="flex-1 m-0">
-                <ProgressTrackingPanel gardenBeds={gardenData} />
+                <LockedPanel
+                  panelId="progress"
+                  featureName="Progress Tracking"
+                  featureDescription="Document your garden journey with photos, observations, and performance tracking."
+                  requiredTier="pro"
+                >
+                  <ProgressTrackingPanel gardenBeds={gardenData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="knowledge" className="flex-1 m-0">
@@ -482,11 +553,25 @@ export function PermacultureEditorIntegrated({
               </TabsContent>
 
               <TabsContent value="templates" className="flex-1 m-0">
-                <TemplateLibraryPanel gardenBeds={gardenData} />
+                <LockedPanel
+                  panelId="templates"
+                  featureName="Template Library"
+                  featureDescription="Access 8+ proven permaculture designs and patterns to jumpstart your planning."
+                  requiredTier="pro"
+                >
+                  <TemplateLibraryPanel gardenBeds={gardenData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="permaculture" className="flex-1 m-0">
-                <PermacultureAnalysisPanel gardenBeds={gardenData} siteData={siteData} />
+                <LockedPanel
+                  panelId="permaculture"
+                  featureName="Permaculture Analysis"
+                  featureDescription="Deep analysis of permaculture principles, patterns, and best practices for your design."
+                  requiredTier="premium"
+                >
+                  <PermacultureAnalysisPanel gardenBeds={gardenData} siteData={siteData} />
+                </LockedPanel>
               </TabsContent>
 
               <TabsContent value="analytics" className="flex-1 m-0">

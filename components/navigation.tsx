@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { NAV_ITEMS, AUTH_ITEMS } from '@/lib/config/app-config'
 import { Leaf, Menu, X, LogIn, UserPlus } from 'lucide-react'
+import { SubscriptionBadge } from '@/components/subscription/subscription-badge'
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -79,6 +80,7 @@ export function Navigation() {
 
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center gap-2">
+              <SubscriptionBadge />
               <Button variant="ghost" size="sm" className="gap-2 hover:bg-green-50" asChild>
                 <Link href="/auth/login">
                   <LogIn className="h-4 w-4" />
