@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { PermacultureEditor } from '@/components/tldraw/permaculture-editor'
+import { PermacultureEditorIntegrated } from '@/components/tldraw/permaculture-editor-integrated'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,10 +10,15 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 /**
- * Demo page showcasing the new tldraw-based permaculture canvas
+ * Demo page - PRODUCTION-READY tldraw-based permaculture planner
  *
- * This demonstrates the migration from the old SVG-based canvas
- * to the high-performance tldraw implementation with full features.
+ * Fully integrated with:
+ * ✅ Interactive tools (PlantTool, ElementTool, BedTool)
+ * ✅ Properties editing with live updates
+ * ✅ All analysis panels (Zones, Companions, Analytics)
+ * ✅ Real-time data synchronization
+ * ✅ Export system (JSON, PNG)
+ * ✅ Professional workflow
  */
 export default function TldrawDemo() {
   const router = useRouter()
@@ -125,16 +130,16 @@ export default function TldrawDemo() {
           </Button>
           <div className="flex items-center gap-2">
             <Badge variant="default" className="bg-green-500">
-              Next-Gen Editor
+              Production Ready
             </Badge>
             <Badge variant="outline">{saveCount} auto-saves</Badge>
           </div>
         </div>
       </header>
 
-      {/* Integrated Editor */}
+      {/* PRODUCTION-READY Integrated Editor */}
       <div className="flex-1">
-        <PermacultureEditor
+        <PermacultureEditorIntegrated
           initialData={gardenBeds}
           onSave={handleSave}
           showHeader={false}
