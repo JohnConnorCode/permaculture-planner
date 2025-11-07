@@ -99,7 +99,24 @@ export class DataAdapter {
 
       // Parse points from JSON
       const pointsJson = bedShape.props.pointsJson
-      const points = this.parsePoints(pointsJson)
+      let points = this.parsePoints(pointsJson)
+
+      // BUGFIX: Update points with current shape position
+      // When a shape is moved in the canvas, we need to translate the stored points to match
+      if (points.length > 0) {
+        const originalMinX = Math.min(...points.map(p => p.x))
+        const originalMinY = Math.min(...points.map(p => p.y))
+        const offsetX = bedShape.x - originalMinX
+        const offsetY = bedShape.y - originalMinY
+
+        // Only update if there's significant movement (avoid floating point precision issues)
+        if (Math.abs(offsetX) > 0.1 || Math.abs(offsetY) > 0.1) {
+          points = points.map(p => ({
+            x: p.x + offsetX,
+            y: p.y + offsetY
+          }))
+        }
+      }
 
       // Convert back to GardenBed
       const bed: GardenBed = {
