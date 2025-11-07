@@ -329,7 +329,7 @@ export function PermacultureEditorIntegrated({
         >
           {rightPanelOpen && (
             <Tabs value={rightPanelTab} onValueChange={(v: any) => setRightPanelTab(v)} className="flex-1 flex flex-col h-full">
-              <TabsList className="w-full rounded-none border-b grid grid-cols-4">
+              <TabsList className="w-full rounded-none border-b grid grid-cols-5">
                 <TabsTrigger value="properties" title="Properties">
                   <Settings className="h-4 w-4" />
                 </TabsTrigger>
@@ -338,6 +338,9 @@ export function PermacultureEditorIntegrated({
                 </TabsTrigger>
                 <TabsTrigger value="companions" title="Companions">
                   <Heart className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="timeline" title="Calendar">
+                  <Calendar className="h-4 w-4" />
                 </TabsTrigger>
                 <TabsTrigger value="analytics" title="Analytics">
                   <BarChart3 className="h-4 w-4" />
@@ -354,6 +357,14 @@ export function PermacultureEditorIntegrated({
 
               <TabsContent value="companions" className="flex-1 m-0">
                 <CompanionPlantingPanel gardenBeds={gardenData} />
+              </TabsContent>
+
+              <TabsContent value="timeline" className="flex-1 m-0">
+                <SeasonalTimelinePanel
+                  gardenBeds={gardenData}
+                  frostDates={siteData?.frostDates || undefined}
+                  usdaZone={siteData?.usdaZone}
+                />
               </TabsContent>
 
               <TabsContent value="analytics" className="flex-1 m-0">

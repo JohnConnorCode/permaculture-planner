@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { PermacultureEditorIntegrated } from '@/components/tldraw/permaculture-editor-integrated'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { createClient } from '@/lib/supabase/client'
@@ -59,6 +59,26 @@ export function EditorClient({ plan }: EditorClientProps) {
       toast.error('Failed to load garden plan')
     } finally {
       setLoading(false)
+    }
+  }, [plan])
+
+  // Extract site data for advanced features
+  const siteData = useMemo(() => {
+    if (!plan.sites) return null
+
+    return {
+      usdaZone: plan.sites.usda_zone || '7a',
+      frostDates: plan.sites.last_frost && plan.sites.first_frost
+        ? {
+            lastFrost: new Date(plan.sites.last_frost),
+            firstFrost: new Date(plan.sites.first_frost),
+          }
+        : null,
+      location: plan.sites.lat && plan.sites.lng
+        ? { lat: parseFloat(plan.sites.lat), lng: parseFloat(plan.sites.lng) }
+        : null,
+      surfaceType: plan.sites.surface_type || 'soil',
+      waterSource: plan.sites.water_source || 'spigot',
     }
   }, [plan])
 
@@ -132,6 +152,7 @@ export function EditorClient({ plan }: EditorClientProps) {
       onManualSave={handleManualSave}
       planId={plan.id}
       showHeader={true}
+      siteData={siteData}
     />
   )
 }
