@@ -35,6 +35,7 @@ import { toast } from 'sonner'
 interface PermacultureEditorIntegratedProps {
   initialData?: GardenBed[]
   onSave?: (data: GardenBed[]) => void
+  onManualSave?: () => void | Promise<void>
   planId?: string
   showHeader?: boolean
 }
@@ -52,6 +53,7 @@ interface PermacultureEditorIntegratedProps {
 export function PermacultureEditorIntegrated({
   initialData = [],
   onSave,
+  onManualSave,
   planId,
   showHeader = true,
 }: PermacultureEditorIntegratedProps) {
@@ -100,14 +102,18 @@ export function PermacultureEditorIntegrated({
     })
   }, [])
 
-  // Handle save
-  const handleSave = useCallback(() => {
-    if (onSave) {
+  // Handle manual save (button click or Cmd+S)
+  const handleSave = useCallback(async () => {
+    if (onManualSave) {
+      await onManualSave()
+      setHasUnsavedChanges(false)
+    } else if (onSave) {
+      // Fallback to auto-save if no manual save handler
       onSave(gardenData)
       setHasUnsavedChanges(false)
       toast.success('Plan saved successfully')
     }
-  }, [gardenData, onSave])
+  }, [gardenData, onSave, onManualSave])
 
   // Handle export
   const handleExport = useCallback((format: 'png' | 'pdf' | 'svg' | 'json') => {

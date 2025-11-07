@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { PermacultureEditorIntegrated } from '@/components/tldraw/permaculture-editor-integrated'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { createClient } from '@/lib/supabase/client'
+import { syncBedsToSupabase } from '@/lib/supabase/bed-sync'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
@@ -61,43 +62,55 @@ export function EditorClient({ plan }: EditorClientProps) {
     }
   }, [plan])
 
-  // Save to Supabase
+  // Auto-save to Supabase (debounced by canvas)
   const handleSave = useCallback(async (updatedBeds: GardenBed[]) => {
     try {
       // Update local state immediately for responsiveness
       setGardenBeds(updatedBeds)
 
       // Save to Supabase in background
-      // TODO: Convert GardenBed back to Supabase beds format
-      // For now, just show success
+      const result = await syncBedsToSupabase(supabase, plan.id, updatedBeds)
 
-      // Debounced auto-save happens in the canvas component
+      if (!result.success) {
+        console.error('Auto-save failed:', result.error)
+        // Don't show toast for auto-save failures to avoid spam
+      }
     } catch (error) {
-      console.error('Error saving to Supabase:', error)
-      toast.error('Failed to save changes')
+      console.error('Error auto-saving to Supabase:', error)
+      // Silent failure for auto-save
     }
   }, [plan.id, supabase])
 
-  // Manual save to Supabase
+  // Manual save to Supabase (triggered by user action)
   const handleManualSave = useCallback(async () => {
     try {
-      toast.loading('Saving to database...')
+      const toastId = toast.loading('Saving to database...')
 
-      // TODO: Convert GardenBed format to Supabase format and save
-      // For now, just update the plan's updated_at timestamp
-      const { error } = await (supabase
+      // Sync all beds to Supabase
+      const result = await syncBedsToSupabase(supabase, plan.id, gardenBeds)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save beds')
+      }
+
+      // Update plan's updated_at timestamp
+      const { error: updateError } = await (supabase
         .from('plans') as any)
         .update({ updated_at: new Date().toISOString() })
         .eq('id', plan.id)
 
-      if (error) throw error
+      if (updateError) throw updateError
 
-      toast.dismiss()
-      toast.success('Saved to database!')
+      toast.dismiss(toastId)
+      toast.success('✅ Saved to database!', {
+        description: `${gardenBeds.length} bed(s) synchronized`,
+      })
     } catch (error) {
       toast.dismiss()
       console.error('Error saving to database:', error)
-      toast.error('Failed to save to database')
+      toast.error('Failed to save to database', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      })
     }
   }, [plan.id, supabase, gardenBeds])
 
@@ -116,6 +129,7 @@ export function EditorClient({ plan }: EditorClientProps) {
     <PermacultureEditorIntegrated
       initialData={gardenBeds}
       onSave={handleSave}
+      onManualSave={handleManualSave}
       planId={plan.id}
       showHeader={true}
     />
