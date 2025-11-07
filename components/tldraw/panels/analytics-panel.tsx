@@ -23,6 +23,12 @@ import {
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PLANT_LIBRARY } from '@/lib/data/plant-library'
 import { analyzeCompanionPlanting } from '@/lib/algorithms/companion-planting-engine'
+import {
+  PLANT_YIELD_DATABASE,
+  calculateWaterNeeds,
+  calculateExpectedYield,
+  calculateMarketValue,
+} from '@/lib/data/plant-yield-data'
 import { cn } from '@/lib/utils'
 
 interface AnalyticsPanelProps {
@@ -404,49 +410,77 @@ function calculateGardenAnalytics(beds: GardenBed[]) {
     score: Math.min(100, (plantIds.size / Math.max(1, totalPlants)) * 100 + plantIds.size * 5)
   }
 
-  // Water efficiency
+  // Water efficiency - using accurate calculations
   const waterNeeds = { low: 0, medium: 0, high: 0 }
-  let dailyGallons = 0
+  let weeklyGallons = 0
   beds.forEach(bed => {
     bed.plants?.forEach(plant => {
       const plantInfo = PLANT_LIBRARY.find(p => p.id === plant.plantId)
       if (plantInfo) {
         waterNeeds[plantInfo.requirements.water]++
-        dailyGallons += plantInfo.requirements.water === 'high' ? 1.5 : plantInfo.requirements.water === 'medium' ? 1.0 : 0.5
+        // Use accurate water data with moderate climate assumption
+        const plantWaterPerWeek = calculateWaterNeeds(plant.plantId, 'moderate')
+        weeklyGallons += plantWaterPerWeek
       }
     })
   })
 
+  const dailyGallons = weeklyGallons / 7
+
   const waterEfficiency = {
     dailyGallons,
+    weeklyGallons,
     byCategory: waterNeeds,
     score: Math.min(100, 100 - (waterNeeds.high / Math.max(1, totalPlants)) * 30)
   }
 
-  // Yield predictions (simplified)
-  const yieldByPlant = new Map<string, number>()
+  // Yield predictions - using accurate data
+  const yieldByPlant = new Map<string, { pounds: number; value: number; count: number }>()
+
   beds.forEach(bed => {
     bed.plants?.forEach(plant => {
       const plantInfo = PLANT_LIBRARY.find(p => p.id === plant.plantId)
       if (plantInfo) {
-        const yieldPerPlant = plantInfo.category === 'vegetable' ? 5 : plantInfo.category === 'fruit' ? 10 : 2
-        yieldByPlant.set(plant.plantId, (yieldByPlant.get(plant.plantId) || 0) + yieldPerPlant)
+        // Calculate days since planting (default to 120 days for mature plants)
+        const daysSincePlanting = plant.plantedDate
+          ? Math.floor((Date.now() - new Date(plant.plantedDate).getTime()) / (1000 * 60 * 60 * 24))
+          : 120
+
+        // Get accurate yield for this plant
+        const yieldLbs = calculateExpectedYield(plant.plantId, daysSincePlanting, 1)
+        const value = calculateMarketValue(plant.plantId, yieldLbs)
+
+        const existing = yieldByPlant.get(plant.plantId) || { pounds: 0, value: 0, count: 0 }
+        yieldByPlant.set(plant.plantId, {
+          pounds: existing.pounds + yieldLbs,
+          value: existing.value + value,
+          count: existing.count + 1,
+        })
       }
     })
   })
 
-  const totalYield = Array.from(yieldByPlant.values()).reduce((sum, y) => sum + y, 0)
+  const totalYield = Array.from(yieldByPlant.values()).reduce((sum, data) => sum + data.pounds, 0)
+  const totalValue = Array.from(yieldByPlant.values()).reduce((sum, data) => sum + data.value, 0)
+
   const topCrops = Array.from(yieldByPlant.entries())
-    .map(([plantId, yield]) => {
+    .map(([plantId, data]) => {
       const plant = PLANT_LIBRARY.find(p => p.id === plantId)
-      return { plantId, name: plant?.name || plantId, icon: plant?.icon || '🌱', yield }
+      return {
+        plantId,
+        name: plant?.name || plantId,
+        icon: plant?.icon || '🌱',
+        yield: data.pounds,
+        value: data.value,
+        count: data.count,
+      }
     })
     .sort((a, b) => b.yield - a.yield)
     .slice(0, 5)
 
   const yieldPredictions = {
     totalLbs: totalYield,
-    marketValue: totalYield * 3.5,
+    marketValue: totalValue,
     topCrops
   }
 

@@ -1,4 +1,5 @@
 import { BedLayout } from './layout-generator'
+import { GardenBed } from '@/lib/garden/garden-types'
 
 export interface MaterialsEstimate {
   soil: {
@@ -107,9 +108,13 @@ export class MaterialsCalculator {
         mulchCuFt += pathAreaSqFt * (4/12) // 4 inches for paths
       }
       
-      // Lumber calculation
-      const perimeter = (bed.width + bed.length) * 2
-      lumberBoardFeet += perimeter // Simplified: 1 board foot per linear foot
+      // Lumber calculation - ACCURATE board feet
+      // Board feet = (Thickness × Width × Length in inches) / 144
+      // For 2x10: (2 × 10 × length in inches) / 144
+      const perimeterFt = (bed.width + bed.length) * 2
+      const boardsHigh = Math.ceil(bed.height / 9.25) // 2x10 actual height is 9.25"
+      const boardFeetPerLinearFoot = (2 * 10) / 12 // = 1.667 board feet per linear foot
+      lumberBoardFeet += perimeterFt * boardsHigh * boardFeetPerLinearFoot
       
       // Drip irrigation
       if (enableDrip) {
@@ -130,18 +135,20 @@ export class MaterialsCalculator {
     // Convert to standard units and packages
     const lumber = this.calculateLumber(lumberBoardFeet, beds.length)
     
-    // Cost estimates (rough)
-    const costLow = 
-      (soilCuFt * 2) + // $2/cu ft soil
-      (compostCuFt * 3) + // $3/cu ft compost  
-      (mulchCuFt * 1.5) + // $1.50/cu ft mulch
-      (lumber.boards2x10x8 * 25) + // $25 per 8ft board
-      (lumber.boards2x10x10 * 32) + // $32 per 10ft board
-      (lumber.boards2x10x12 * 38) + // $38 per 12ft board
+    // Cost estimates - UPDATED 2024 prices
+    const costLow =
+      (soilCuFt / 27 * 35) + // $35/cubic yard bulk soil
+      (compostCuFt / 27 * 45) + // $45/cubic yard compost
+      (mulchCuFt / 27 * 30) + // $30/cubic yard mulch
+      (lumber.boards2x10x8 * 18) + // $18 per 8ft board (treated pine)
+      (lumber.boards2x10x10 * 22) + // $22 per 10ft board
+      (lumber.boards2x10x12 * 28) + // $28 per 12ft board
+      (lumber.cornerBrackets * 3.5) + // $3.50 per bracket
+      (Math.ceil(lumber.screws / 100) * 8) + // $8 per box of 100 screws
       (enableDrip ? dripLineFt * 0.5 + emitterCount * 0.25 + 50 : 0) + // Irrigation
       (rowCoverSqFt * 0.15) // Row cover
-    
-    const costHigh = costLow * 1.5 // 50% higher for premium materials
+
+    const costHigh = costLow * 1.6 // 60% higher for cedar lumber and premium materials
     
     return {
       soil: {
@@ -224,6 +231,31 @@ export class MaterialsCalculator {
     }
   }
   
+  /**
+   * Calculate materials for GardenBed array (from canvas)
+   * Converts GardenBed to BedLayout format for calculation
+   */
+  calculateFromGardenBeds(
+    beds: GardenBed[],
+    bedDepth: number = 12,
+    surface: 'soil' | 'hard' = 'soil',
+    enableDrip: boolean = true
+  ): MaterialsEstimate {
+    const bedLayouts: BedLayout[] = beds.map(bed => ({
+      id: bed.id,
+      width: (bed.width || 48) / 12, // Convert inches to feet
+      length: (bed.height || 48) / 12, // Convert inches to feet
+      height: bedDepth, // inches
+      x: 0, // Not needed for materials calc
+      y: 0,
+      orientation: bed.rotation === 90 ? 'east-west' : 'north-south',
+      isWicking: false,
+      pathWidth: 24, // Default 24" paths
+    }))
+
+    return this.calculate(bedLayouts, surface, enableDrip)
+  }
+
   generateShoppingList(estimate: MaterialsEstimate): string[] {
     const items: string[] = []
     
