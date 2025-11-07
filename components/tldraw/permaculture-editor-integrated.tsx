@@ -15,6 +15,7 @@ import { TasksPanel } from './panels/tasks-panel'
 import { SunAnalysisPanel } from './panels/sun-analysis-panel'
 import { PermacultureAnalysisPanel } from './panels/permaculture-analysis-panel'
 import { SectorAnalysisPanel } from './panels/sector-analysis-panel'
+import { SuccessionPlanningPanel } from './panels/succession-planning-panel'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PlantInfo } from '@/lib/data/plant-library'
 import { ElementSubtype, ElementCategory, ELEMENT_STYLES } from '@/lib/canvas-elements'
@@ -40,6 +41,7 @@ import {
   Sparkles,
   Sun,
   Compass,
+  Repeat,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -79,7 +81,7 @@ export function PermacultureEditorIntegrated({
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
   const [leftPanelTab, setLeftPanelTab] = useState<'plants' | 'elements'>('plants')
-  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'tasks' | 'sun' | 'sectors' | 'permaculture' | 'analytics'>('properties')
+  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'tasks' | 'sun' | 'sectors' | 'succession' | 'permaculture' | 'analytics'>('properties')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // Handle canvas changes
@@ -343,7 +345,7 @@ export function PermacultureEditorIntegrated({
         >
           {rightPanelOpen && (
             <Tabs value={rightPanelTab} onValueChange={(v: any) => setRightPanelTab(v)} className="flex-1 flex flex-col h-full">
-              <TabsList className="w-full rounded-none border-b grid grid-cols-10">
+              <TabsList className="w-full rounded-none border-b grid grid-cols-11">
                 <TabsTrigger value="properties" title="Properties">
                   <Settings className="h-4 w-4" />
                 </TabsTrigger>
@@ -367,6 +369,9 @@ export function PermacultureEditorIntegrated({
                 </TabsTrigger>
                 <TabsTrigger value="sectors" title="Sectors">
                   <Compass className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="succession" title="Succession">
+                  <Repeat className="h-4 w-4" />
                 </TabsTrigger>
                 <TabsTrigger value="permaculture" title="Permaculture">
                   <Sparkles className="h-4 w-4" />
@@ -411,6 +416,10 @@ export function PermacultureEditorIntegrated({
 
               <TabsContent value="sectors" className="flex-1 m-0">
                 <SectorAnalysisPanel gardenBeds={gardenData} siteData={siteData} />
+              </TabsContent>
+
+              <TabsContent value="succession" className="flex-1 m-0">
+                <SuccessionPlanningPanel gardenBeds={gardenData} planId={planId} />
               </TabsContent>
 
               <TabsContent value="permaculture" className="flex-1 m-0">
