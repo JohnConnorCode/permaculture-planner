@@ -180,6 +180,9 @@ async function syncPlantsToSupabase(
             sowing_method: 'direct' as const,
             sow_date: plant.plantedDate ? new Date(plant.plantedDate).toISOString().split('T')[0] : null,
             notes: `Planted via canvas editor`,
+            successions_json: {
+              position: { x: plant.x, y: plant.y },
+            },
           })
         }
       }

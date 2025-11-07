@@ -37,13 +37,18 @@ export function EditorClient({ plan }: EditorClientProps) {
       // Convert Supabase beds to GardenBed format WITH plants
       const beds: GardenBed[] = plan.beds.map((bed: any) => {
         // Convert plantings to plants array
-        const plants = bed.plantings?.map((planting: any) => ({
-          id: planting.id,
-          plantId: planting.variety, // variety field stores our plant ID
-          x: 24, // Default position (TODO: store actual position)
-          y: 24,
-          plantedDate: planting.sow_date ? new Date(planting.sow_date) : undefined,
-        })) || []
+        const plants = bed.plantings?.map((planting: any) => {
+          // Extract position from successions_json (or use default)
+          const position = planting.successions_json?.position || { x: 24, y: 24 }
+
+          return {
+            id: planting.id,
+            plantId: planting.variety, // variety field stores our plant ID
+            x: position.x,
+            y: position.y,
+            plantedDate: planting.sow_date ? new Date(planting.sow_date) : undefined,
+          }
+        }) || []
 
         return {
           id: bed.id,
