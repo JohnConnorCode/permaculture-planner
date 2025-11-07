@@ -94,7 +94,7 @@ export function getClimateWateringAdvice(climate: ClimateType): string[] {
       'Mulch moderately (2-3 inches)',
     ],
     moderate: [
-      'Water consistently but don't overwater',
+      "Water consistently but don't overwater",
       'Mulch 2-3 inches to maintain moisture',
       'Adjust watering based on rainfall',
       'Monitor soil moisture regularly',

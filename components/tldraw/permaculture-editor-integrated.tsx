@@ -17,6 +17,12 @@ import { PermacultureAnalysisPanel } from './panels/permaculture-analysis-panel'
 import { SectorAnalysisPanel } from './panels/sector-analysis-panel'
 import { SuccessionPlanningPanel } from './panels/succession-planning-panel'
 import { WaterManagementPanel } from './panels/water-management-panel'
+import { GardenEvolutionPanel } from './panels/garden-evolution-panel'
+import { ImplementationPhasingPanel } from './panels/implementation-phasing-panel'
+import { DesignCritiquePanel } from './panels/design-critique-panel'
+import { ProgressTrackingPanel } from './panels/progress-tracking-panel'
+import { KnowledgeBasePanel } from './panels/knowledge-base-panel'
+import { TemplateLibraryPanel } from './panels/template-library-panel'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PlantInfo } from '@/lib/data/plant-library'
 import { ElementSubtype, ElementCategory, ELEMENT_STYLES } from '@/lib/canvas-elements'
@@ -44,6 +50,12 @@ import {
   Compass,
   Repeat,
   Droplets,
+  Clock,
+  Hammer,
+  Award,
+  BookOpen,
+  Lightbulb,
+  Layout,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -83,7 +95,7 @@ export function PermacultureEditorIntegrated({
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
   const [leftPanelTab, setLeftPanelTab] = useState<'plants' | 'elements'>('plants')
-  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'tasks' | 'sun' | 'sectors' | 'succession' | 'water' | 'permaculture' | 'analytics'>('properties')
+  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'tasks' | 'sun' | 'sectors' | 'succession' | 'water' | 'evolution' | 'implementation' | 'critique' | 'progress' | 'knowledge' | 'templates' | 'permaculture' | 'analytics'>('properties')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // Handle canvas changes
@@ -347,7 +359,7 @@ export function PermacultureEditorIntegrated({
         >
           {rightPanelOpen && (
             <Tabs value={rightPanelTab} onValueChange={(v: any) => setRightPanelTab(v)} className="flex-1 flex flex-col h-full">
-              <TabsList className="w-full rounded-none border-b grid grid-cols-12">
+              <TabsList className="w-full rounded-none border-b grid grid-cols-18">
                 <TabsTrigger value="properties" title="Properties">
                   <Settings className="h-4 w-4" />
                 </TabsTrigger>
@@ -377,6 +389,24 @@ export function PermacultureEditorIntegrated({
                 </TabsTrigger>
                 <TabsTrigger value="water" title="Water">
                   <Droplets className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="evolution" title="Evolution">
+                  <Clock className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="implementation" title="Implementation">
+                  <Hammer className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="critique" title="Critique">
+                  <Award className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="progress" title="Progress">
+                  <BookOpen className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="knowledge" title="Knowledge">
+                  <Lightbulb className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="templates" title="Templates">
+                  <Layout className="h-4 w-4" />
                 </TabsTrigger>
                 <TabsTrigger value="permaculture" title="Permaculture">
                   <Sparkles className="h-4 w-4" />
@@ -429,6 +459,30 @@ export function PermacultureEditorIntegrated({
 
               <TabsContent value="water" className="flex-1 m-0">
                 <WaterManagementPanel gardenBeds={gardenData} siteData={siteData} />
+              </TabsContent>
+
+              <TabsContent value="evolution" className="flex-1 m-0">
+                <GardenEvolutionPanel gardenBeds={gardenData} />
+              </TabsContent>
+
+              <TabsContent value="implementation" className="flex-1 m-0">
+                <ImplementationPhasingPanel gardenBeds={gardenData} />
+              </TabsContent>
+
+              <TabsContent value="critique" className="flex-1 m-0">
+                <DesignCritiquePanel gardenBeds={gardenData} />
+              </TabsContent>
+
+              <TabsContent value="progress" className="flex-1 m-0">
+                <ProgressTrackingPanel gardenBeds={gardenData} />
+              </TabsContent>
+
+              <TabsContent value="knowledge" className="flex-1 m-0">
+                <KnowledgeBasePanel gardenBeds={gardenData} />
+              </TabsContent>
+
+              <TabsContent value="templates" className="flex-1 m-0">
+                <TemplateLibraryPanel gardenBeds={gardenData} />
               </TabsContent>
 
               <TabsContent value="permaculture" className="flex-1 m-0">

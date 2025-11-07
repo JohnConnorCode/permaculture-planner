@@ -55,11 +55,11 @@ interface TourStep {
 
 const TOUR_STEPS: TourStep[] = [
   {
-    title: 'Welcome to Your Permaculture Planner!',
+    title: "Welcome to Your Permaculture Planner!",
     description:
-      'This professional tool helps you design regenerative gardens using real permaculture principles. Let's take a quick tour of the key features.',
+      "This professional tool helps you design regenerative gardens using real permaculture principles. Let's take a quick tour of the key features.",
     icon: Sparkles,
-    tip: 'You can skip this tour anytime and restart it from the help menu',
+    tip: "You can skip this tour anytime and restart it from the help menu",
   },
   {
     title: 'Left Panel: Plant & Element Library',
@@ -132,9 +132,9 @@ const TOUR_STEPS: TourStep[] = [
     tip: 'Press Shift+? anytime to see all keyboard shortcuts',
   },
   {
-    title: 'You're Ready to Design!',
+    title: "You're Ready to Design!",
     description:
-      'Start by adding a few beds, then populate them with plants. The analysis panels will guide you with real-time recommendations. Have fun creating your regenerative paradise!',
+      "Start by adding a few beds, then populate them with plants. The analysis panels will guide you with real-time recommendations. Have fun creating your regenerative paradise!",
     icon: Sparkles,
     tip: 'Remember: Permaculture is about working with nature, not against it',
   },
