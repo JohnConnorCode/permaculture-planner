@@ -83,7 +83,7 @@ test.describe('Critical User Journey Paths', () => {
 
       // Test demo page responsiveness
       await page.goto('/demo');
-      await page.waitForSelector('button', { timeout: 10000 });
+      await page.waitForLoadState('networkidle');
 
       // Verify demo page is responsive by checking for interactive elements
       const demoHasContent = await page.locator('button').count() > 0 || await page.locator('[role="tab"]').count() > 0;
