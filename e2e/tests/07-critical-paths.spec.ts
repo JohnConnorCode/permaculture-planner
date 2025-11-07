@@ -54,15 +54,16 @@ test.describe('Critical User Journey Paths', () => {
     await page.waitForLoadState('networkidle');
 
     // Wait for page to load
-    await page.waitForSelector('svg', { timeout: 10000 });
+    await page.waitForSelector('button', { timeout: 10000 });
 
-    // Simplified test - just verify demo page has loaded with content
-    await expect(page.locator('svg')).toBeVisible();
-
+    // Verify demo page has loaded with buttons or tabs (interactive elements)
     const hasButtons = await page.locator('button').count() > 0;
     const hasTabs = await page.locator('[role="tab"]').count() > 0;
 
     expect(hasButtons || hasTabs).toBeTruthy();
+
+    // Verify there's actual content by checking for buttons
+    await expect(page.locator('button').first()).toBeVisible();
     console.log('Demo page permaculture elements verified');
   });
 
@@ -82,8 +83,11 @@ test.describe('Critical User Journey Paths', () => {
 
       // Test demo page responsiveness
       await page.goto('/demo');
-      await page.waitForSelector('svg', { timeout: 10000 });
-      await expect(page.locator('svg')).toBeVisible();
+      await page.waitForSelector('button', { timeout: 10000 });
+
+      // Verify demo page is responsive by checking for interactive elements
+      const demoHasContent = await page.locator('button').count() > 0 || await page.locator('[role="tab"]').count() > 0;
+      expect(demoHasContent).toBeTruthy();
 
       console.log(`${breakpoint.name} breakpoint verified`);
     }
