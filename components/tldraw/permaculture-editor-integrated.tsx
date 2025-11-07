@@ -23,6 +23,7 @@ import { DesignCritiquePanel } from './panels/design-critique-panel'
 import { ProgressTrackingPanel } from './panels/progress-tracking-panel'
 import { KnowledgeBasePanel } from './panels/knowledge-base-panel'
 import { TemplateLibraryPanel } from './panels/template-library-panel'
+import { GrowthSimulationPanel } from './panels/growth-simulation-panel'
 import { LockedPanel } from '@/components/subscription/locked-panel'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PlantInfo } from '@/lib/data/plant-library'
@@ -57,6 +58,7 @@ import {
   BookOpen,
   Lightbulb,
   Layout,
+  Activity,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -96,7 +98,7 @@ export function PermacultureEditorIntegrated({
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
   const [leftPanelTab, setLeftPanelTab] = useState<'plants' | 'elements'>('plants')
-  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'tasks' | 'sun' | 'sectors' | 'succession' | 'water' | 'evolution' | 'implementation' | 'critique' | 'progress' | 'knowledge' | 'templates' | 'permaculture' | 'analytics'>('properties')
+  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'tasks' | 'sun' | 'sectors' | 'succession' | 'water' | 'evolution' | 'implementation' | 'critique' | 'progress' | 'knowledge' | 'templates' | 'simulation' | 'permaculture' | 'analytics'>('properties')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
   // Handle canvas changes
@@ -360,7 +362,7 @@ export function PermacultureEditorIntegrated({
         >
           {rightPanelOpen && (
             <Tabs value={rightPanelTab} onValueChange={(v: any) => setRightPanelTab(v)} className="flex-1 flex flex-col h-full">
-              <TabsList className="w-full rounded-none border-b grid grid-cols-18">
+              <TabsList className="w-full rounded-none border-b grid grid-cols-19">
                 <TabsTrigger value="properties" title="Properties">
                   <Settings className="h-4 w-4" />
                 </TabsTrigger>
@@ -408,6 +410,9 @@ export function PermacultureEditorIntegrated({
                 </TabsTrigger>
                 <TabsTrigger value="templates" title="Templates">
                   <Layout className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="simulation" title="Simulation">
+                  <Activity className="h-4 w-4" />
                 </TabsTrigger>
                 <TabsTrigger value="permaculture" title="Permaculture">
                   <Sparkles className="h-4 w-4" />
@@ -560,6 +565,17 @@ export function PermacultureEditorIntegrated({
                   requiredTier="pro"
                 >
                   <TemplateLibraryPanel gardenBeds={gardenData} />
+                </LockedPanel>
+              </TabsContent>
+
+              <TabsContent value="simulation" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="simulation"
+                  featureName="Growth Simulation"
+                  featureDescription="Run animated simulations showing your garden's evolution over 10 years with realistic growth modeling and scenario testing."
+                  requiredTier="pro"
+                >
+                  <GrowthSimulationPanel gardenBeds={gardenData} />
                 </LockedPanel>
               </TabsContent>
 

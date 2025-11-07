@@ -50,7 +50,7 @@ const PREMIUM_PANELS = [
 ]
 
 // Pro-only panels
-const PRO_PANELS = ['evolution', 'implementation', 'critique', 'progress', 'knowledge', 'templates']
+const PRO_PANELS = ['evolution', 'implementation', 'critique', 'progress', 'knowledge', 'templates', 'simulation']
 
 export const PLANS: Record<PlanTier, Plan> = {
   free: {
