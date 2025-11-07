@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -17,14 +17,19 @@ import {
   ChevronUp,
   Clock,
   AlertCircle,
+  ListTodo,
 } from 'lucide-react'
 import { GardenBed } from '@/lib/garden/garden-types'
 import {
   generateSeasonalTimeline,
   getCurrentPlantingWindow,
+  generateTasksFromTimeline,
   SeasonalTimeline,
   PlantingWindow,
 } from '@/lib/planning/seasonal-timeline'
+import { syncTasksToSupabase } from '@/lib/supabase/task-sync'
+import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 interface SeasonalTimelinePanelProps {
@@ -37,6 +42,8 @@ interface SeasonalTimelinePanelProps {
   }
   /** USDA zone */
   usdaZone?: string
+  /** Plan ID for saving tasks */
+  planId?: string
 }
 
 /**
@@ -52,8 +59,10 @@ export function SeasonalTimelinePanel({
   gardenBeds,
   frostDates,
   usdaZone = '7a',
+  planId,
 }: SeasonalTimelinePanelProps) {
   const [expandedSeason, setExpandedSeason] = React.useState<string | null>('current')
+  const [generatingTasks, setGeneratingTasks] = useState(false)
 
   // Generate timeline from planted crops
   const timeline = useMemo(() => {
@@ -85,6 +94,62 @@ export function SeasonalTimelinePanel({
 
   const hasContent = gardenBeds.some(bed => bed.plants && bed.plants.length > 0)
 
+  // Generate and save tasks to database
+  const handleGenerateTasks = async () => {
+    if (!planId) {
+      toast.error('Cannot generate tasks', {
+        description: 'Plan ID is required',
+      })
+      return
+    }
+
+    if (!frostDates) {
+      toast.error('Cannot generate tasks', {
+        description: 'Frost dates are required. Complete the wizard first.',
+      })
+      return
+    }
+
+    setGeneratingTasks(true)
+    const toastId = toast.loading('Generating tasks from planting timeline...')
+
+    try {
+      // Generate tasks from timeline
+      const tasks = generateTasksFromTimeline(timeline, planId)
+
+      if (tasks.length === 0) {
+        toast.dismiss(toastId)
+        toast.info('No tasks to generate', {
+          description: 'Add plants to create planting tasks',
+        })
+        setGeneratingTasks(false)
+        return
+      }
+
+      // Save to Supabase
+      const supabase = createClient()
+      const result = await syncTasksToSupabase(supabase, planId, tasks as any)
+
+      toast.dismiss(toastId)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save tasks')
+      }
+
+      toast.success('✅ Tasks generated!', {
+        description: `Created ${result.tasksCreated} new task(s) from your planting calendar`,
+      })
+    } catch (error) {
+      toast.dismiss(toastId)
+      console.error('Error generating tasks:', error)
+      toast.error('Failed to generate tasks', {
+        description: error instanceof Error ? error.message : 'Unknown error',
+      })
+    } finally {
+      setGeneratingTasks(false)
+    }
+  }
+
   const seasons = [
     { key: 'spring', name: 'Spring', icon: Sprout, color: 'green', items: timeline.spring },
     { key: 'summer', name: 'Summer', icon: Sun, color: 'yellow', items: timeline.summer },
@@ -100,9 +165,22 @@ export function SeasonalTimelinePanel({
             <Calendar className="h-5 w-5 text-green-600" />
             Planting Calendar
           </h2>
-          <Badge variant="outline" className="font-mono text-xs">
-            Zone {usdaZone}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="font-mono text-xs">
+              Zone {usdaZone}
+            </Badge>
+            {hasContent && planId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateTasks}
+                disabled={generatingTasks}
+              >
+                <ListTodo className="h-3 w-3 mr-2" />
+                {generatingTasks ? 'Generating...' : 'Generate Tasks'}
+              </Button>
+            )}
+          </div>
         </div>
         <p className="text-xs text-muted-foreground">
           Season-by-season planting schedule based on your frost dates

@@ -373,6 +373,7 @@ export function PermacultureEditorIntegrated({
                   gardenBeds={gardenData}
                   frostDates={siteData?.frostDates || undefined}
                   usdaZone={siteData?.usdaZone}
+                  planId={planId}
                 />
               </TabsContent>
 
