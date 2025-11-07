@@ -23,7 +23,7 @@ import { DesignCritiquePanel } from './panels/design-critique-panel'
 import { ProgressTrackingPanel } from './panels/progress-tracking-panel'
 import { KnowledgeBasePanel } from './panels/knowledge-base-panel'
 import { TemplateLibraryPanel } from './panels/template-library-panel'
-import { GrowthSimulationPanel } from './panels/growth-simulation-panel'
+import { EnhancedSimulationPanel } from './panels/growth-simulation-enhanced-panel'
 import { LockedPanel } from '@/components/subscription/locked-panel'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PlantInfo } from '@/lib/data/plant-library'
@@ -575,7 +575,7 @@ export function PermacultureEditorIntegrated({
                   featureDescription="Run animated simulations showing your garden's evolution over 10 years with realistic growth modeling and scenario testing."
                   requiredTier="pro"
                 >
-                  <GrowthSimulationPanel gardenBeds={gardenData} />
+                  <EnhancedSimulationPanel gardenBeds={gardenData} />
                 </LockedPanel>
               </TabsContent>
 
