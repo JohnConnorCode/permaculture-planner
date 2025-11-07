@@ -29,6 +29,7 @@ import {
   calculateExpectedYield,
   calculateMarketValue,
 } from '@/lib/data/plant-yield-data'
+import { deriveClimateFromLocation } from '@/lib/climate/climate-utils'
 import { cn } from '@/lib/utils'
 
 export interface SiteData {
@@ -396,6 +397,11 @@ function MetricCard({ icon, label, value, max, suffix = '', color }: MetricCardP
 
 // Analytics calculation logic
 function calculateGardenAnalytics(beds: GardenBed[], siteData?: SiteData | null) {
+  // Derive climate from location (instead of hardcoding 'moderate')
+  const climate = siteData?.location
+    ? deriveClimateFromLocation(siteData.location.lat, siteData.location.lng)
+    : 'moderate' // Fallback to moderate if no location
+
   const totalBeds = beds.length
   const totalPlants = beds.reduce((sum, bed) => sum + (bed.plants?.length || 0), 0)
   const totalArea = beds.reduce((sum, bed) => {
@@ -435,8 +441,8 @@ function calculateGardenAnalytics(beds: GardenBed[], siteData?: SiteData | null)
       const plantInfo = PLANT_LIBRARY.find(p => p.id === plant.plantId)
       if (plantInfo) {
         waterNeeds[plantInfo.requirements.water]++
-        // Use accurate water data with moderate climate assumption
-        const plantWaterPerWeek = calculateWaterNeeds(plant.plantId, 'moderate')
+        // Use accurate water data with derived climate
+        const plantWaterPerWeek = calculateWaterNeeds(plant.plantId, climate)
         weeklyGallons += plantWaterPerWeek
       }
     })
