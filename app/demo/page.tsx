@@ -119,10 +119,30 @@ export default function DemoPage() {
 
   return (
     <div className="w-full h-screen flex flex-col bg-background">
+      {/* Error alert */}
+      {persistence.error && (
+        <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-sm text-red-800 flex justify-between items-center">
+          <span>⚠️ {persistence.error}</span>
+          <button
+            onClick={() => persistence.setError(null)}
+            className="text-red-600 hover:text-red-800 font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Persistence status bar */}
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b px-4 py-2 text-xs text-gray-600 flex justify-between items-center">
+      <div className={`border-b px-4 py-2 text-xs flex justify-between items-center transition-colors ${
+        persistence.hasUnsavedChanges
+          ? 'bg-yellow-50 text-yellow-700'
+          : 'bg-gradient-to-r from-green-50 to-emerald-50 text-gray-600'
+      }`}>
         <div className="flex items-center gap-4">
           <span>📋 Demo Mode - Full featured, saves locally</span>
+          {persistence.hasUnsavedChanges && (
+            <span className="inline-block w-2 h-2 bg-yellow-600 rounded-full animate-pulse" title="Unsaved changes" />
+          )}
           {persistence.lastSaved && (
             <span className="text-gray-500">
               Last saved: {persistence.lastSaved.toLocaleTimeString()}
@@ -132,25 +152,29 @@ export default function DemoPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleSave}
-            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-medium"
+            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-medium disabled:opacity-50"
+            title="Save immediately"
           >
             💾 Save
           </button>
           <button
             onClick={handleExport}
             className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-medium"
+            title="Download as JSON file"
           >
             📥 Export
           </button>
           <button
             onClick={handleImportClick}
             className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700 text-xs font-medium"
+            title="Upload JSON file"
           >
             📤 Import
           </button>
           <button
             onClick={handleClear}
             className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-medium"
+            title="Delete all beds"
           >
             🗑️ Clear
           </button>
@@ -161,6 +185,7 @@ export default function DemoPage() {
           accept=".json"
           onChange={handleImport}
           className="hidden"
+          aria-label="Import JSON file"
         />
       </div>
 
