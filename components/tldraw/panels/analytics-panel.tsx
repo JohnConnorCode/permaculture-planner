@@ -31,9 +31,25 @@ import {
 } from '@/lib/data/plant-yield-data'
 import { cn } from '@/lib/utils'
 
+export interface SiteData {
+  usdaZone?: string
+  frostDates?: {
+    lastFrost: Date
+    firstFrost: Date
+  } | null
+  location?: {
+    lat: number
+    lng: number
+  } | null
+  surfaceType?: string
+  waterSource?: string
+}
+
 interface AnalyticsPanelProps {
   /** Current garden beds */
   gardenBeds: GardenBed[]
+  /** Site data from wizard */
+  siteData?: SiteData | null
   /** Garden settings */
   settings?: {
     location?: string
@@ -56,12 +72,13 @@ interface AnalyticsPanelProps {
  */
 export function AnalyticsPanel({
   gardenBeds,
+  siteData = null,
   settings = {},
 }: AnalyticsPanelProps) {
   // Calculate comprehensive analytics
   const analytics = useMemo(() => {
-    return calculateGardenAnalytics(gardenBeds)
-  }, [gardenBeds])
+    return calculateGardenAnalytics(gardenBeds, siteData)
+  }, [gardenBeds, siteData])
 
   const hasContent = gardenBeds.length > 0
 
@@ -378,7 +395,7 @@ function MetricCard({ icon, label, value, max, suffix = '', color }: MetricCardP
 }
 
 // Analytics calculation logic
-function calculateGardenAnalytics(beds: GardenBed[]) {
+function calculateGardenAnalytics(beds: GardenBed[], siteData?: SiteData | null) {
   const totalBeds = beds.length
   const totalPlants = beds.reduce((sum, bed) => sum + (bed.plants?.length || 0), 0)
   const totalArea = beds.reduce((sum, bed) => {
@@ -503,19 +520,64 @@ function calculateGardenAnalytics(beds: GardenBed[]) {
     companionScore * 0.35)
   )
 
-  // Recommendations
+  // Recommendations - Enhanced with site data
   const recommendations: string[] = []
+
+  // Biodiversity recommendations
   if (biodiversity.uniqueSpecies < 10) {
-    recommendations.push('Add more plant varieties to increase biodiversity')
+    recommendations.push('Add more plant varieties to increase biodiversity and resilience')
   }
+
+  // Water recommendations based on water source
   if (waterNeeds.high > totalPlants * 0.4) {
-    recommendations.push('Consider drought-tolerant alternatives to reduce water usage')
+    if (siteData?.waterSource === 'rain') {
+      recommendations.push('High water plants detected - consider adding rain barrels or swales')
+    } else if (siteData?.waterSource === 'none') {
+      recommendations.push('⚠️ Many high-water plants without water source - switch to drought-tolerant varieties')
+    } else {
+      recommendations.push('Consider drought-tolerant alternatives to reduce water usage')
+    }
   }
+
+  // Density recommendations
   if (density < 0.5) {
     recommendations.push('Increase planting density to maximize space utilization')
+  } else if (density > 4) {
+    recommendations.push('⚠️ Overcrowded - reduce density to prevent competition and disease')
   }
+
+  // Companion planting
   if (companionScore < 70) {
     recommendations.push('Review companion planting suggestions to improve plant relationships')
+  }
+
+  // Zone-specific recommendations
+  if (siteData?.usdaZone) {
+    const zoneNum = parseInt(siteData.usdaZone.replace(/[a-z]/i, ''))
+    if (zoneNum <= 6) {
+      recommendations.push(`Zone ${siteData.usdaZone}: Focus on cold-hardy varieties and season extension`)
+    } else if (zoneNum >= 9) {
+      recommendations.push(`Zone ${siteData.usdaZone}: Take advantage of year-round growing potential`)
+    }
+  }
+
+  // Frost date recommendations
+  if (siteData?.frostDates) {
+    const today = new Date()
+    const lastFrost = siteData.frostDates.lastFrost
+    const firstFrost = siteData.frostDates.firstFrost
+    const growingSeason = Math.round((firstFrost.getTime() - lastFrost.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (growingSeason < 150) {
+      recommendations.push(`Short ${growingSeason}-day season - prioritize fast-maturing varieties`)
+    } else if (growingSeason > 240) {
+      recommendations.push(`Long ${growingSeason}-day season - excellent for succession planting`)
+    }
+  }
+
+  // Surface type recommendations
+  if (siteData?.surfaceType === 'hard' || siteData?.surfaceType === 'concrete') {
+    recommendations.push('Hard surface detected - ensure adequate soil depth (12-18") for root crops')
   }
 
   return {

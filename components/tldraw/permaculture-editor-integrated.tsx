@@ -368,7 +368,7 @@ export function PermacultureEditorIntegrated({
               </TabsContent>
 
               <TabsContent value="analytics" className="flex-1 m-0">
-                <AnalyticsPanel gardenBeds={gardenData} />
+                <AnalyticsPanel gardenBeds={gardenData} siteData={siteData} />
               </TabsContent>
             </Tabs>
           )}
