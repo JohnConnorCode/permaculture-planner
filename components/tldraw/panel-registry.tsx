@@ -3,7 +3,7 @@ import {
   Sun, Compass, Repeat, Droplets, Clock, Hammer, Award,
   BookOpen, Lightbulb, Layout, Activity, Sparkles, BarChart3,
   Mountain, Layers, Home, Thermometer, Bird, Users, DollarSign,
-  Zap, Trees, Fence, TrendingUp, Globe, Sprout
+  Zap, Trees, Fence, TrendingUp, Globe, Sprout, Network
 } from 'lucide-react'
 import { LucideIcon } from 'lucide-react'
 
@@ -156,6 +156,15 @@ export const PANEL_REGISTRY: PanelDefinition[] = [
   },
 
   // ========== PERMACULTURE DESIGN ==========
+  {
+    id: 'relationships',
+    name: 'Relationship Mapper',
+    description: 'Interactive visualization of plant guilds, energy flows, and cycles',
+    icon: Network,
+    category: 'permaculture',
+    tier: 'free',
+    keywords: ['relationships', 'guilds', 'connections', 'energy', 'water', 'nutrients', 'cycles', 'synergy']
+  },
   {
     id: 'zones',
     name: 'Permaculture Zones',

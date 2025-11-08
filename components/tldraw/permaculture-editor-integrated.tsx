@@ -26,6 +26,7 @@ import { KnowledgeBasePanel } from './panels/knowledge-base-panel'
 import { TemplateLibraryPanel } from './panels/template-library-panel'
 import { EnhancedSimulationPanel } from './panels/growth-simulation-enhanced-panel'
 import { HolisticDashboardPanel } from './panels/holistic-dashboard-panel'
+import { RelationshipMapperPanel } from './panels/relationship-mapper-panel'
 import { LockedPanel } from '@/components/subscription/locked-panel'
 import { PanelSelector } from './panel-selector'
 import {
@@ -427,6 +428,10 @@ export function PermacultureEditorIntegrated({
 
               <TabsContent value="companions" className="flex-1 m-0">
                 <CompanionPlantingPanel gardenBeds={gardenData} />
+              </TabsContent>
+
+              <TabsContent value="relationships" className="flex-1 m-0">
+                <RelationshipMapperPanel gardenBeds={gardenData} />
               </TabsContent>
 
               <TabsContent value="timeline" className="flex-1 m-0">

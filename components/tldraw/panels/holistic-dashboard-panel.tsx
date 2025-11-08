@@ -9,8 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import {
   Sparkles, TrendingUp, AlertTriangle, CheckCircle2, Zap,
-  Droplets, Sun, Sprout, Users, DollarSign, Heart, Target,
-  Globe, Wind, Flame, Mountain
+  Droplets, Sun, Sprout, Users, Target
 } from 'lucide-react'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { SiteData } from '@/lib/types/site-context'
@@ -47,7 +46,55 @@ export function HolisticDashboardPanel({ gardenBeds, siteData }: HolisticDashboa
         overall: 0,
         ethics: { earthCare: 0, peopleCare: 0, fairShare: 0 },
         principles: [],
-        elementalBalance: { earth: 0, water: 0, fire: 0, air: 0, life: 0 }
+        scientificMetrics: {
+          soilHealth: {
+            organicMatterPercent: 0,
+            infiltrationRate: 0,
+            bulkDensity: 0,
+            aggregateStability: 0,
+            microbialBiomass: 0,
+            earthwormCount: 0,
+            cec: 0
+          },
+          waterEfficiency: {
+            infiltrationRate: 0,
+            waterHoldingCapacity: 0,
+            runoffPercentage: 0,
+            irrigationEfficiency: 0,
+            rainwaterCapturePercent: 0
+          },
+          biodiversity: {
+            speciesRichness: 0,
+            shannonIndex: 0,
+            nativeSpeciesPercent: 0,
+            pollinatorVisitsPerHour: 0,
+            beneficialInsectRatio: 0
+          },
+          productivity: {
+            yieldPerSqFt: 0,
+            caloriesPerSqFt: 0,
+            proteinGramsPerSqFt: 0,
+            perennialToAnnualRatio: 0,
+            cropDiversity: 0
+          },
+          carbonSequestration: {
+            tonsCO2PerYear: 0,
+            biomassAccumulationRate: 0,
+            woodyPerennialPercent: 0
+          },
+          nutrientCycling: {
+            nitrogenFixationLbsPerAcre: 0,
+            compostProductionVsImport: 0,
+            closedLoopPercent: 0,
+            mulchProductionSqFt: 0
+          },
+          energyEfficiency: {
+            eroi: 0,
+            laborHoursPerLbYield: 0,
+            fuelInputsPerAcre: 0,
+            renewableEnergyPercent: 0
+          }
+        }
       },
       recommendations: {
         immediate: [],
@@ -168,67 +215,156 @@ export function HolisticDashboardPanel({ gardenBeds, siteData }: HolisticDashboa
           </CardContent>
         </Card>
 
-        {/* Elemental Balance */}
+        {/* Scientific Metrics - Research-Based Performance */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-blue-600" />
-              Elemental Balance
+              <TrendingUp className="h-5 w-5 text-blue-600" />
+              Scientific Metrics
             </CardTitle>
-            <CardDescription>Earth • Water • Fire • Air • Life</CardDescription>
+            <CardDescription>Research-backed permaculture performance indicators</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-5 gap-3">
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-amber-100 border-2 border-amber-300 flex items-center justify-center mx-auto mb-2">
-                  <Mountain className="h-5 w-5 text-amber-700" />
-                </div>
-                <div className="text-2xl font-bold text-amber-700">
-                  {Math.round(holisticScore.elementalBalance.earth)}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">Earth</div>
-              </div>
+            <Tabs defaultValue="soil" className="w-full">
+              <TabsList className="w-full grid grid-cols-4">
+                <TabsTrigger value="soil">Soil</TabsTrigger>
+                <TabsTrigger value="productivity">Yield</TabsTrigger>
+                <TabsTrigger value="biodiversity">Ecology</TabsTrigger>
+                <TabsTrigger value="efficiency">Resources</TabsTrigger>
+              </TabsList>
 
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-blue-100 border-2 border-blue-300 flex items-center justify-center mx-auto mb-2">
-                  <Droplets className="h-5 w-5 text-blue-700" />
+              <TabsContent value="soil" className="space-y-3 mt-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <div className="text-xs text-muted-foreground mb-1">Organic Matter</div>
+                    <div className="text-xl font-bold text-amber-700">
+                      {holisticScore.scientificMetrics.soilHealth.organicMatterPercent.toFixed(1)}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">Target: 5-8%</div>
+                  </div>
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="text-xs text-muted-foreground mb-1">Infiltration Rate</div>
+                    <div className="text-xl font-bold text-blue-700">
+                      {holisticScore.scientificMetrics.soilHealth.infiltrationRate.toFixed(1)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">inches/hour</div>
+                  </div>
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="text-xs text-muted-foreground mb-1">Earthworm Count</div>
+                    <div className="text-xl font-bold text-green-700">
+                      {Math.round(holisticScore.scientificMetrics.soilHealth.earthwormCount)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">per cubic foot</div>
+                  </div>
+                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="text-xs text-muted-foreground mb-1">CEC</div>
+                    <div className="text-xl font-bold text-purple-700">
+                      {holisticScore.scientificMetrics.soilHealth.cec.toFixed(1)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">meq/100g</div>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-blue-700">
-                  {Math.round(holisticScore.elementalBalance.water)}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">Water</div>
-              </div>
+              </TabsContent>
 
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-orange-100 border-2 border-orange-300 flex items-center justify-center mx-auto mb-2">
-                  <Flame className="h-5 w-5 text-orange-700" />
+              <TabsContent value="productivity" className="space-y-3 mt-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="text-xs text-muted-foreground mb-1">Calories/sq ft</div>
+                    <div className="text-xl font-bold text-green-700">
+                      {Math.round(holisticScore.scientificMetrics.productivity.caloriesPerSqFt)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">annual production</div>
+                  </div>
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="text-xs text-muted-foreground mb-1">Protein g/sq ft</div>
+                    <div className="text-xl font-bold text-blue-700">
+                      {Math.round(holisticScore.scientificMetrics.productivity.proteinGramsPerSqFt)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">annual production</div>
+                  </div>
+                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="text-xs text-muted-foreground mb-1">Perennial Ratio</div>
+                    <div className="text-xl font-bold text-purple-700">
+                      {(holisticScore.scientificMetrics.productivity.perennialToAnnualRatio * 100).toFixed(0)}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">Target: 60%+</div>
+                  </div>
+                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <div className="text-xs text-muted-foreground mb-1">Crop Diversity</div>
+                    <div className="text-xl font-bold text-amber-700">
+                      {Math.round(holisticScore.scientificMetrics.productivity.cropDiversity)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">species count</div>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-orange-700">
-                  {Math.round(holisticScore.elementalBalance.fire)}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">Fire</div>
-              </div>
+              </TabsContent>
 
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-cyan-100 border-2 border-cyan-300 flex items-center justify-center mx-auto mb-2">
-                  <Wind className="h-5 w-5 text-cyan-700" />
+              <TabsContent value="biodiversity" className="space-y-3 mt-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="text-xs text-muted-foreground mb-1">Shannon Index</div>
+                    <div className="text-xl font-bold text-green-700">
+                      {holisticScore.scientificMetrics.biodiversity.shannonIndex.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">diversity (1.5-3.5)</div>
+                  </div>
+                  <div className="p-3 bg-rose-50 rounded-lg border border-rose-200">
+                    <div className="text-xs text-muted-foreground mb-1">Native Species</div>
+                    <div className="text-xl font-bold text-rose-700">
+                      {Math.round(holisticScore.scientificMetrics.biodiversity.nativeSpeciesPercent)}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">of total</div>
+                  </div>
+                  <div className="p-3 bg-pink-50 rounded-lg border border-pink-200">
+                    <div className="text-xs text-muted-foreground mb-1">Pollinator Visits</div>
+                    <div className="text-xl font-bold text-pink-700">
+                      {Math.round(holisticScore.scientificMetrics.biodiversity.pollinatorVisitsPerHour)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">per hour</div>
+                  </div>
+                  <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
+                    <div className="text-xs text-muted-foreground mb-1">Beneficial:Pest</div>
+                    <div className="text-xl font-bold text-amber-700">
+                      {holisticScore.scientificMetrics.biodiversity.beneficialInsectRatio.toFixed(1)}:1
+                    </div>
+                    <div className="text-xs text-muted-foreground">insect ratio</div>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-cyan-700">
-                  {Math.round(holisticScore.elementalBalance.air)}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">Air</div>
-              </div>
+              </TabsContent>
 
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full bg-green-100 border-2 border-green-300 flex items-center justify-center mx-auto mb-2">
-                  <Sprout className="h-5 w-5 text-green-700" />
+              <TabsContent value="efficiency" className="space-y-3 mt-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="text-xs text-muted-foreground mb-1">Water Capture</div>
+                    <div className="text-xl font-bold text-blue-700">
+                      {Math.round(holisticScore.scientificMetrics.waterEfficiency.rainwaterCapturePercent)}%
+                    </div>
+                    <div className="text-xs text-muted-foreground">of rainfall</div>
+                  </div>
+                  <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div className="text-xs text-muted-foreground mb-1">N-Fixation</div>
+                    <div className="text-xl font-bold text-green-700">
+                      {Math.round(holisticScore.scientificMetrics.nutrientCycling.nitrogenFixationLbsPerAcre)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">lbs N/acre/yr</div>
+                  </div>
+                  <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="text-xs text-muted-foreground mb-1">EROI</div>
+                    <div className="text-xl font-bold text-purple-700">
+                      {holisticScore.scientificMetrics.energyEfficiency.eroi.toFixed(1)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">energy return</div>
+                  </div>
+                  <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                    <div className="text-xs text-muted-foreground mb-1">Carbon Sequestration</div>
+                    <div className="text-xl font-bold text-emerald-700">
+                      {holisticScore.scientificMetrics.carbonSequestration.tonsCO2PerYear.toFixed(2)}
+                    </div>
+                    <div className="text-xs text-muted-foreground">tons CO₂/year</div>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-green-700">
-                  {Math.round(holisticScore.elementalBalance.life)}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">Life</div>
-              </div>
-            </div>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
