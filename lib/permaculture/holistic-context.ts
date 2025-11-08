@@ -776,7 +776,7 @@ export const createDefaultContext = (): Partial<PermacultureDesignContext> => ({
         windbreakLocations: []
       },
       water: {
-        flowPattern: 'sheet',
+        flowPattern: 'contour',
         catchmentPotential: 0,
         cycleCompleteness: 0
       },

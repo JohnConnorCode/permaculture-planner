@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import {
   Sparkles, TrendingUp, AlertTriangle, CheckCircle2, Zap,
-  Droplets, Sun, Sprout, Users, Target
+  Droplets, Sun, Sprout, Users, Target, Heart
 } from 'lucide-react'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { SiteData } from '@/lib/types/site-context'

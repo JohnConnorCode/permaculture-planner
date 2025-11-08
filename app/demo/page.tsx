@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { PermacultureEditorIntegrated } from '@/components/tldraw/permaculture-editor-integrated'
@@ -46,7 +47,7 @@ const STARTER_GARDEN: GardenBed[] = [
   }
 ]
 
-export default function DemoPage() {
+function DemoPageContent() {
   const searchParams = useSearchParams()
   const planId = searchParams.get('planId')
   const [gardenData, setGardenData] = useState<GardenBed[]>(STARTER_GARDEN)
@@ -200,5 +201,20 @@ export default function DemoPage() {
         aria-label="Import JSON file"
       />
     </div>
+  )
+}
+
+export default function DemoPage() {
+  return (
+    <Suspense fallback={
+      <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading demo...</p>
+        </div>
+      </div>
+    }>
+      <DemoPageContent />
+    </Suspense>
   )
 }
