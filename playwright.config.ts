@@ -7,16 +7,25 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  timeout: 30 * 1000,
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Enable storage for localStorage/sessionStorage
+    storageState: undefined,
+    // Allow persistent storage
+    launchArgs: ['--disable-blink-features=AutomationControlled'],
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // Enable localStorage
+        storageState: undefined,
+      },
     },
   ],
 
