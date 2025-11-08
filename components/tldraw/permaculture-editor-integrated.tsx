@@ -26,6 +26,18 @@ import { KnowledgeBasePanel } from './panels/knowledge-base-panel'
 import { TemplateLibraryPanel } from './panels/template-library-panel'
 import { EnhancedSimulationPanel } from './panels/growth-simulation-enhanced-panel'
 import { LockedPanel } from '@/components/subscription/locked-panel'
+import { PanelSelector } from './panel-selector'
+import {
+  SoilAnalysisPanel,
+  TopographyPanel,
+  ClimatePanel,
+  InfrastructurePanel,
+  BiodiversityPanel,
+  EnergyPanel,
+  CommunityPanel,
+  EconomicsPanel,
+  ResiliencePanel
+} from './panels/placeholder-panel'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { PlantInfo } from '@/lib/data/plant-library'
 import { ElementSubtype, ElementCategory, ELEMENT_STYLES } from '@/lib/canvas-elements'
@@ -99,8 +111,32 @@ export function PermacultureEditorIntegrated({
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
   const [leftPanelTab, setLeftPanelTab] = useState<'plants' | 'elements'>('plants')
-  const [rightPanelTab, setRightPanelTab] = useState<'properties' | 'zones' | 'companions' | 'timeline' | 'materials' | 'tasks' | 'sun' | 'sectors' | 'succession' | 'water' | 'evolution' | 'implementation' | 'critique' | 'progress' | 'knowledge' | 'templates' | 'simulation' | 'permaculture' | 'analytics'>('properties')
+  const [rightPanelTab, setRightPanelTab] = useState<string>('properties')
+  const [recentPanels, setRecentPanels] = useState<string[]>([])
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  // Load recent panels from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('recentPanels')
+    if (saved) {
+      try {
+        setRecentPanels(JSON.parse(saved))
+      } catch (e) {
+        console.warn('Failed to load recent panels')
+      }
+    }
+  }, [])
+
+  // Update recent panels
+  const handlePanelChange = useCallback((panelId: string) => {
+    setRightPanelTab(panelId)
+
+    setRecentPanels(prev => {
+      const updated = [panelId, ...prev.filter(id => id !== panelId)].slice(0, 5)
+      localStorage.setItem('recentPanels', JSON.stringify(updated))
+      return updated
+    })
+  }, [])
 
   // Handle canvas changes
   const handleCanvasChange = useCallback((updatedData: GardenBed[]) => {
@@ -367,66 +403,14 @@ export function PermacultureEditorIntegrated({
           )}
         >
           {rightPanelOpen && (
-            <Tabs value={rightPanelTab} onValueChange={(v: any) => setRightPanelTab(v)} className="flex-1 flex flex-col h-full">
-              <TabsList className="w-full rounded-none border-b grid grid-cols-19">
-                <TabsTrigger value="properties" title="Properties">
-                  <Settings className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="zones" title="Zones">
-                  <Target className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="companions" title="Companions">
-                  <Heart className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="timeline" title="Calendar">
-                  <Calendar className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="materials" title="Materials">
-                  <ShoppingCart className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="tasks" title="Tasks">
-                  <ListTodo className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="sun" title="Sun">
-                  <Sun className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="sectors" title="Sectors">
-                  <Compass className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="succession" title="Succession">
-                  <Repeat className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="water" title="Water">
-                  <Droplets className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="evolution" title="Evolution">
-                  <Clock className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="implementation" title="Implementation">
-                  <Hammer className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="critique" title="Critique">
-                  <Award className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="progress" title="Progress">
-                  <BookOpen className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="knowledge" title="Knowledge">
-                  <Lightbulb className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="templates" title="Templates">
-                  <Layout className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="simulation" title="Simulation">
-                  <Activity className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="permaculture" title="Permaculture">
-                  <Sparkles className="h-4 w-4" />
-                </TabsTrigger>
-                <TabsTrigger value="analytics" title="Analytics">
-                  <BarChart3 className="h-4 w-4" />
-                </TabsTrigger>
-              </TabsList>
+            <Tabs value={rightPanelTab} onValueChange={handlePanelChange} className="flex-1 flex flex-col h-full">
+              {/* Beautiful Panel Selector - replaces messy 19-tab interface */}
+              <PanelSelector
+                currentPanel={rightPanelTab}
+                onPanelChange={handlePanelChange}
+                recentPanels={recentPanels}
+                onUpdateRecents={handlePanelChange}
+              />
 
               <TabsContent value="properties" className="flex-1 m-0">
                 <PropertiesPanel editor={editor} />
@@ -599,6 +583,101 @@ export function PermacultureEditorIntegrated({
               <TabsContent value="analytics" className="flex-1 m-0">
                 <AnalyticsPanel gardenBeds={gardenData} siteData={siteData} />
               </TabsContent>
+
+              {/* ========== NEW SITE ANALYSIS PANELS ========== */}
+              <TabsContent value="soil" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="soil"
+                  featureName="Soil Analysis"
+                  featureDescription="Analyze soil type, pH, composition, and amendments needed for optimal plant growth."
+                  requiredTier="premium"
+                >
+                  <SoilAnalysisPanel />
+                </LockedPanel>
+              </TabsContent>
+
+              <TabsContent value="topography" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="topography"
+                  featureName="Topography & Grading"
+                  featureDescription="Map slopes, contours, water flow, and plan earthworks like swales and terraces."
+                  requiredTier="premium"
+                >
+                  <TopographyPanel />
+                </LockedPanel>
+              </TabsContent>
+
+              <TabsContent value="climate" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="climate"
+                  featureName="Climate & Microclimate"
+                  featureDescription="Analyze temperature zones, frost pockets, and optimize microclimates."
+                  requiredTier="premium"
+                >
+                  <ClimatePanel />
+                </LockedPanel>
+              </TabsContent>
+
+              <TabsContent value="infrastructure" className="flex-1 m-0">
+                <InfrastructurePanel />
+              </TabsContent>
+
+              {/* ========== NEW PERMACULTURE DESIGN PANELS ========== */}
+              <TabsContent value="biodiversity" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="biodiversity"
+                  featureName="Biodiversity & Wildlife"
+                  featureDescription="Plan habitat corridors, beneficial species, and ecological niches."
+                  requiredTier="premium"
+                >
+                  <BiodiversityPanel />
+                </LockedPanel>
+              </TabsContent>
+
+              <TabsContent value="energy" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="energy"
+                  featureName="Energy Systems"
+                  featureDescription="Integrate renewable energy, passive solar design, and thermal management."
+                  requiredTier="pro"
+                >
+                  <EnergyPanel />
+                </LockedPanel>
+              </TabsContent>
+
+              {/* ========== NEW COMMUNITY & ECONOMICS PANELS ========== */}
+              <TabsContent value="community" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="community"
+                  featureName="Community Spaces"
+                  featureDescription="Design shared gardens, education areas, and collaborative zones."
+                  requiredTier="premium"
+                >
+                  <CommunityPanel />
+                </LockedPanel>
+              </TabsContent>
+
+              <TabsContent value="economics" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="economics"
+                  featureName="Economics & Yields"
+                  featureDescription="Track production, calculate ROI, and analyze market opportunities."
+                  requiredTier="pro"
+                >
+                  <EconomicsPanel />
+                </LockedPanel>
+              </TabsContent>
+
+              <TabsContent value="resilience" className="flex-1 m-0">
+                <LockedPanel
+                  panelId="resilience"
+                  featureName="Resilience & Food Security"
+                  featureDescription="Calculate caloric production, food security, and self-sufficiency metrics."
+                  requiredTier="pro"
+                >
+                  <ResiliencePanel />
+                </LockedPanel>
+              </TabsContent>
             </Tabs>
           )}
         </div>
@@ -608,9 +687,12 @@ export function PermacultureEditorIntegrated({
       <div className="border-t bg-card/50 backdrop-blur px-4 py-2">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
-            <span>tldraw Canvas • 60 FPS • Production Ready</span>
+            <span>tldraw Canvas • 60 FPS • 31 Permaculture Analysis Panels</span>
           </div>
           <div className="flex items-center gap-2">
+            <kbd className="px-2 py-0.5 bg-muted rounded font-mono">⌘K</kbd>
+            <span>Search Panels</span>
+            <Separator orientation="vertical" className="h-4" />
             <kbd className="px-2 py-0.5 bg-muted rounded font-mono">⌘S</kbd>
             <span>Save</span>
             <Separator orientation="vertical" className="h-4" />
