@@ -72,6 +72,15 @@ export const PANEL_CATEGORIES = {
 export const PANEL_REGISTRY: PanelDefinition[] = [
   // ========== ESSENTIALS ==========
   {
+    id: 'holistic',
+    name: 'Holistic Dashboard',
+    description: 'Integrated analysis with cross-panel insights and smart recommendations',
+    icon: Sparkles,
+    category: 'essentials',
+    tier: 'free',
+    keywords: ['holistic', 'dashboard', 'integrated', 'intelligence', 'recommendations', 'analysis', 'comprehensive']
+  },
+  {
     id: 'properties',
     name: 'Properties',
     description: 'Edit selected elements and configure settings',

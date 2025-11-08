@@ -25,6 +25,7 @@ import { ProgressTrackingPanel } from './panels/progress-tracking-panel'
 import { KnowledgeBasePanel } from './panels/knowledge-base-panel'
 import { TemplateLibraryPanel } from './panels/template-library-panel'
 import { EnhancedSimulationPanel } from './panels/growth-simulation-enhanced-panel'
+import { HolisticDashboardPanel } from './panels/holistic-dashboard-panel'
 import { LockedPanel } from '@/components/subscription/locked-panel'
 import { PanelSelector } from './panel-selector'
 import {
@@ -111,7 +112,7 @@ export function PermacultureEditorIntegrated({
   const [leftPanelOpen, setLeftPanelOpen] = useState(true)
   const [rightPanelOpen, setRightPanelOpen] = useState(true)
   const [leftPanelTab, setLeftPanelTab] = useState<'plants' | 'elements'>('plants')
-  const [rightPanelTab, setRightPanelTab] = useState<string>('properties')
+  const [rightPanelTab, setRightPanelTab] = useState<string>('holistic') // Start with holistic dashboard
   const [recentPanels, setRecentPanels] = useState<string[]>([])
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
@@ -412,6 +413,10 @@ export function PermacultureEditorIntegrated({
                 onUpdateRecents={handlePanelChange}
               />
 
+              <TabsContent value="holistic" className="flex-1 m-0">
+                <HolisticDashboardPanel gardenBeds={gardenData} siteData={siteData} />
+              </TabsContent>
+
               <TabsContent value="properties" className="flex-1 m-0">
                 <PropertiesPanel editor={editor} />
               </TabsContent>
@@ -687,7 +692,7 @@ export function PermacultureEditorIntegrated({
       <div className="border-t bg-card/50 backdrop-blur px-4 py-2">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
-            <span>tldraw Canvas • 60 FPS • 31 Permaculture Analysis Panels</span>
+            <span>Holistic Permaculture System • 32 Integrated Panels • AI-Powered Recommendations</span>
           </div>
           <div className="flex items-center gap-2">
             <kbd className="px-2 py-0.5 bg-muted rounded font-mono">⌘K</kbd>
