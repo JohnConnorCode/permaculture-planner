@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { PermacultureEditorIntegrated } from '@/components/tldraw/permaculture-editor-integrated'
 import { GardenBed } from '@/lib/garden/garden-types'
 import { useDemoPersistence } from '@/hooks/use-demo-persistence'
+import { gardenService } from '@/lib/garden/garden-service'
 import { toast } from 'sonner'
 
 // Example starter garden layout
@@ -45,19 +47,61 @@ const STARTER_GARDEN: GardenBed[] = [
 ]
 
 export default function DemoPage() {
+  const searchParams = useSearchParams()
+  const planId = searchParams.get('planId')
   const [gardenData, setGardenData] = useState<GardenBed[]>(STARTER_GARDEN)
   const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const persistence = useDemoPersistence(STARTER_GARDEN)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Load persisted data on mount
+  // Load garden from planId (wizard) or localStorage (demo mode)
   useEffect(() => {
-    const { data } = persistence.load()
-    if (data && data.length > 0) {
-      setGardenData(data)
+    const loadGarden = async () => {
+      setIsLoading(true)
+      setLoadError(null)
+
+      try {
+        // Priority 1: Load from planId if provided (from wizard)
+        if (planId) {
+          const result = await gardenService.loadGarden(planId)
+          if (result.success && result.garden) {
+            setGardenData(result.garden.beds)
+            toast.success('Loaded your garden plan from wizard')
+          } else {
+            setLoadError(result.error || 'Failed to load garden plan')
+            toast.error('Could not load your garden plan', {
+              description: 'Showing starter garden instead'
+            })
+            // Fall back to localStorage
+            const { data } = persistence.load()
+            if (data && data.length > 0) {
+              setGardenData(data)
+            }
+          }
+        } else {
+          // Priority 2: Load from localStorage (demo mode)
+          const { data } = persistence.load()
+          if (data && data.length > 0) {
+            setGardenData(data)
+            toast.success('Loaded your saved demo garden')
+          } else {
+            toast.info('Starting with example garden', {
+              description: 'Try the wizard to create a custom plan!'
+            })
+          }
+        }
+      } catch (error) {
+        console.error('Error loading garden:', error)
+        setLoadError('Failed to load garden')
+        toast.error('Error loading garden')
+      } finally {
+        setIsLoading(false)
+      }
     }
-    setIsLoading(false)
-  }, [])
+
+    loadGarden()
+  }, [planId])
 
   const handleCanvasChange = (updatedData: GardenBed[]) => {
     setGardenData(updatedData)
@@ -111,7 +155,9 @@ export default function DemoPage() {
       <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading demo...</p>
+          <p className="text-gray-600">
+            {planId ? 'Loading your garden plan...' : 'Loading demo...'}
+          </p>
         </div>
       </div>
     )
@@ -120,11 +166,14 @@ export default function DemoPage() {
   return (
     <div className="w-full h-screen flex flex-col bg-background">
       {/* Error alert */}
-      {persistence.error && (
+      {(loadError || persistence.error) && (
         <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-sm text-red-800 flex justify-between items-center">
-          <span>⚠️ {persistence.error}</span>
+          <span>⚠️ {loadError || persistence.error}</span>
           <button
-            onClick={() => persistence.setError(null)}
+            onClick={() => {
+              setLoadError(null)
+              persistence.setError(null)
+            }}
             className="text-red-600 hover:text-red-800 font-bold"
           >
             ✕

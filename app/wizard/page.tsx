@@ -76,6 +76,7 @@ export default function WizardPage() {
   const [isAnimating, setIsAnimating] = useState(false)
   const [isCompleting, setIsCompleting] = useState(false)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [hasSeenLoginBanner, setHasSeenLoginBanner] = useState(false)
   const [data, setData] = useState<WizardData>({
     location: {},
     area: {
@@ -148,8 +149,10 @@ export default function WizardPage() {
   }
 
   const handleComplete = async () => {
+    // Check for authentication before completing
     if (!user) {
       setShowLoginPrompt(true)
+      feedback.warning('Please sign in to save your garden plan')
       return
     }
 
@@ -260,6 +263,74 @@ export default function WizardPage() {
           </div>
         </div>
       </div>
+
+      {/* Login Banner - Show if not logged in */}
+      {!authLoading && !user && !hasSeenLoginBanner && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <LogIn className="h-5 w-5 text-amber-600" />
+                  <h3 className="font-semibold text-amber-900">Sign in to save your garden plan</h3>
+                </div>
+                <p className="text-sm text-amber-800 mb-3">
+                  You can complete the wizard now, but you'll need to sign in at the end to save and view your personalized garden plan.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    onClick={() => router.push('/auth/login?redirect_to=/wizard')}
+                  >
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Sign In Now
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-amber-300 hover:bg-amber-100"
+                    onClick={() => router.push('/auth/signup?redirect_to=/wizard')}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Create Account
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-amber-700 hover:text-amber-900"
+                    onClick={() => setHasSeenLoginBanner(true)}
+                  >
+                    I'll sign in later
+                  </Button>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setHasSeenLoginBanner(true)}
+                className="text-amber-600 hover:text-amber-800"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Logged In Confirmation Banner */}
+      {!authLoading && user && (
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200">
+          <div className="max-w-4xl mx-auto px-4 py-3">
+            <div className="flex items-center gap-2 text-green-800">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <p className="text-sm font-medium">
+                Signed in as <span className="font-semibold">{user.email}</span> - Your garden plan will be saved automatically
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8">
