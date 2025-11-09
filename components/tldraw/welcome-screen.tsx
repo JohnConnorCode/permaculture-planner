@@ -49,8 +49,29 @@ const QUICK_TEMPLATES = [
     id: 'small-urban',
     name: 'Small Urban Garden',
     icon: '🏡',
-    description: 'Maximum productivity, minimal space',
+    description: 'Intensive vertical design',
     difficulty: 'Beginner',
+  },
+  {
+    id: 'food-forest',
+    name: 'Mini Food Forest',
+    icon: '🌳',
+    description: 'Seven-layer ecosystem',
+    difficulty: 'Intermediate',
+  },
+  {
+    id: 'pollinator-paradise',
+    name: 'Pollinator Paradise',
+    icon: '🦋',
+    description: 'Bee & butterfly friendly',
+    difficulty: 'Beginner',
+  },
+  {
+    id: 'hot-climate',
+    name: 'Hot Climate',
+    icon: '🌵',
+    description: 'Drought-tolerant design',
+    difficulty: 'Intermediate',
   },
 ]
 
@@ -103,20 +124,21 @@ export function WelcomeScreen({
                   <CardContent>
                     <div className="space-y-3">
                       <p className="text-sm text-muted-foreground">
-                        Choose from 8+ professional permaculture designs optimized for different
-                        spaces, climates, and goals.
+                        Choose from 6 professional permaculture designs optimized for different
+                        spaces, climates, and goals. All completely FREE!
                       </p>
                       <Badge variant="secondary" className="bg-green-100 text-green-800">
                         Recommended for beginners
                       </Badge>
-                      <div className="flex gap-2 pt-2">
+                      <div className="grid grid-cols-3 gap-2 pt-2">
                         {QUICK_TEMPLATES.map((t) => (
                           <div
                             key={t.id}
-                            className="text-2xl"
-                            title={t.name}
+                            className="text-center p-2 rounded-lg bg-background/50 hover:bg-background transition-colors"
+                            title={t.description}
                           >
-                            {t.icon}
+                            <div className="text-2xl mb-1">{t.icon}</div>
+                            <div className="text-xs font-medium truncate">{t.name}</div>
                           </div>
                         ))}
                       </div>
