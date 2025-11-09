@@ -276,19 +276,41 @@ interface ElementCardProps {
 
 function ElementCard({ subtype, info, isSelected, onClick }: ElementCardProps) {
   const style = ELEMENT_STYLES[subtype]
+  const [isDragging, setIsDragging] = React.useState(false)
+
+  const handleDragStart = (e: React.DragEvent) => {
+    setIsDragging(true)
+    // Set the element data for transfer
+    e.dataTransfer.setData('application/x-element', JSON.stringify({ subtype, category: info.category }))
+    e.dataTransfer.effectAllowed = 'copy'
+
+    // Create a custom drag image
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement
+    dragImage.style.opacity = '0.8'
+    document.body.appendChild(dragImage)
+    e.dataTransfer.setDragImage(dragImage, 0, 0)
+    setTimeout(() => document.body.removeChild(dragImage), 0)
+  }
+
+  const handleDragEnd = () => {
+    setIsDragging(false)
+  }
 
   return (
     <Card
-      className={`cursor-pointer transition-all hover:shadow-md ${
+      className={`cursor-grab active:cursor-grabbing transition-all hover:shadow-lg hover:scale-[1.02] ${
         isSelected ? 'ring-2 ring-primary' : ''
-      }`}
+      } ${isDragging ? 'opacity-50' : ''}`}
       onClick={onClick}
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
     >
       <CardContent className="p-3">
         <div className="flex items-start gap-3">
           {/* Element Icon */}
           <div
-            className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
+            className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-2xl transition-transform hover:scale-110"
             style={{
               backgroundColor: `${style.defaultFill}80`,
               border: `2px solid ${style.defaultStroke}`

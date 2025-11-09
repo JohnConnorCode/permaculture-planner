@@ -58,6 +58,7 @@ const PermacultureCanvasIntegratedInner = forwardRef<PermacultureCanvasHandle, P
     const [editor, setEditor] = useState<Editor | null>(null)
     const [isInitialized, setIsInitialized] = useState(false)
     const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null)
+    const [isDragOver, setIsDragOver] = useState(false)
 
     /**
      * Expose editor and tool activation methods
@@ -176,6 +177,106 @@ const PermacultureCanvasIntegratedInner = forwardRef<PermacultureCanvasHandle, P
     }, [editor, handleSave, saveTimeout])
 
     /**
+     * Handle drag and drop
+     */
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'copy'
+      setIsDragOver(true)
+    }, [])
+
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+      // Only set false if leaving the canvas entirely
+      if (e.currentTarget === e.target) {
+        setIsDragOver(false)
+      }
+    }, [])
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+      e.preventDefault()
+      setIsDragOver(false)
+      if (!editor) return
+
+      // Get plant data if dragging a plant
+      const plantData = e.dataTransfer.getData('application/x-plant')
+      if (plantData) {
+        try {
+          const plant = JSON.parse(plantData) as PlantInfo
+          // Activate plant tool with the dropped plant
+          const plantTool = editor.getStateDescendant('plant-tool') as PlantTool
+          if (plantTool) {
+            plantTool.setPlant(plant)
+            editor.setCurrentTool('plant-tool')
+
+            // Get drop position relative to canvas
+            const bounds = (e.currentTarget as HTMLElement).getBoundingClientRect()
+            const x = e.clientX - bounds.left
+            const y = e.clientY - bounds.top
+
+            // Convert to canvas coordinates and trigger placement
+            const point = editor.screenToPage({ x, y })
+            // Simulate a click at the drop point to place the plant
+            editor.dispatch({
+              type: 'pointer',
+              target: 'canvas',
+              name: 'pointer_down',
+              ...point,
+            })
+            setTimeout(() => {
+              editor.dispatch({
+                type: 'pointer',
+                target: 'canvas',
+                name: 'pointer_up',
+                ...point,
+              })
+            }, 10)
+          }
+        } catch (error) {
+          console.error('Failed to handle plant drop:', error)
+        }
+      }
+
+      // Get element data if dragging an element
+      const elementData = e.dataTransfer.getData('application/x-element')
+      if (elementData) {
+        try {
+          const { subtype, category } = JSON.parse(elementData) as { subtype: ElementSubtype; category: ElementCategory }
+          // Activate element tool with the dropped element
+          const elementTool = editor.getStateDescendant('element-tool') as ElementTool
+          if (elementTool) {
+            elementTool.setElement(subtype, category)
+            editor.setCurrentTool('element-tool')
+
+            // Get drop position relative to canvas
+            const bounds = (e.currentTarget as HTMLElement).getBoundingClientRect()
+            const x = e.clientX - bounds.left
+            const y = e.clientY - bounds.top
+
+            // Convert to canvas coordinates and trigger placement
+            const point = editor.screenToPage({ x, y })
+            // Simulate a click at the drop point to place the element
+            editor.dispatch({
+              type: 'pointer',
+              target: 'canvas',
+              name: 'pointer_down',
+              ...point,
+            })
+            setTimeout(() => {
+              editor.dispatch({
+                type: 'pointer',
+                target: 'canvas',
+                name: 'pointer_up',
+                ...point,
+              })
+            }, 10)
+          }
+        } catch (error) {
+          console.error('Failed to handle element drop:', error)
+        }
+      }
+    }, [editor])
+
+    /**
      * Handle editor mount
      */
     const handleMount = useCallback((mountedEditor: Editor) => {
@@ -208,7 +309,19 @@ const PermacultureCanvasIntegratedInner = forwardRef<PermacultureCanvasHandle, P
     }
 
     return (
-      <div className={`w-full h-full ${className}`}>
+      <div
+        className={`w-full h-full relative ${className}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {isDragOver && (
+          <div className="absolute inset-0 z-50 pointer-events-none border-4 border-dashed border-primary bg-primary/5 flex items-center justify-center">
+            <div className="bg-background/90 backdrop-blur-sm rounded-lg px-6 py-4 shadow-xl border-2 border-primary">
+              <p className="text-lg font-semibold text-primary">Drop here to place</p>
+            </div>
+          </div>
+        )}
         <Tldraw
           shapeUtils={permacultureShapes}
           tools={permacultureTools}

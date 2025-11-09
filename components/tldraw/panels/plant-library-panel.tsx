@@ -294,18 +294,41 @@ interface PlantCardProps {
 }
 
 function PlantCard({ plant, isSelected, onClick, onShowDetails, compact }: PlantCardProps) {
+  const [isDragging, setIsDragging] = React.useState(false)
+
+  const handleDragStart = (e: React.DragEvent) => {
+    setIsDragging(true)
+    // Set the plant data for transfer
+    e.dataTransfer.setData('application/x-plant', JSON.stringify(plant))
+    e.dataTransfer.effectAllowed = 'copy'
+
+    // Create a custom drag image
+    const dragImage = e.currentTarget.cloneNode(true) as HTMLElement
+    dragImage.style.opacity = '0.8'
+    document.body.appendChild(dragImage)
+    e.dataTransfer.setDragImage(dragImage, 0, 0)
+    setTimeout(() => document.body.removeChild(dragImage), 0)
+  }
+
+  const handleDragEnd = () => {
+    setIsDragging(false)
+  }
+
   return (
     <Card
-      className={`cursor-pointer transition-all hover:shadow-md ${
+      className={`cursor-grab active:cursor-grabbing transition-all hover:shadow-lg hover:scale-[1.02] ${
         isSelected ? 'ring-2 ring-primary' : ''
-      }`}
+      } ${isDragging ? 'opacity-50' : ''}`}
       onClick={onClick}
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
     >
       <CardContent className="p-3">
         <div className="flex items-start gap-3">
           {/* Plant Icon */}
           <div
-            className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+            className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-transform hover:scale-110"
             style={{ backgroundColor: `${plant.color}20` }}
           >
             {plant.icon}
