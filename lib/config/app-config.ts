@@ -13,7 +13,6 @@ import {
 export const NAV_ITEMS = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/features', label: 'Features', icon: Sparkles },
-  { href: '/tools', label: 'Tools', icon: Settings },
   { href: '/demo', label: 'Demo', icon: Layers },
   { href: '/wizard', label: 'Wizard', icon: Sparkles },
   { href: '/community', label: 'Community', icon: Users },
