@@ -29,6 +29,9 @@ import { HolisticDashboardPanel } from './panels/holistic-dashboard-panel'
 import { RelationshipMapperPanel } from './panels/relationship-mapper-panel'
 import { LockedPanel } from '@/components/subscription/locked-panel'
 import { PanelSelector } from './panel-selector'
+import { WelcomeScreen } from './welcome-screen'
+import { EmptyStateOverlay } from './empty-state-overlay'
+import { loadTemplate } from '@/lib/templates/template-loader'
 import {
   SoilAnalysisPanel,
   TopographyPanel,
@@ -116,6 +119,9 @@ export function PermacultureEditorIntegrated({
   const [rightPanelTab, setRightPanelTab] = useState<string>('holistic') // Start with holistic dashboard
   const [recentPanels, setRecentPanels] = useState<string[]>([])
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [showEmptyState, setShowEmptyState] = useState(false)
+  const [hasInteracted, setHasInteracted] = useState(false)
 
   // Load recent panels from localStorage
   useEffect(() => {
@@ -128,6 +134,27 @@ export function PermacultureEditorIntegrated({
       }
     }
   }, [])
+
+  // Show welcome screen for first-time users or empty canvas
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome')
+    const isEmpty = initialData.length === 0
+
+    if (!hasSeenWelcome && isEmpty) {
+      setShowWelcome(true)
+    } else if (isEmpty && !hasInteracted) {
+      setShowEmptyState(true)
+    }
+  }, [initialData, hasInteracted])
+
+  // Update empty state when garden data changes
+  useEffect(() => {
+    if (gardenData.length === 0 && !hasInteracted && !showWelcome) {
+      setShowEmptyState(true)
+    } else {
+      setShowEmptyState(false)
+    }
+  }, [gardenData, hasInteracted, showWelcome])
 
   // Update recent panels
   const handlePanelChange = useCallback((panelId: string) => {
@@ -158,8 +185,9 @@ export function PermacultureEditorIntegrated({
   const handlePlantSelect = useCallback((plant: PlantInfo) => {
     setSelectedPlant(plant)
     setSelectedElement(null)
+    setHasInteracted(true)
     toast.success(`${plant.icon} ${plant.name} selected`, {
-      description: 'Click on canvas to place',
+      description: 'Drag to canvas or click to place',
       duration: 2000,
     })
   }, [])
@@ -168,11 +196,65 @@ export function PermacultureEditorIntegrated({
   const handleElementSelect = useCallback((subtype: ElementSubtype, category: ElementCategory) => {
     setSelectedElement({ subtype, category })
     setSelectedPlant(null)
+    setHasInteracted(true)
     toast.success(`${subtype.replace('_', ' ')} selected`, {
-      description: 'Click on canvas to place',
+      description: 'Drag to canvas or click to place',
       duration: 2000,
     })
   }, [])
+
+  // Handle welcome screen actions
+  const handleWelcomeClose = useCallback(() => {
+    setShowWelcome(false)
+    localStorage.setItem('hasSeenWelcome', 'true')
+    setHasInteracted(true)
+  }, [])
+
+  const handleStartFromScratch = useCallback(() => {
+    setShowWelcome(false)
+    localStorage.setItem('hasSeenWelcome', 'true')
+    setShowEmptyState(true)
+  }, [])
+
+  const handleUseTemplate = useCallback(() => {
+    setShowWelcome(false)
+    localStorage.setItem('hasSeenWelcome', 'true')
+    setRightPanelTab('templates')
+    setRightPanelOpen(true)
+    setHasInteracted(true)
+    toast.info('Choose a template to get started', {
+      description: 'Browse our collection of proven designs'
+    })
+  }, [])
+
+  const handleShowTutorial = useCallback(() => {
+    toast.info('Tutorial coming soon!', {
+      description: 'For now, try selecting a plant from the left panel'
+    })
+  }, [])
+
+  const handleEmptyStateDismiss = useCallback(() => {
+    setShowEmptyState(false)
+    setHasInteracted(true)
+  }, [])
+
+  // Handle template loading
+  const handleLoadTemplate = useCallback((template: any) => {
+    const beds = loadTemplate(template.id)
+    if (beds) {
+      setGardenData(beds)
+      setHasUnsavedChanges(true)
+      if (onSave) {
+        onSave(beds)
+      }
+      setHasInteracted(true)
+      toast.success(`${template.name} template loaded!`, {
+        description: `${beds.length} beds added to your canvas`
+      })
+    } else {
+      toast.error('Failed to load template')
+    }
+  }, [onSave])
 
   // Handle manual save (button click or Cmd+S)
   const handleSave = useCallback(async () => {
@@ -320,7 +402,8 @@ export function PermacultureEditorIntegrated({
         <div
           className={cn(
             'border-r bg-card/30 backdrop-blur transition-all duration-300',
-            leftPanelOpen ? 'w-80' : 'w-0'
+            leftPanelOpen ? 'w-full sm:w-80 md:w-80 lg:w-80' : 'w-0',
+            'max-w-full sm:max-w-80'
           )}
         >
           {leftPanelOpen && (
@@ -385,6 +468,14 @@ export function PermacultureEditorIntegrated({
               </Badge>
             </div>
           )}
+
+          {/* Empty State Overlay */}
+          {showEmptyState && (
+            <EmptyStateOverlay
+              onUseTemplate={handleUseTemplate}
+              onDismiss={handleEmptyStateDismiss}
+            />
+          )}
         </div>
 
         {/* Toggle Right Panel Button */}
@@ -401,7 +492,8 @@ export function PermacultureEditorIntegrated({
         <div
           className={cn(
             'border-l bg-card/30 backdrop-blur transition-all duration-300',
-            rightPanelOpen ? 'w-80' : 'w-0'
+            rightPanelOpen ? 'w-full sm:w-80 md:w-96 lg:w-96' : 'w-0',
+            'max-w-full sm:max-w-96'
           )}
         >
           {rightPanelOpen && (
@@ -558,14 +650,10 @@ export function PermacultureEditorIntegrated({
               </TabsContent>
 
               <TabsContent value="templates" className="flex-1 m-0">
-                <LockedPanel
-                  panelId="templates"
-                  featureName="Template Library"
-                  featureDescription="Access 8+ proven permaculture designs and patterns to jumpstart your planning."
-                  requiredTier="pro"
-                >
-                  <TemplateLibraryPanel gardenBeds={gardenData} />
-                </LockedPanel>
+                <TemplateLibraryPanel
+                  gardenBeds={gardenData}
+                  onLoadTemplate={handleLoadTemplate}
+                />
               </TabsContent>
 
               <TabsContent value="simulation" className="flex-1 m-0">
@@ -711,6 +799,15 @@ export function PermacultureEditorIntegrated({
           </div>
         </div>
       </div>
+
+      {/* Welcome Screen */}
+      <WelcomeScreen
+        open={showWelcome}
+        onClose={handleWelcomeClose}
+        onStartFromScratch={handleStartFromScratch}
+        onUseTemplate={handleUseTemplate}
+        onShowTutorial={handleShowTutorial}
+      />
     </div>
   )
 }

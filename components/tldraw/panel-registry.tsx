@@ -350,7 +350,7 @@ export const PANEL_REGISTRY: PanelDefinition[] = [
     description: 'Proven permaculture designs and pattern library',
     icon: Layout,
     category: 'resources',
-    tier: 'pro',
+    tier: 'free',
     keywords: ['templates', 'patterns', 'designs', 'examples', 'library', 'presets', 'blueprints']
   }
 ]
