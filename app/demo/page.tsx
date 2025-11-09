@@ -1,13 +1,14 @@
 'use client'
 
-import { Suspense } from 'react'
-import { useState, useEffect, useRef } from 'react'
+import { Suspense, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { PermacultureEditorIntegrated } from '@/components/tldraw/permaculture-editor-integrated'
-import { GardenBed } from '@/lib/garden/garden-types'
-import { useDemoPersistence } from '@/hooks/use-demo-persistence'
-import { gardenService } from '@/lib/garden/garden-service'
+import { useGardenStore } from '@/lib/store/garden-store'
+import { LocalStoragePersistence } from '@/lib/persistence/local-storage-adapter'
+import { SupabasePersistence } from '@/lib/persistence/supabase-adapter'
+import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { GardenBed } from '@/lib/garden/garden-types'
 
 // Example starter garden layout
 const STARTER_GARDEN: GardenBed[] = [
@@ -50,107 +51,73 @@ const STARTER_GARDEN: GardenBed[] = [
 function DemoPageContent() {
   const searchParams = useSearchParams()
   const planId = searchParams.get('planId')
-  const [gardenData, setGardenData] = useState<GardenBed[]>(STARTER_GARDEN)
-  const [isLoading, setIsLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
-  const persistence = useDemoPersistence(STARTER_GARDEN)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Load garden from planId (wizard) or localStorage (demo mode)
+  // Access centralized store
+  const beds = useGardenStore((state) => state.beds)
+  const isLoading = useGardenStore((state) => state.isLoading)
+  const error = useGardenStore((state) => state.error)
+  const isDirty = useGardenStore((state) => state.isDirty)
+
+  // Actions
+  const setPersistence = useGardenStore((state) => state.setPersistence)
+  const setPlanId = useGardenStore((state) => state.setPlanId)
+  const load = useGardenStore((state) => state.load)
+  const updateBeds = useGardenStore((state) => state.updateBeds)
+  const clearError = useGardenStore((state) => state.clearError)
+  const reset = useGardenStore((state) => state.reset)
+
+  // Setup persistence adapter on mount
   useEffect(() => {
-    const loadGarden = async () => {
-      setIsLoading(true)
-      setLoadError(null)
+    // Cleanup on unmount
+    return () => {
+      reset()
+    }
+  }, [reset])
 
-      try {
-        // Priority 1: Load from planId if provided (from wizard)
-        if (planId) {
-          const result = await gardenService.loadGarden(planId)
-          if (result.success && result.garden) {
-            setGardenData(result.garden.beds)
-            toast.success('Loaded your garden plan from wizard')
-          } else {
-            setLoadError(result.error || 'Failed to load garden plan')
-            toast.error('Could not load your garden plan', {
-              description: 'Showing starter garden instead'
-            })
-            // Fall back to localStorage
-            const { data } = persistence.load()
-            if (data && data.length > 0) {
-              setGardenData(data)
-            }
-          }
+  useEffect(() => {
+    const initializePersistence = async () => {
+      // Priority 1: Load from planId (wizard flow)
+      if (planId) {
+        const supabase = createClient()
+        const adapter = new SupabasePersistence(supabase, planId)
+        setPersistence(adapter)
+        setPlanId(planId)
+
+        await load(planId)
+
+        if (beds.length > 0) {
+          toast.success('Loaded your garden plan from wizard')
         } else {
-          // Priority 2: Load from localStorage (demo mode)
-          const { data } = persistence.load()
-          if (data && data.length > 0) {
-            setGardenData(data)
-            toast.success('Loaded your saved demo garden')
-          } else {
-            toast.info('Starting with example garden', {
-              description: 'Try the wizard to create a custom plan!'
-            })
-          }
+          toast.error('Could not load your garden plan', {
+            description: 'Showing starter garden instead'
+          })
+          updateBeds(STARTER_GARDEN)
         }
-      } catch (error) {
-        console.error('Error loading garden:', error)
-        setLoadError('Failed to load garden')
-        toast.error('Error loading garden')
-      } finally {
-        setIsLoading(false)
+      } else {
+        // Priority 2: Demo mode with localStorage
+        const adapter = new LocalStoragePersistence()
+        setPersistence(adapter)
+
+        await load()
+
+        const loadedBeds = useGardenStore.getState().beds
+
+        if (loadedBeds.length > 0) {
+          toast.success('Loaded your saved demo garden')
+        } else {
+          // No saved data, use starter garden
+          updateBeds(STARTER_GARDEN)
+          toast.info('Starting with example garden', {
+            description: 'Try the wizard to create a custom plan!'
+          })
+        }
       }
     }
 
-    loadGarden()
-  }, [planId])
+    initializePersistence()
+  }, [planId, setPersistence, setPlanId, load, updateBeds])
 
-  const handleCanvasChange = (updatedData: GardenBed[]) => {
-    setGardenData(updatedData)
-    persistence.autoSave(updatedData)
-  }
-
-  const handleSave = () => {
-    const result = persistence.save(gardenData)
-    if (result.success) {
-      toast.success('Plan saved to your browser', {
-        description: 'Your design is automatically saved'
-      })
-    } else {
-      toast.error('Failed to save', { description: result.error })
-    }
-  }
-
-  const handleExport = () => {
-    persistence.exportJSON(gardenData)
-    toast.success('Plan exported', { description: 'JSON file downloaded' })
-  }
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    const result = await persistence.importJSON(file)
-    if (result.success && result.data) {
-      setGardenData(result.data)
-      persistence.save(result.data, persistence.planName)
-      toast.success('Plan imported', { description: `Loaded: ${persistence.planName}` })
-    } else {
-      toast.error('Failed to import', { description: 'Invalid file format' })
-    }
-  }
-
-  const handleClear = () => {
-    if (confirm('Clear all beds? This cannot be undone.')) {
-      setGardenData([])
-      persistence.clear()
-      toast.success('Design cleared')
-    }
-  }
-
+  // Loading state
   if (isLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50">
@@ -167,14 +134,11 @@ function DemoPageContent() {
   return (
     <div className="w-full h-screen flex flex-col bg-background">
       {/* Error alert */}
-      {(loadError || persistence.error) && (
+      {error && (
         <div className="bg-red-50 border-b border-red-200 px-4 py-2 text-sm text-red-800 flex justify-between items-center">
-          <span>⚠️ {loadError || persistence.error}</span>
+          <span>⚠️ {error}</span>
           <button
-            onClick={() => {
-              setLoadError(null)
-              persistence.setError(null)
-            }}
+            onClick={clearError}
             className="text-red-600 hover:text-red-800 font-bold"
           >
             ✕
@@ -182,24 +146,21 @@ function DemoPageContent() {
         </div>
       )}
 
-      {/* Main editor - handles its own header and UI */}
+      {/* Unsaved changes indicator */}
+      {isDirty && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-sm text-amber-800">
+          💾 Auto-saving changes...
+        </div>
+      )}
+
+      {/* Main editor - now directly reads from store */}
       <div className="flex-1 overflow-hidden">
         <PermacultureEditorIntegrated
-          initialData={gardenData}
-          onSave={handleCanvasChange}
+          initialData={beds}
+          onSave={updateBeds}
           showHeader={true}
         />
       </div>
-
-      {/* Hidden file input for future import if needed */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json"
-        onChange={handleImport}
-        className="hidden"
-        aria-label="Import JSON file"
-      />
     </div>
   )
 }

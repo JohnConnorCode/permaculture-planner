@@ -1,4 +1,4 @@
-import { GardenBed } from '@/components/garden-designer-canvas'
+import { GardenBed } from '@/lib/garden/garden-types'
 
 export interface GardenTemplate {
   id: string
