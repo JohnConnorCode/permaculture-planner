@@ -27,7 +27,15 @@ interface CompanionLine {
   distance: number
 }
 
-export function CompanionLinesOverlay({ visible = false }: { visible?: boolean }) {
+export function CompanionLinesOverlay({
+  visible = false,
+  opacity = 60,
+  maxDistance = 300,
+}: {
+  visible?: boolean
+  opacity?: number
+  maxDistance?: number
+}) {
   const editor = useEditor()
   const [lines, setLines] = useState<CompanionLine[]>([])
 
@@ -62,8 +70,8 @@ export function CompanionLinesOverlay({ visible = false }: { visible?: boolean }
           // Calculate distance
           const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
 
-          // Only show relationships within reasonable distance (300px / ~25 feet)
-          if (distance > 300) continue
+          // Only show relationships within configurable distance
+          if (distance > maxDistance) continue
 
           // Check compatibility
           const compatibility = checkCompatibility(plant1.props.plantId, plant2.props.plantId)
@@ -98,9 +106,11 @@ export function CompanionLinesOverlay({ visible = false }: { visible?: boolean }
     return () => {
       editor.off('change', handleChange)
     }
-  }, [editor, visible])
+  }, [editor, visible, maxDistance])
 
   if (!visible || lines.length === 0) return null
+
+  const normalizedOpacity = opacity / 100
 
   return (
     <svg
@@ -117,14 +127,14 @@ export function CompanionLinesOverlay({ visible = false }: { visible?: boolean }
       <defs>
         {/* Gradient for good relationships */}
         <linearGradient id="companion-gradient-good" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: 0.6 }} />
-          <stop offset="100%" style={{ stopColor: '#22c55e', stopOpacity: 0.6 }} />
+          <stop offset="0%" style={{ stopColor: '#22c55e', stopOpacity: normalizedOpacity }} />
+          <stop offset="100%" style={{ stopColor: '#22c55e', stopOpacity: normalizedOpacity }} />
         </linearGradient>
 
         {/* Gradient for bad relationships */}
         <linearGradient id="companion-gradient-bad" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: 0.6 }} />
-          <stop offset="100%" style={{ stopColor: '#ef4444', stopOpacity: 0.6 }} />
+          <stop offset="0%" style={{ stopColor: '#ef4444', stopOpacity: normalizedOpacity }} />
+          <stop offset="100%" style={{ stopColor: '#ef4444', stopOpacity: normalizedOpacity }} />
         </linearGradient>
 
         {/* Glow filter for lines */}
