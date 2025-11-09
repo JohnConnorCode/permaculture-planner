@@ -608,6 +608,7 @@ export function PermacultureEditorIntegrated({
                 <PlantLibraryPanel
                   onPlantSelect={handlePlantSelect}
                   selectedPlantId={selectedPlant?.id}
+                  gardenData={gardenData}
                 />
               </TabsContent>
 

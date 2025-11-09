@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import { PLANT_LIBRARY, PlantInfo, getPlantsByCategory } from '@/lib/data/plant-library'
+import { GardenBed } from '@/lib/garden/garden-types'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -36,6 +37,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { SmartSuggestions } from './smart-suggestions'
 
 interface PlantLibraryPanelProps {
   /** Callback when a plant is selected to be placed */
@@ -44,6 +46,8 @@ interface PlantLibraryPanelProps {
   selectedPlantId?: string
   /** Show compact view */
   compact?: boolean
+  /** Garden data for smart suggestions */
+  gardenData?: GardenBed[]
 }
 
 /**
@@ -61,6 +65,7 @@ export function PlantLibraryPanel({
   onPlantSelect,
   selectedPlantId,
   compact = false,
+  gardenData = [],
 }: PlantLibraryPanelProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [sunFilter, setSunFilter] = useState<'all' | 'full' | 'partial' | 'shade'>('all')
@@ -203,6 +208,17 @@ export function PlantLibraryPanel({
           </Button>
         )}
       </div>
+
+      {/* Smart Suggestions */}
+      {gardenData.length > 0 && !hasActiveFilters && (
+        <div className="px-4 pt-3">
+          <SmartSuggestions
+            gardenData={gardenData}
+            onPlantSelect={onPlantSelect}
+            selectedPlantId={selectedPlantId}
+          />
+        </div>
+      )}
 
       {/* Category Tabs */}
       <Tabs value={categoryTab} onValueChange={(v: any) => setCategoryTab(v)} className="flex-1 flex flex-col">
