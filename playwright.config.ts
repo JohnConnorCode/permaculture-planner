@@ -14,8 +14,6 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     // Enable storage for localStorage/sessionStorage
     storageState: undefined,
-    // Allow persistent storage
-    launchArgs: ['--disable-blink-features=AutomationControlled'],
   },
 
   projects: [
