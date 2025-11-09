@@ -77,6 +77,8 @@ import {
   Lightbulb,
   Layout,
   Activity,
+  Link2,
+  Waves,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -134,6 +136,8 @@ export function PermacultureEditorIntegrated({
   const [showHelp, setShowHelp] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [timeSinceLastSave, setTimeSinceLastSave] = useState<string>('')
+  const [showCompanionLines, setShowCompanionLines] = useState(false)
+  const [showImpactZones, setShowImpactZones] = useState(false)
 
   // Load recent panels from localStorage
   useEffect(() => {
@@ -476,6 +480,55 @@ export function PermacultureEditorIntegrated({
 
                 <Separator orientation="vertical" className="h-6" />
 
+                {/* Overlay toggles */}
+                <div className="flex items-center gap-1 mr-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={showCompanionLines ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => {
+                          setShowCompanionLines(!showCompanionLines)
+                          toast.info(showCompanionLines ? 'Companion lines hidden' : 'Companion lines visible', {
+                            description: showCompanionLines ? '' : 'Green = good companions, Red = antagonistic'
+                          })
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Link2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Toggle Companion Lines</p>
+                      <p className="text-xs text-muted-foreground">Show plant relationships</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={showImpactZones ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => {
+                          setShowImpactZones(!showImpactZones)
+                          toast.info(showImpactZones ? 'Impact zones hidden' : 'Impact zones visible', {
+                            description: showImpactZones ? '' : 'Water, pollination, and structure zones'
+                          })
+                        }}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Waves className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Toggle Impact Zones</p>
+                      <p className="text-xs text-muted-foreground">Show element service areas</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+
+                <Separator orientation="vertical" className="h-6" />
+
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -595,6 +648,8 @@ export function PermacultureEditorIntegrated({
             selectedPlant={selectedPlant}
             selectedElement={selectedElement}
             className="w-full h-full"
+            showCompanionLines={showCompanionLines}
+            showImpactZones={showImpactZones}
           />
 
           {/* Selection indicator */}

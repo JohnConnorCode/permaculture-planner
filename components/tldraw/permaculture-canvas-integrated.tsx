@@ -1,6 +1,6 @@
 'use client'
 
-import { Tldraw, Editor, TLShape } from 'tldraw'
+import { Tldraw, Editor, TLShape, TLComponents } from 'tldraw'
 import 'tldraw/tldraw.css'
 import { useEffect, useState, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { permacultureShapes } from './shapes'
@@ -13,6 +13,7 @@ import { CanvasErrorBoundary } from './canvas-error-boundary'
 import { PlantInfo } from '@/lib/data/plant-library'
 import { ElementSubtype, ElementCategory } from '@/lib/canvas-elements'
 import { Loader2 } from 'lucide-react'
+import { OverlaysContainer } from './overlays'
 
 interface PermacultureCanvasIntegratedProps {
   initialData?: GardenBed[]
@@ -24,6 +25,8 @@ interface PermacultureCanvasIntegratedProps {
   loading?: boolean
   disableAutoSave?: boolean
   saveDebounce?: number
+  showCompanionLines?: boolean
+  showImpactZones?: boolean
 }
 
 export interface PermacultureCanvasHandle {
@@ -54,6 +57,8 @@ const PermacultureCanvasIntegratedInner = forwardRef<PermacultureCanvasHandle, P
     loading = false,
     disableAutoSave = false,
     saveDebounce = 1000,
+    showCompanionLines = false,
+    showImpactZones = false,
   }, ref) => {
     const [editor, setEditor] = useState<Editor | null>(null)
     const [isInitialized, setIsInitialized] = useState(false)
@@ -297,6 +302,16 @@ const PermacultureCanvasIntegratedInner = forwardRef<PermacultureCanvasHandle, P
       }
     }, [onEditorReady])
 
+    // Custom components for tldraw overlays
+    const components: TLComponents = {
+      InFrontOfTheCanvas: () => (
+        <OverlaysContainer
+          showCompanionLines={showCompanionLines}
+          showImpactZones={showImpactZones}
+        />
+      ),
+    }
+
     if (loading) {
       return (
         <div className={`w-full h-full flex items-center justify-center bg-muted/10 ${className}`}>
@@ -329,6 +344,7 @@ const PermacultureCanvasIntegratedInner = forwardRef<PermacultureCanvasHandle, P
           hideUi={false}
           className="permaculture-canvas"
           autoFocus
+          components={components}
         />
       </div>
     )
