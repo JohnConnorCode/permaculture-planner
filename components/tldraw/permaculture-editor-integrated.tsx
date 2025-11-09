@@ -80,6 +80,15 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Undo2, Redo2, HelpCircle, X } from 'lucide-react'
 
 interface PermacultureEditorIntegratedProps {
   initialData?: GardenBed[]
@@ -122,6 +131,9 @@ export function PermacultureEditorIntegrated({
   const [showWelcome, setShowWelcome] = useState(false)
   const [showEmptyState, setShowEmptyState] = useState(false)
   const [hasInteracted, setHasInteracted] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [timeSinceLastSave, setTimeSinceLastSave] = useState<string>('')
 
   // Load recent panels from localStorage
   useEffect(() => {
@@ -156,6 +168,26 @@ export function PermacultureEditorIntegrated({
     }
   }, [gardenData, hasInteracted, showWelcome])
 
+  // Update time since last save
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (lastSaved) {
+        const seconds = Math.floor((Date.now() - lastSaved.getTime()) / 1000)
+        if (seconds < 60) {
+          setTimeSinceLastSave('just now')
+        } else if (seconds < 3600) {
+          const minutes = Math.floor(seconds / 60)
+          setTimeSinceLastSave(`${minutes}m ago`)
+        } else {
+          const hours = Math.floor(seconds / 3600)
+          setTimeSinceLastSave(`${hours}h ago`)
+        }
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [lastSaved])
+
   // Update recent panels
   const handlePanelChange = useCallback((panelId: string) => {
     setRightPanelTab(panelId)
@@ -173,6 +205,7 @@ export function PermacultureEditorIntegrated({
     setHasUnsavedChanges(true)
     if (onSave) {
       onSave(updatedData)
+      setLastSaved(new Date())
     }
   }, [onSave])
 
@@ -246,6 +279,7 @@ export function PermacultureEditorIntegrated({
       setHasUnsavedChanges(true)
       if (onSave) {
         onSave(beds)
+        setLastSaved(new Date())
       }
       setHasInteracted(true)
       toast.success(`${template.name} template loaded!`, {
@@ -261,13 +295,37 @@ export function PermacultureEditorIntegrated({
     if (onManualSave) {
       await onManualSave()
       setHasUnsavedChanges(false)
+      setLastSaved(new Date())
     } else if (onSave) {
       // Fallback to auto-save if no manual save handler
       onSave(gardenData)
       setHasUnsavedChanges(false)
+      setLastSaved(new Date())
       toast.success('Plan saved successfully')
     }
   }, [gardenData, onSave, onManualSave])
+
+  // Handle undo
+  const handleUndo = useCallback(() => {
+    if (!editor) return
+    editor.undo()
+    toast.info('Undone')
+  }, [editor])
+
+  // Handle redo
+  const handleRedo = useCallback(() => {
+    if (!editor) return
+    editor.redo()
+    toast.info('Redone')
+  }, [editor])
+
+  // Handle delete selected
+  const handleDeleteSelected = useCallback(() => {
+    setSelectedPlant(null)
+    setSelectedElement(null)
+    canvasRef.current?.returnToSelect()
+    toast.info('Selection cancelled')
+  }, [])
 
   // Handle export
   const handleExport = useCallback((format: 'png' | 'pdf' | 'svg' | 'json') => {
@@ -353,48 +411,122 @@ export function PermacultureEditorIntegrated({
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
-      {showHeader && (
-        <header className="border-b bg-card/50 backdrop-blur">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-semibold">Permaculture Planner</h1>
-                  {hasUnsavedChanges && (
-                    <Badge variant="outline" className="text-xs">
-                      Unsaved
-                    </Badge>
-                  )}
+    <TooltipProvider>
+      <div className="flex flex-col h-screen bg-background">
+        {/* Header */}
+        {showHeader && (
+          <header className="border-b bg-card/50 backdrop-blur">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-lg font-semibold">Permaculture Planner</h1>
+                    {hasUnsavedChanges && (
+                      <Badge variant="outline" className="text-xs">
+                        Unsaved
+                      </Badge>
+                    )}
+                    {lastSaved && !hasUnsavedChanges && (
+                      <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                        ✓ Saved {timeSinceLastSave}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {stats.beds} beds • {stats.plants} plants • {stats.elements} elements
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {stats.beds} beds • {stats.plants} plants • {stats.elements} elements
-                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Undo/Redo */}
+                <div className="flex items-center gap-1 mr-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleUndo}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Undo2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Undo (Cmd+Z)</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRedo}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Redo2 className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Redo (Cmd+Shift+Z)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+
+                <Separator orientation="vertical" className="h-6" />
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleExport('json')}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Export design as JSON</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={!hasUnsavedChanges}
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      Save
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Save design (Cmd+S)</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowHelp(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <HelpCircle className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Help & Keyboard Shortcuts</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
             </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleExport('json')}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button
-                size="sm"
-                onClick={handleSave}
-                disabled={!hasUnsavedChanges}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save
-              </Button>
-            </div>
-          </div>
-        </header>
-      )}
+          </header>
+        )}
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
@@ -437,14 +569,21 @@ export function PermacultureEditorIntegrated({
         </div>
 
         {/* Toggle Left Panel Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-20 w-6 rounded-l-none"
-          onClick={() => setLeftPanelOpen(prev => !prev)}
-        >
-          {leftPanelOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-20 w-6 rounded-l-none"
+              onClick={() => setLeftPanelOpen(prev => !prev)}
+            >
+              {leftPanelOpen ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>{leftPanelOpen ? 'Hide' : 'Show'} Plant & Element Library</p>
+          </TooltipContent>
+        </Tooltip>
 
         {/* Canvas */}
         <div className="flex-1 relative">
@@ -461,10 +600,27 @@ export function PermacultureEditorIntegrated({
           {/* Selection indicator */}
           {(selectedPlant || selectedElement) && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
-              <Badge className="px-4 py-2 text-sm shadow-lg">
-                {selectedPlant && `${selectedPlant.icon} ${selectedPlant.name}`}
-                {selectedElement && `${selectedElement.subtype.replace('_', ' ')}`}
-                <span className="ml-2 text-xs opacity-75">• Click to place • ESC to cancel</span>
+              <Badge className="px-4 py-2 text-sm shadow-lg flex items-center gap-2">
+                <span>
+                  {selectedPlant && `${selectedPlant.icon} ${selectedPlant.name}`}
+                  {selectedElement && `${selectedElement.subtype.replace('_', ' ')}`}
+                </span>
+                <span className="text-xs opacity-75">• Click to place</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleDeleteSelected}
+                      className="h-5 w-5 p-0 ml-2 hover:bg-destructive/20"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cancel (ESC)</p>
+                  </TooltipContent>
+                </Tooltip>
               </Badge>
             </div>
           )}
@@ -479,14 +635,21 @@ export function PermacultureEditorIntegrated({
         </div>
 
         {/* Toggle Right Panel Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-20 w-6 rounded-r-none"
-          onClick={() => setRightPanelOpen(prev => !prev)}
-        >
-          {rightPanelOpen ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-20 w-6 rounded-r-none"
+              onClick={() => setRightPanelOpen(prev => !prev)}
+            >
+              {rightPanelOpen ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            <p>{rightPanelOpen ? 'Hide' : 'Show'} Analysis & Properties</p>
+          </TooltipContent>
+        </Tooltip>
 
         {/* Right Panel - Properties/Analysis */}
         <div
@@ -808,6 +971,110 @@ export function PermacultureEditorIntegrated({
         onUseTemplate={handleUseTemplate}
         onShowTutorial={handleShowTutorial}
       />
-    </div>
+
+      {/* Help Modal */}
+      <Dialog open={showHelp} onOpenChange={setShowHelp}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <HelpCircle className="h-5 w-5 text-primary" />
+              Quick Guide & Keyboard Shortcuts
+            </DialogTitle>
+            <DialogDescription>
+              Learn how to use the Permaculture Planner efficiently
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Getting Started */}
+            <div>
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-amber-600" />
+                Getting Started
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold">1</span>
+                  </div>
+                  <div>
+                    <p className="font-medium">Drag or click items from the left panel</p>
+                    <p className="text-muted-foreground">Browse plants and elements, then drag them onto the canvas or click to select</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold">2</span>
+                  </div>
+                  <div>
+                    <p className="font-medium">Place items on the canvas</p>
+                    <p className="text-muted-foreground">Drop or click where you want the item to appear</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold">3</span>
+                  </div>
+                  <div>
+                    <p className="font-medium">Use analysis panels on the right</p>
+                    <p className="text-muted-foreground">Get AI-powered insights, companion planting advice, and more</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Keyboard Shortcuts */}
+            <div>
+              <h3 className="font-semibold mb-3">Keyboard Shortcuts</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                  <span className="text-sm">Undo</span>
+                  <kbd className="px-2 py-1 bg-background rounded font-mono text-xs">Cmd+Z</kbd>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                  <span className="text-sm">Redo</span>
+                  <kbd className="px-2 py-1 bg-background rounded font-mono text-xs">Cmd+Shift+Z</kbd>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                  <span className="text-sm">Save</span>
+                  <kbd className="px-2 py-1 bg-background rounded font-mono text-xs">Cmd+S</kbd>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                  <span className="text-sm">Cancel selection</span>
+                  <kbd className="px-2 py-1 bg-background rounded font-mono text-xs">ESC</kbd>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                  <span className="text-sm">Delete selected</span>
+                  <kbd className="px-2 py-1 bg-background rounded font-mono text-xs">Del</kbd>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-muted/50">
+                  <span className="text-sm">Duplicate</span>
+                  <kbd className="px-2 py-1 bg-background rounded font-mono text-xs">Cmd+D</kbd>
+                </div>
+              </div>
+            </div>
+
+            {/* Tips */}
+            <div>
+              <h3 className="font-semibold mb-3">💡 Pro Tips</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <p>• <span className="font-medium text-foreground">Use templates</span> - Start with proven designs from the Templates panel</p>
+                <p>• <span className="font-medium text-foreground">Search plants</span> - Use the search bar to quickly find what you need</p>
+                <p>• <span className="font-medium text-foreground">Hover for tooltips</span> - All buttons show helpful hints on hover</p>
+                <p>• <span className="font-medium text-foreground">Auto-save is on</span> - Your work saves automatically as you design</p>
+                <p>• <span className="font-medium text-foreground">Zoom and pan</span> - Use mouse wheel to zoom, drag canvas to pan</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button onClick={() => setShowHelp(false)}>
+              Got it!
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      </div>
+    </TooltipProvider>
   )
 }
