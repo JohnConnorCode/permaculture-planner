@@ -1,6 +1,6 @@
 'use client'
 
-import { Tldraw, Editor, TLShape, TLComponents } from 'tldraw'
+import { Tldraw, Editor, TLShape } from 'tldraw'
 import 'tldraw/tldraw.css'
 import { useEffect, useState, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { permacultureShapes } from './shapes'
@@ -13,7 +13,7 @@ import { CanvasErrorBoundary } from './canvas-error-boundary'
 import { PlantInfo } from '@/lib/data/plant-library'
 import { ElementSubtype, ElementCategory } from '@/lib/canvas-elements'
 import { Loader2 } from 'lucide-react'
-import { OverlaysContainer } from './overlays'
+// import { OverlaysContainer } from './overlays' // DISABLED - Breaking canvas interaction
 
 interface PermacultureCanvasIntegratedProps {
   initialData?: GardenBed[]
@@ -302,15 +302,8 @@ const PermacultureCanvasIntegratedInner = forwardRef<PermacultureCanvasHandle, P
       }
     }, [onEditorReady])
 
-    // Custom components for tldraw overlays
-    const components: TLComponents = {
-      InFrontOfTheCanvas: () => (
-        <OverlaysContainer
-          showCompanionLines={showCompanionLines}
-          showImpactZones={showImpactZones}
-        />
-      ),
-    }
+    // NOTE: Overlays temporarily disabled due to breaking canvas interaction
+    // TODO: Re-implement overlays with proper pointer-events: none and error handling
 
     if (loading) {
       return (
@@ -344,7 +337,6 @@ const PermacultureCanvasIntegratedInner = forwardRef<PermacultureCanvasHandle, P
           hideUi={false}
           className="permaculture-canvas"
           autoFocus
-          components={components}
         />
       </div>
     )
